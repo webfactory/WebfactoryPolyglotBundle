@@ -65,7 +65,7 @@ class TranslationMetadata {
     protected function findTranslatedProperties(Reader $reader, ClassMetadata $classMetadata) {
         if ($this->translationClass) {
             foreach ($classMetadata->getReflectionClass()->getProperties() as $property) {
-                if ($annotation = $reader->getPropertyAnnotation($property, 'Webfactory\Bundle\PolyglotBundle\Doctrine\Annotation\Translatable')) {
+                if ($annotation = $reader->getPropertyAnnotation($property, 'Webfactory\Bundle\PolyglotBundle\Annotation\Translatable')) {
                     $fieldname = $property->getName();
                     $property->setAccessible(true);
 
@@ -82,7 +82,7 @@ class TranslationMetadata {
 
     protected function findTranslationsCollection(Reader $reader, ClassMetadata $classMetadata) {
         foreach ($classMetadata->getReflectionClass()->getProperties() as $property) {
-            if ($annotation = $reader->getPropertyAnnotation($property, 'Webfactory\Bundle\PolyglotBundle\Doctrine\Annotation\TranslationCollection')) {
+            if ($annotation = $reader->getPropertyAnnotation($property, 'Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection')) {
                 $property->setAccessible(true);
                 $this->translationsCollectionProperty = $property;
                 $am = $classMetadata->getAssociationMapping($property->getName());
@@ -97,7 +97,7 @@ class TranslationMetadata {
     }
 
     protected function findPrimaryLocale(Reader $reader, ClassMetadata $classMetadata) {
-        if ($annotation = $reader->getClassAnnotation($classMetadata->getReflectionClass(), 'Webfactory\Bundle\PolyglotBundle\Doctrine\Annotation\Locale')) {
+        if ($annotation = $reader->getClassAnnotation($classMetadata->getReflectionClass(), 'Webfactory\Bundle\PolyglotBundle\Annotation\Locale')) {
             $this->primaryLocale = $annotation->getPrimary();
         }
     }
@@ -106,7 +106,7 @@ class TranslationMetadata {
         $this->translationClass = new \ReflectionClass($class);
 
         foreach ($this->translationClass->getProperties() as $property) {
-            if ($annotation = $reader->getPropertyAnnotation($property, 'Webfactory\Bundle\PolyglotBundle\Doctrine\Annotation\Locale')) {
+            if ($annotation = $reader->getPropertyAnnotation($property, 'Webfactory\Bundle\PolyglotBundle\Annotation\Locale')) {
                 $property->setAccessible(true);
                 $this->translationLocaleProperty = $property;
             }
