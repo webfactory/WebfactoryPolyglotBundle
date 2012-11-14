@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+
+        <service
+                id="webfactory.polyglot.doctrine_listener"
+                class="Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableListener">
+            <argument type="service" id="annotation_reader"/>
+            <call method="setDefaultLocale">
+                <argument>%webfactory.polyglot.default_locale%</argument>
+            </call>
+            <tag name="doctrine.event_subscriber"/>
+        </service>
+
+        <service id="webfactory.polyglot.symfony_locale_listener"
+                 class="Webfactory\Bundle\PolyglotBundle\EventListener\LocaleListener">
+            <argument type="service" id="webfactory.polyglot.doctrine_listener"/>
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+    </services>
+</container>

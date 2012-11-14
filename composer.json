@@ -1,0 +1,10 @@
+{
+    "name": "webfactory/polyglot-bundle",
+    "autoload": {
+        "psr-0": { "Webfactory\\Bundle\\PolyglotBundle": "src" }
+    },
+
+    "require": {
+        "doctrine/orm": ">= 2.2.0"
+    }
+}
