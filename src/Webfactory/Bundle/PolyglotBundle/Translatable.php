@@ -1,6 +1,6 @@
 <?php
 
-namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
+namespace Webfactory\Bundle\PolyglotBundle;
 
 /**
  * Eine TranslationProxy-Implementierung für eine Entität, die
@@ -15,8 +15,18 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
  *
  * Solange eine Entität aber so frisch ist, reicht es auch aus, "ihre" Übersetzungen
  * nur im Proxy mitzuführen.
+ *
+ * Die Klasse heisst "Translatable", damit sie in Klienten "nett" initialisiert werden
+ * kann:
+ *  use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+ *  use Webfactory\Bundle\PolyglotBundle\Translatable;
+ *  class MyClass { ...
+ *     // @Polyglot\Translatable
+ *     protected $aField;
+ *     public function __construct() {...
+ *       $aField = new Translatable();
  */
-class DetachedTranslationProxy implements TranslationProxy {
+class Translatable implements TranslatableInterface {
 
     protected $defaultLocale;
     protected $translations = array();
@@ -52,7 +62,7 @@ class DetachedTranslationProxy implements TranslationProxy {
         return $this->translate();
     }
 
-    public function copy(TranslationProxy $p) {
+    public function copy(TranslatableInterface $p) {
         foreach ($this->translations as $locale => $value) {
             $p->setTranslation($value, ($locale == '' ? null : $locale));
         }

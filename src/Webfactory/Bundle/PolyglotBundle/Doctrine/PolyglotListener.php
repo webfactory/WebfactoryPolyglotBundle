@@ -10,9 +10,9 @@ use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\EntityManager;
 
-class TranslatableListener implements EventSubscriber {
+class PolyglotListener implements EventSubscriber {
 
-    const CACHE_SALT = '$WebfactoryTranslatable';
+    const CACHE_SALT = '$WebfactoryPolyglot';
 
     protected $reader;
     protected $translatedClasses = array();

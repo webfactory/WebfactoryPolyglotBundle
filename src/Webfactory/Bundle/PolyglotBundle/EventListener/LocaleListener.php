@@ -2,7 +2,7 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\EventListener;
 
-use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableListener;
+use Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -18,7 +18,7 @@ class LocaleListener implements EventSubscriberInterface
 {
     private $translatableListener;
 
-    public function __construct(TranslatableListener $translatableListener)
+    public function __construct(PolyglotListener $translatableListener)
     {
         $this->translatableListener = $translatableListener;
     }

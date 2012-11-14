@@ -5,12 +5,13 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use \Doctrine\Common\Collections\Criteria;
 use \ReflectionProperty;
 use \ReflectionClass;
+use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
  * Eine TranslationProxy-Implementierung für eine Entität, die
  * bereits unter Verwaltung des EntityManagers steht.
  */
-class ManagedTranslationProxy implements TranslationProxy {
+class ManagedTranslationProxy implements TranslatableInterface {
 
     /**
      * @var array Cache für die Übersetzungen, indiziert nach Entity-OID und Locale.

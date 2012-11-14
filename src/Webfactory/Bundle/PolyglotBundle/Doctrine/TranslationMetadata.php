@@ -134,7 +134,7 @@ class TranslationMetadata {
         foreach ($this->translatedProperties as $fieldname => $property) {
             $proxy = $property->getValue($entity);
 
-            if ($proxy instanceof DetachedTranslationProxy) {
+            if ($proxy instanceof \Webfactory\Bundle\PolyglotBundle\Translatable) {
                 $newProxy = $this->createProxy($entity, $fieldname, $defaultLocale);
                 $proxy->copy($newProxy);
                 $property->setValue($entity, $newProxy);

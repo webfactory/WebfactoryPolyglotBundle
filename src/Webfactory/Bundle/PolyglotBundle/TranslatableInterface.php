@@ -1,8 +1,8 @@
 <?php
 
-namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
+namespace Webfactory\Bundle\PolyglotBundle;
 
-interface  TranslationProxy {
+interface TranslatableInterface {
 
     public function translate($locale = null);
     public function setTranslation($value, $locale = null);
