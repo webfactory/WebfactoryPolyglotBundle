@@ -32,7 +32,7 @@ class PolyglotListener implements EventSubscriber {
     }
 
     public function getSubscribedEvents() {
-        return array(Events::postLoad, Events::preFlush, Events::prePersist);
+        return array(Events::postLoad, Events::preFlush, Events::prePersist, Events::postFlush);
     }
 
     public function postLoad(LifecycleEventArgs $event) {
@@ -42,8 +42,15 @@ class PolyglotListener implements EventSubscriber {
     }
 
     public function prePersist(LifecycleEventArgs $event) {
+        $entity = $event->getEntity();
+        $em = $event->getEntityManager();
+
         if ($tm = $this->getTranslationMetadataForLifecycleEvent($event)) {
-            $tm->replaceDetachedProxies($event->getEntity(), $this->defaultLocale);
+            $tm->replaceDetachedProxies($entity, $this->defaultLocale);
+            /* Übersetzungen explizit persisten, -> kein "cascade" in der Klienten-Entitäts-Klasse notwendig */
+            foreach ($tm->getTranslations($entity) as $translation) {
+                $em->persist($translation);
+            }
         }
     }
 

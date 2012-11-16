@@ -142,6 +142,10 @@ class TranslationMetadata {
         }
     }
 
+    public function getTranslations($entity) {
+        return $this->translationsCollectionProperty->getValue($entity);
+    }
+
     protected function createProxy($entity, $fieldname, $defaultLocale) {
         return new ManagedTranslationProxy(
             $entity,
