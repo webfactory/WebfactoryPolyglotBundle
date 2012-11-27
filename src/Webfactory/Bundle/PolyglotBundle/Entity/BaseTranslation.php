@@ -24,7 +24,7 @@ class BaseTranslation {
     protected $locale;
 
     /**
-     *  @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable="false")
+     *  @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable=false)
      */
     protected $entity;
 
