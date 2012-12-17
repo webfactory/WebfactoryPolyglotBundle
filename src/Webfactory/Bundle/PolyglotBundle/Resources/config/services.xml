@@ -7,6 +7,7 @@
     <parameters>
         <parameter key="webfactory.polyglot.doctrine_listener.class">Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener</parameter>
         <parameter key="webfactory.polyglot.symfony_locale_listener.class">Webfactory\Bundle\PolyglotBundle\EventListener\LocaleListener</parameter>
+        <parameter key="webfactory.polyglot.default_locale_provider.class">Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider</parameter>
     </parameters>
     <services>
 
@@ -15,16 +16,22 @@
                 id="webfactory.polyglot.doctrine_listener"
                 class="%webfactory.polyglot.doctrine_listener.class%">
             <argument type="service" id="annotation_reader"/>
-            <call method="setDefaultLocale">
-                <argument>%webfactory.polyglot.default_locale%</argument>
-            </call>
+            <argument type="service" id="webfactory.polyglot.default_locale_provider"/>
+            
             <tag name="doctrine.event_subscriber"/>
         </service>
 
         <service id="webfactory.polyglot.symfony_locale_listener"
                  class="%webfactory.polyglot.symfony_locale_listener.class%">
-            <argument type="service" id="webfactory.polyglot.doctrine_listener"/>
+            <argument type="service" id="webfactory.polyglot.default_locale_provider" />
             <tag name="kernel.event_subscriber" />
+        </service>
+
+        <service id="webfactory.polyglot.default_locale_provider"
+                 class="%webfactory.polyglot.default_locale_provider.class%">
+            <call method="setDefaultLocale">
+                <argument>%webfactory.polyglot.default_locale%</argument>
+            </call>
         </service>
 
     </services>

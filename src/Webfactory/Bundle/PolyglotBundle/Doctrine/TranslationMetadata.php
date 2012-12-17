@@ -5,6 +5,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
+use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 class TranslationMetadata {
 
@@ -122,20 +123,20 @@ class TranslationMetadata {
         }
     }
 
-    public function injectProxies($entity, $defaultLocale) {
+    public function injectProxies($entity, DefaultLocaleProvider $defaultLocaleProvider) {
         foreach ($this->translatedProperties as $fieldname => $property) {
-            $proxy = $this->createProxy($entity, $fieldname, $defaultLocale);
+            $proxy = $this->createProxy($entity, $fieldname, $defaultLocaleProvider);
             $proxy->setPrimaryValue($property->getValue($entity));
             $property->setValue($entity, $proxy);
         }
     }
 
-    public function replaceDetachedProxies($entity, $defaultLocale) {
+    public function replaceDetachedProxies($entity, DefaultLocaleProvider $defaultLocaleProvider) {
         foreach ($this->translatedProperties as $fieldname => $property) {
             $proxy = $property->getValue($entity);
 
             if ($proxy instanceof \Webfactory\Bundle\PolyglotBundle\Translatable) {
-                $newProxy = $this->createProxy($entity, $fieldname, $defaultLocale);
+                $newProxy = $this->createProxy($entity, $fieldname, $defaultLocaleProvider);
                 $proxy->copy($newProxy);
                 $property->setValue($entity, $newProxy);
             }
@@ -146,11 +147,11 @@ class TranslationMetadata {
         return $this->translationsCollectionProperty->getValue($entity);
     }
 
-    protected function createProxy($entity, $fieldname, $defaultLocale) {
+    protected function createProxy($entity, $fieldname, DefaultLocaleProvider $defaultLocaleProvider) {
         return new ManagedTranslationProxy(
             $entity,
             $this->primaryLocale,
-            $defaultLocale, $this->translationFieldMapping[$fieldname],
+            $defaultLocaleProvider, $this->translationFieldMapping[$fieldname],
             $this->translationsCollectionProperty,
             $this->translationClass,
             $this->translationLocaleProperty,

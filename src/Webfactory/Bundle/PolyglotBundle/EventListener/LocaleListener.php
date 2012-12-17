@@ -2,11 +2,10 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\EventListener;
 
-use Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener;
-
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 /**
  * This listeners sets the current locale for the TranslatableListener.
@@ -16,11 +15,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class LocaleListener implements EventSubscriberInterface
 {
-    private $translatableListener;
+    private $defaultLocaleProvider;
 
-    public function __construct(PolyglotListener $translatableListener)
+    public function __construct(DefaultLocaleProvider $defaultLocaleProvider)
     {
-        $this->translatableListener = $translatableListener;
+        $this->defaultLocaleProvider = $defaultLocaleProvider;
     }
 
     /**
@@ -32,7 +31,7 @@ class LocaleListener implements EventSubscriberInterface
      */
     public function onKernelRequest(GetResponseEvent $event)
     {
-        $this->translatableListener->setDefaultLocale($event->getRequest()->getLocale());
+        $this->defaultLocaleProvider->setDefaultLocale($event->getRequest()->getLocale());
     }
 
     public static function getSubscribedEvents()

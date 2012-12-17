@@ -6,6 +6,7 @@ use \Doctrine\Common\Collections\Criteria;
 use \ReflectionProperty;
 use \ReflectionClass;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
+use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 /**
  * Eine TranslationProxy-Implementierung für eine Entität, die
@@ -30,8 +31,8 @@ class ManagedTranslationProxy implements TranslatableInterface {
     /** @var mixed Der Wert in der primary locale (der Wert in der Entität, den der Proxy ersetzt hat) */
     protected $primaryValue = null;
 
-    /** @var string Locale, in der dieser Proxy Werte zurückgibt, wenn keine andere Locale explizit gewünscht wird */
-    protected $defaultLocale;
+    /** @var DefaultLocaleProvider Provider, über den der Proxy die Locale erhält, in der Werte zurückgeben soll, wenn keine andere Locale explizit gewünscht wird */
+    protected $defaultLocaleProvider;
 
     /** @var ReflectionProperty ReflectionProperty für die Eigenschaft der Translation-Klasse, die den übersetzten Wert hält */
     protected $translatedProperty;
@@ -51,7 +52,7 @@ class ManagedTranslationProxy implements TranslatableInterface {
     public function __construct(
         $entity,
         $primaryLocale,
-        $translationLocale, ReflectionProperty $translatedProperty,
+        DefaultLocaleProvider $defaultLocaleProvider, ReflectionProperty $translatedProperty,
         ReflectionProperty $translationCollection,
         ReflectionClass $translationClass,
         ReflectionProperty $localeField,
@@ -60,7 +61,7 @@ class ManagedTranslationProxy implements TranslatableInterface {
         $this->entity = $entity;
         $this->oid = spl_object_hash($entity);
         $this->primaryLocale = $primaryLocale;
-        $this->defaultLocale = $translationLocale;
+        $this->defaultLocaleProvider = $defaultLocaleProvider;
         $this->translatedProperty = $translatedProperty;
         $this->translationCollection = $translationCollection;
         $this->translationClass = $translationClass;
@@ -89,7 +90,10 @@ class ManagedTranslationProxy implements TranslatableInterface {
                 For this reason we cache the lookup results on our own (in-memory per-request)
                 in a static member variable so they can be shared among all TranslationProxies.
             */
-            if ($res = $this->translationCollection->getValue($this->entity)->matching($criteria)) {
+            $x = $this->translationCollection->getValue($this->entity);
+            $y = $x->matching($criteria);
+            
+            if ($res = $y) {
                 self::$_translations[$this->oid][$locale] = $res[0];
             } else
                 self::$_translations[$this->oid][$locale] = null;
@@ -114,7 +118,7 @@ class ManagedTranslationProxy implements TranslatableInterface {
     }
 
     public function setTranslation($value, $locale = null) {
-        $locale = $locale ? : $this->defaultLocale;
+        $locale = $locale ? : $this->getDefaultLocale();
         if ($locale == $this->primaryLocale) {
             $this->primaryValue = $value;
         } else {
@@ -126,7 +130,7 @@ class ManagedTranslationProxy implements TranslatableInterface {
     }
 
     public function translate($locale = null) {
-        $locale = $locale ? : $this->defaultLocale;
+        $locale = $locale ? : $this->getDefaultLocale();
 
         if ($locale == $this->primaryLocale) {
             return $this->primaryValue;
@@ -143,6 +147,10 @@ class ManagedTranslationProxy implements TranslatableInterface {
 
     public function __toString() {
         return (string)$this->translate();
+    }
+    
+    protected  function getDefaultLocale(){
+        return $this->defaultLocaleProvider->getDefaultLocale();
     }
 }
 

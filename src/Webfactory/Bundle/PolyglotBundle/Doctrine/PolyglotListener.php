@@ -9,6 +9,7 @@ use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\EntityManager;
+use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 class PolyglotListener implements EventSubscriber {
 
@@ -16,28 +17,21 @@ class PolyglotListener implements EventSubscriber {
 
     protected $reader;
     protected $translatedClasses = array();
-    protected $defaultLocale = 'en_GB';
     protected $_proxiesStripped = array();
+    protected $defaultLocaleProvider;
 
-    public function __construct(Reader $annotationReader) {
+    public function __construct(Reader $annotationReader, DefaultLocaleProvider $defaultLocaleProvider) {
         $this->reader = $annotationReader;
+        $this->defaultLocaleProvider = $defaultLocaleProvider;
     }
-
-    public function setDefaultLocale($locale) {
-        $this->defaultLocale = $locale;
-    }
-
-    public function getDefaultLocale() {
-        return $this->defaultLocale;
-    }
-
+    
     public function getSubscribedEvents() {
         return array(Events::postLoad, Events::preFlush, Events::prePersist, Events::postFlush);
     }
 
     public function postLoad(LifecycleEventArgs $event) {
         if ($tm = $this->getTranslationMetadataForLifecycleEvent($event)) {
-            $tm->injectProxies($event->getEntity(), $this->defaultLocale);
+            $tm->injectProxies($event->getEntity(), $this->defaultLocaleProvider);
         }
     }
 
@@ -46,7 +40,7 @@ class PolyglotListener implements EventSubscriber {
         $em = $event->getEntityManager();
 
         if ($tm = $this->getTranslationMetadataForLifecycleEvent($event)) {
-            $tm->replaceDetachedProxies($entity, $this->defaultLocale);
+            $tm->replaceDetachedProxies($entity, $this->defaultLocaleProvider);
             /* Übersetzungen explizit persisten, -> kein "cascade" in der Klienten-Entitäts-Klasse notwendig */
             foreach ($tm->getTranslations($entity) as $translation) {
                 $em->persist($translation);
@@ -71,7 +65,7 @@ class PolyglotListener implements EventSubscriber {
 
         while ($entity = array_shift($this->_proxiesStripped)) {
             $className = get_class($entity);
-            $this->getTranslationMetadata($className, $em)->injectProxies($entity, $this->defaultLocale);
+            $this->getTranslationMetadata($className, $em)->injectProxies($entity, $this->defaultLocaleProvider);
         }
     }
 
