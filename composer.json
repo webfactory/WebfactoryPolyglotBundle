@@ -6,5 +6,11 @@
 
     "require": {
         "doctrine/orm": ">= 2.2.0"
+    },
+
+    "extra": {
+        "branch-alias": {
+            "dev-default": "1.0.x-dev"
+        }
     }
 }
