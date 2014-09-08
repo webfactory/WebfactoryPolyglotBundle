@@ -36,7 +36,12 @@ class TranslationMetadata {
         $tm->findTranslationsCollection($reader, $cm);
         $tm->findTranslatedProperties($reader, $cm);
 
-        return $tm->isComplete() ? $tm : null;
+        if ($tm->assertNoAnnotationsArePresent()) {
+            return null;
+        }
+        $tm->assertAnnotationsAreComplete();
+
+        return $tm;
     }
 
     protected function __construct() { }
@@ -59,8 +64,40 @@ class TranslationMetadata {
         $this->translationLocaleProperty = $this->resurrect($this->translationLocaleProperty, $reflectionService);
     }
 
-    protected function isComplete() {
-        return $this->translationClass && $this->translationLocaleProperty && $this->translationMappingProperty && $this->translatedProperties;
+    protected function assertNoAnnotationsArePresent()
+    {
+        return $this->translationClass === null
+            && $this->translationLocaleProperty === null
+            && $this->translationMappingProperty === null
+            && count($this->translatedProperties) === 0;
+    }
+
+    protected function assertAnnotationsAreComplete()
+    {
+        if ($this->translationClass === null) {
+            throw new \RuntimeException(
+                'The annotation with the translation class name is missing or incorrect, e.g. '
+                . '@ORM\OneToMany(targetEntity="TestEntityTranslation", ...)'
+            );
+        }
+
+        if ($this->translationLocaleProperty === null) {
+            throw new \RuntimeException(
+                'The @Polyglot\Locale annotation at the language property of the translation class is missing or '
+                . 'incorrect'
+            );
+        }
+
+        if ($this->translationMappingProperty === null) {
+            throw new \RuntimeException(
+                'The attribute referenced in the mappedBy-Attribute of the @ORM\OneToMany(..., mappedBy="...") is '
+                . 'missing or incorrect'
+            );
+        }
+
+        if (count($this->translatedProperties) === 0) {
+            throw new \RuntimeException('No translatable attributes annotated with @Polyglot\Translatable were found');
+        }
     }
 
     protected function findTranslatedProperties(Reader $reader, ClassMetadata $classMetadata) {
@@ -144,7 +181,8 @@ class TranslationMetadata {
     }
 
     public function getTranslations($entity) {
-        return $this->translationsCollectionProperty->getValue($entity);
+        $translations = $this->translationsCollectionProperty->getValue($entity);
+        return $translations;
     }
 
     protected function createProxy($entity, $fieldname, DefaultLocaleProvider $defaultLocaleProvider) {
