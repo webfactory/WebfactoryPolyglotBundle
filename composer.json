@@ -8,6 +8,11 @@
         "doctrine/orm": ">= 2.2.0"
     },
 
+    "require-dev": {
+        "phpunit/phpunit": "~3.7",
+        "webfactory/doctrine-orm-test-infrastructure": "@dev"
+    },
+
     "extra": {
         "branch-alias": {
             "dev-default": "1.0.x-dev"
