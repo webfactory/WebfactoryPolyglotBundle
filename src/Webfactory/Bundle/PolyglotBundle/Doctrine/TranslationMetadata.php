@@ -7,30 +7,48 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
-class TranslationMetadata {
-
-    /** @var \ReflectionProperty[] Ein Mapping von Feldnamen in der Hauptklasse auf die Felder in der Übersetzungs-Klasse, in denen die jeweilige Übersetzung liegt. */
+class TranslationMetadata
+{
+    /**
+     * @var \ReflectionProperty[] Ein Mapping von Feldnamen in der Hauptklasse auf die Felder in der
+     * Übersetzungs-Klasse, in denen die jeweilige Übersetzung liegt.
+     */
     protected $translationFieldMapping = array();
 
-    /** @var \ReflectionProperty[] Die Eigenschaften der Haupt-Klasse, die übersetzbar sind; indiziert nach Feldnamen. */
+    /**
+     * @var \ReflectionProperty[] Die Eigenschaften der Haupt-Klasse, die übersetzbar sind; indiziert nach Feldnamen.
+     */
     protected $translatedProperties = array();
 
-    /*+ @var \ReflectionProperty Die Eigenschaft der Haupt-Klasse, die die Collection der Übersetzungen hält. */
+    /**
+     * @var \ReflectionProperty Die Eigenschaft der Haupt-Klasse, die die Collection der Übersetzungen hält.
+     */
     protected $translationsCollectionProperty;
 
-    /** @var \ReflectionProperty Die Eigenschaft der Übersetzungs-Klasse, die als many-to-one auf die Haupt-Klasse verweist. */
+    /**
+     * @var \ReflectionProperty Die Eigenschaft der Übersetzungs-Klasse, die als many-to-one auf die Haupt-Klasse
+     * verweist.
+     */
     protected $translationMappingProperty;
 
-    /** @var \ReflectionProperty Die Eigenschaft in der Übersetzungs-Klasse, die die Sprache einer Übersetzungsinstanz enhtält. */
+    /**
+     * @var \ReflectionProperty Die Eigenschaft in der Übersetzungs-Klasse, die die Sprache einer Übersetzungsinstanz
+     * enhtält.
+     */
     protected $translationLocaleProperty;
 
-    /** @var string Der Klassenname der Übersetzungs-Klasse. */
+    /** @var
+     * string Der Klassenname der Übersetzungs-Klasse.
+     */
     protected $translationClass;
 
-    /** @var string Die Locale der Werte in der Haupt-Klasse. */
+    /**
+     * @var string Die Locale der Werte in der Haupt-Klasse.
+     */
     protected $primaryLocale;
 
-    public static function parseFromClassMetadata(ClassMetadata $cm, Reader $reader) {
+    public static function parseFromClassMetadata(ClassMetadata $cm, Reader $reader)
+    {
         $tm = new static();
         $tm->findPrimaryLocale($reader, $cm);
         $tm->findTranslationsCollection($reader, $cm);
@@ -44,13 +62,13 @@ class TranslationMetadata {
         return $tm;
     }
 
-    protected function __construct() { }
-
-    protected function resurrect($property, ReflectionService $reflectionService) {
+    protected function resurrect($property, ReflectionService $reflectionService)
+    {
         return $reflectionService->getAccessibleProperty($property->class, $property->name);
     }
 
-    public function wakeupReflection(ReflectionService $reflectionService) {
+    public function wakeupReflection(ReflectionService $reflectionService)
+    {
         foreach ($this->translationFieldMapping as $fieldname => $property) {
             $this->translationFieldMapping[$fieldname] = $this->resurrect($property, $reflectionService);
         }
@@ -59,7 +77,10 @@ class TranslationMetadata {
             $this->translatedProperties[$fieldname] = $this->resurrect($property, $reflectionService);
         }
 
-        $this->translationsCollectionProperty = $this->resurrect($this->translationsCollectionProperty, $reflectionService);
+        $this->translationsCollectionProperty = $this->resurrect(
+            $this->translationsCollectionProperty,
+            $reflectionService
+        );
         $this->translationMappingProperty = $this->resurrect($this->translationMappingProperty, $reflectionService);
         $this->translationLocaleProperty = $this->resurrect($this->translationLocaleProperty, $reflectionService);
     }
@@ -100,10 +121,15 @@ class TranslationMetadata {
         }
     }
 
-    protected function findTranslatedProperties(Reader $reader, ClassMetadata $classMetadata) {
+    protected function findTranslatedProperties(Reader $reader, ClassMetadata $classMetadata)
+    {
         if ($this->translationClass) {
             foreach ($classMetadata->getReflectionClass()->getProperties() as $property) {
-                if ($annotation = $reader->getPropertyAnnotation($property, 'Webfactory\Bundle\PolyglotBundle\Annotation\Translatable')) {
+                $annotation = $reader->getPropertyAnnotation(
+                    $property,
+                    'Webfactory\Bundle\PolyglotBundle\Annotation\Translatable'
+                );
+                if ($annotation !== null) {
                     $fieldname = $property->getName();
                     $property->setAccessible(true);
 
@@ -118,9 +144,14 @@ class TranslationMetadata {
         }
     }
 
-    protected function findTranslationsCollection(Reader $reader, ClassMetadata $classMetadata) {
+    protected function findTranslationsCollection(Reader $reader, ClassMetadata $classMetadata)
+    {
         foreach ($classMetadata->getReflectionClass()->getProperties() as $property) {
-            if ($annotation = $reader->getPropertyAnnotation($property, 'Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection')) {
+            $annotation = $reader->getPropertyAnnotation(
+                $property,
+                'Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection'
+            );
+            if ($annotation !== null) {
                 $property->setAccessible(true);
                 $this->translationsCollectionProperty = $property;
                 $am = $classMetadata->getAssociationMapping($property->getName());
@@ -134,24 +165,35 @@ class TranslationMetadata {
         }
     }
 
-    protected function findPrimaryLocale(Reader $reader, ClassMetadata $classMetadata) {
-        if ($annotation = $reader->getClassAnnotation($classMetadata->getReflectionClass(), 'Webfactory\Bundle\PolyglotBundle\Annotation\Locale')) {
+    protected function findPrimaryLocale(Reader $reader, ClassMetadata $classMetadata)
+    {
+        $annotation = $reader->getClassAnnotation(
+            $classMetadata->getReflectionClass(),
+            'Webfactory\Bundle\PolyglotBundle\Annotation\Locale'
+        );
+        if ($annotation !== null) {
             $this->primaryLocale = $annotation->getPrimary();
         }
     }
 
-    protected function parseTranslationsEntity(Reader $reader, $class) {
+    protected function parseTranslationsEntity(Reader $reader, $class)
+    {
         $this->translationClass = new \ReflectionClass($class);
 
         foreach ($this->translationClass->getProperties() as $property) {
-            if ($annotation = $reader->getPropertyAnnotation($property, 'Webfactory\Bundle\PolyglotBundle\Annotation\Locale')) {
+            $annotation = $reader->getPropertyAnnotation(
+                $property,
+                'Webfactory\Bundle\PolyglotBundle\Annotation\Locale'
+            );
+            if ($annotation !== null) {
                 $property->setAccessible(true);
                 $this->translationLocaleProperty = $property;
             }
         }
     }
 
-    public function stripProxies($entity) {
+    public function stripProxies($entity)
+    {
         foreach ($this->translatedProperties as $property) {
             $proxy = $property->getValue($entity);
             if ($proxy instanceof ManagedTranslationProxy) {
@@ -160,7 +202,8 @@ class TranslationMetadata {
         }
     }
 
-    public function injectProxies($entity, DefaultLocaleProvider $defaultLocaleProvider) {
+    public function injectProxies($entity, DefaultLocaleProvider $defaultLocaleProvider)
+    {
         foreach ($this->translatedProperties as $fieldname => $property) {
             $proxy = $this->createProxy($entity, $fieldname, $defaultLocaleProvider);
             $proxy->setPrimaryValue($property->getValue($entity));
@@ -168,7 +211,8 @@ class TranslationMetadata {
         }
     }
 
-    public function replaceDetachedProxies($entity, DefaultLocaleProvider $defaultLocaleProvider) {
+    public function replaceDetachedProxies($entity, DefaultLocaleProvider $defaultLocaleProvider)
+    {
         foreach ($this->translatedProperties as $fieldname => $property) {
             $proxy = $property->getValue($entity);
 
@@ -180,16 +224,19 @@ class TranslationMetadata {
         }
     }
 
-    public function getTranslations($entity) {
+    public function getTranslations($entity)
+    {
         $translations = $this->translationsCollectionProperty->getValue($entity);
         return $translations;
     }
 
-    protected function createProxy($entity, $fieldname, DefaultLocaleProvider $defaultLocaleProvider) {
+    protected function createProxy($entity, $fieldname, DefaultLocaleProvider $defaultLocaleProvider)
+    {
         return new ManagedTranslationProxy(
             $entity,
             $this->primaryLocale,
-            $defaultLocaleProvider, $this->translationFieldMapping[$fieldname],
+            $defaultLocaleProvider,
+            $this->translationFieldMapping[$fieldname],
             $this->translationsCollectionProperty,
             $this->translationClass,
             $this->translationLocaleProperty,
