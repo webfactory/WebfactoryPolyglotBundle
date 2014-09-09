@@ -211,9 +211,9 @@ translation entity is the owning side of a cascade={"persist"}-association, so I
 it's translation entities. See the tests for further details.
 
 
-Planned features/wish list
---------------------------
+Planned Features / Wish List
+----------------------------
 
-* Each entity can only have one fixed primary locale. 
-  We have encountered cases in which some record were only available in a language different from the primary locale.
-  Therefore, we want to remove the annotation for the primary locale and store this information in the database. This allows each record to have its own primary locale.
+* For now, each entity has one fixed primary locale. We have encountered cases in which some records were only available
+  in a language different from the primary locale. Therefore, we want to remove the primary locale annotation and store
+  this information in an attribute. This would allow each record to have its own primary locale.
