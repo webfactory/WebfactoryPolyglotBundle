@@ -36,18 +36,14 @@ Add the following to your composer.json (see http://getcomposer.org/):
 	}
 
 
-Data model
+Data Model
 ----------
 
-A main Doctrine entity (e.g. `Document`) contains all fields of the entity of which some are language specific. We
-distinguish between two types of translations: one "master translation" and any number of "secondary translations":
+A main Doctrine entity has some are locale specific fields. It is marked with a "primary locale" indicating it contains
+texts in the fallback locale.
 
-* The master translation is stored in the main entity (`Document`) itself. This is why the main entity is marked with a
-"primary locale" which indicates the language of the master translation.
-* The secondary translations are stored in a separate Doctrine entity (e.g. `DocumentTranslation`) that contains only
-the language specific fields (and some metadata, see example below).
-
-Both entities are connected via Doctrine relations.
+The main entity is associated with a number of translation entities containing the translated texts (and some metadata,
+see example below), one for each translated locale.
 
 
 Usage example
