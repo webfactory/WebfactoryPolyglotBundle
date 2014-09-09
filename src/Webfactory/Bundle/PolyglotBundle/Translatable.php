@@ -73,7 +73,7 @@ class Translatable implements TranslatableInterface
 
     public function __toString()
     {
-        return $this->translate();
+        return (string)$this->translate();
     }
 
     public function copy(TranslatableInterface $p)
