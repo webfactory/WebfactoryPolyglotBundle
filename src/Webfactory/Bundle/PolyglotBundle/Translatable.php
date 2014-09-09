@@ -25,10 +25,12 @@ namespace Webfactory\Bundle\PolyglotBundle;
  *
  * Die Klasse heisst "Translatable", damit sie in Klienten "nett" initialisiert werden
  * kann:
+ *
  *  use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
  *  use Webfactory\Bundle\PolyglotBundle\Translatable;
+ *
  *  class MyClass { ...
- *     // @Polyglot\Translatable
+ *     // @ Polyglot\Translatable
  *     protected $aField;
  *     public function __construct() {...
  *       $aField = new Translatable();
