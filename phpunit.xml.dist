@@ -5,7 +5,7 @@
          colors="true">
 
     <testsuites>
-        <testsuite name="Library Test Suite">
+        <testsuite name="Bundle Test Suite">
             <directory>src/Webfactory/Bundle/PolyglotBundle/Tests</directory>
         </testsuite>
     </testsuites>
