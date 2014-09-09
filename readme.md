@@ -101,7 +101,7 @@ And now we want to make the `text` translatable.
 
 1. Annotate the main entity with the primary locale (in this case, the language of the database field `document.text`)
    with `Webfactory\Bundle\PolyglotBundle\Annotation\Locale`.
-2. Annotate all translatable fields with `Webfactory\Bundle\PolyglotBundle\Annotation\Translateable`.
+2. Annotate all translatable fields with `Webfactory\Bundle\PolyglotBundle\Annotation\Translatable`.
 3. Add the association for the upcoming translation entity and annotate it's field with
    `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection`.
 4. You may want to change your type hint for the translated fields from string to string|TranslatableInterface and cast
