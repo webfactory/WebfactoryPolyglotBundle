@@ -38,10 +38,15 @@ Add the following to your composer.json (see http://getcomposer.org/):
 Data model
 ----------
 
-There is a main doctrine entity (e.g. `Document`) that contains all fields of the entity of which some are language specific. 
-There are two types of translations: one "master translation" and any number of "secondary translations"
-* The master translation is stored in the main entity (`Document`) itself. This is why the main entity is marked with a "primary locale" which indicates the language of the master translation.
-* The secondary translations are stored in a separate doctrine entity (e.g. `DocumentTranslation`) that contains only the language specific fields (and some metadata, see example below).
+There is a main doctrine entity (e.g. `Document`) that contains all fields of the entity of which some are language
+specific.
+
+There are two types of translations: one "master translation" and any number of "secondary translations":
+
+* The master translation is stored in the main entity (`Document`) itself. This is why the main entity is marked with a
+"primary locale" which indicates the language of the master translation.
+* The secondary translations are stored in a separate doctrine entity (e.g. `DocumentTranslation`) that contains only
+the language specific fields (and some metadata, see example below).
 Both entities are connected via doctrine relations.
 
 
