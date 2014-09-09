@@ -12,7 +12,9 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
+use Webfactory\Bundle\PolyglotBundle\Translatable;
 
 class TranslationMetadata
 {
@@ -44,8 +46,8 @@ class TranslationMetadata
      */
     protected $translationLocaleProperty;
 
-    /** @var
-     * string Der Klassenname der Übersetzungs-Klasse.
+    /**
+     * @var \ReflectionClass Die Übersetzungs-Klasse.
      */
     protected $translationClass;
 
@@ -54,8 +56,9 @@ class TranslationMetadata
      */
     protected $primaryLocale;
 
-    public static function parseFromClassMetadata(ClassMetadata $cm, Reader $reader)
+    public static function parseFromClassMetadata(ClassMetadataInfo $cm, Reader $reader)
     {
+        /* @var $tm TranslationMetadata */
         $tm = new static();
         $tm->findPrimaryLocale($reader, $cm);
         $tm->findTranslationsCollection($reader, $cm);
@@ -151,7 +154,7 @@ class TranslationMetadata
         }
     }
 
-    protected function findTranslationsCollection(Reader $reader, ClassMetadata $classMetadata)
+    protected function findTranslationsCollection(Reader $reader, ClassMetadataInfo $classMetadata)
     {
         foreach ($classMetadata->getReflectionClass()->getProperties() as $property) {
             $annotation = $reader->getPropertyAnnotation(
@@ -223,7 +226,7 @@ class TranslationMetadata
         foreach ($this->translatedProperties as $fieldname => $property) {
             $proxy = $property->getValue($entity);
 
-            if ($proxy instanceof \Webfactory\Bundle\PolyglotBundle\Translatable) {
+            if ($proxy instanceof Translatable) {
                 $newProxy = $this->createProxy($entity, $fieldname, $defaultLocaleProvider);
                 $proxy->copy($newProxy);
                 $property->setValue($entity, $newProxy);

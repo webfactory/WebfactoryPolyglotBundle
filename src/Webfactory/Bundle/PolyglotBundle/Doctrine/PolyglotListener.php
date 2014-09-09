@@ -16,6 +16,7 @@ use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 class PolyglotListener implements EventSubscriber
@@ -118,10 +119,9 @@ class PolyglotListener implements EventSubscriber
         }
 
         // Load/parse
-        $meta = TranslationMetadata::parseFromClassMetadata(
-            $metadataFactory->getMetadataFor($className),
-            $this->reader
-        );
+        /* @var $metadataInfo ClassMetadataInfo */
+        $metadataInfo = $metadataFactory->getMetadataFor($className);
+        $meta = TranslationMetadata::parseFromClassMetadata($metadataInfo, $this->reader);
         if ($meta !== null) {
             $this->translatedClasses[$className] = $meta;
         }
