@@ -12,8 +12,8 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
  * Eine TranslationProxy-Implementierung für eine Entität, die
  * bereits unter Verwaltung des EntityManagers steht.
  */
-class ManagedTranslationProxy implements TranslatableInterface {
-
+class ManagedTranslationProxy implements TranslatableInterface
+{
     /**
      * @var array Cache für die Übersetzungen, indiziert nach Entity-OID und Locale.
      * Ist static, damit ihn sich verschiedene Proxies (für die gleiche Entität, aber
@@ -21,38 +21,61 @@ class ManagedTranslationProxy implements TranslatableInterface {
      */
     static protected $_translations = array();
 
-    /** @var object Die Entität, in der sich dieser Proxy befindet (für die er Übersetzungen verwaltet). */
+    /**
+     * @var object Die Entität, in der sich dieser Proxy befindet (für die er Übersetzungen verwaltet).
+     */
     protected $entity;
+
     protected $oid;
 
-    /** @var string Sprache, die in der Entität direkt abgelegt ist ("originärer" Content) */
+    /**
+     * @var string Sprache, die in der Entität direkt abgelegt ist ("originärer" Content)
+     */
     protected $primaryLocale;
 
-    /** @var mixed Der Wert in der primary locale (der Wert in der Entität, den der Proxy ersetzt hat) */
+    /**
+     * @var mixed Der Wert in der primary locale (der Wert in der Entität, den der Proxy ersetzt hat)
+     */
     protected $primaryValue = null;
 
-    /** @var DefaultLocaleProvider Provider, über den der Proxy die Locale erhält, in der Werte zurückgeben soll, wenn keine andere Locale explizit gewünscht wird */
+    /**
+     * @var DefaultLocaleProvider Provider, über den der Proxy die Locale erhält, in der Werte zurückgeben soll, wenn
+     * keine andere Locale explizit gewünscht wird
+     */
     protected $defaultLocaleProvider;
 
-    /** @var ReflectionProperty ReflectionProperty für die Eigenschaft der Translation-Klasse, die den übersetzten Wert hält */
+    /**
+     * @var ReflectionProperty ReflectionProperty für die Eigenschaft der Translation-Klasse, die den übersetzten Wert
+     * hält
+     */
     protected $translatedProperty;
 
-    /** @var ReflectionProperty ReflectionProperty für die Eigenschaft der Haupt-Klasse, in der die Übersetzungen als Doctrine Collection abgelegt sind. */
+    /**
+     * @var ReflectionProperty ReflectionProperty für die Eigenschaft der Haupt-Klasse, in der die Übersetzungen als
+     * Doctrine Collection abgelegt sind.
+     */
     protected $translationCollection;
 
-    /** @var ReflectionClass ReflectionClass für die Klasse, die die Übersetzungen aufnimmt. */
+    /**
+     * @var ReflectionClass ReflectionClass für die Klasse, die die Übersetzungen aufnimmt.
+     */
     protected $translationClass;
 
-    /** @var ReflectionProperty Das Feld in der Übersetzungs-Klasse, in dem die Locale einer Übersetzung abgelegt ist. */
+    /**
+     * @var ReflectionProperty Das Feld in der Übersetzungs-Klasse, in dem die Locale einer Übersetzung abgelegt ist.
+     */
     protected $localeField;
 
-    /** @var ReflectionProperty Das Feld in der Übersetzungs-Klasse, in Many-to-one-Beziehung zur Entität abgelegt ist. */
+    /**
+     * @var ReflectionProperty Das Feld in der Übersetzungs-Klasse, in Many-to-one-Beziehung zur Entität abgelegt ist.
+     */
     protected $translationMapping;
 
     public function __construct(
         $entity,
         $primaryLocale,
-        DefaultLocaleProvider $defaultLocaleProvider, ReflectionProperty $translatedProperty,
+        DefaultLocaleProvider $defaultLocaleProvider,
+        ReflectionProperty $translatedProperty,
         ReflectionProperty $translationCollection,
         ReflectionClass $translationClass,
         ReflectionProperty $localeField,
@@ -69,18 +92,21 @@ class ManagedTranslationProxy implements TranslatableInterface {
         $this->translationMapping = $translationMapping;
     }
 
-    public function setPrimaryValue($value) {
+    public function setPrimaryValue($value)
+    {
         $this->primaryValue = $value;
     }
 
-    public function getPrimaryValue() {
+    public function getPrimaryValue()
+    {
         return $this->primaryValue;
     }
 
-    protected function getTranslationEntity($locale) {
+    protected function getTranslationEntity($locale)
+    {
         if (!isset(self::$_translations[$this->oid][$locale])) {
             $criteria = Criteria::create()
-                    ->where(Criteria::expr()->eq($this->localeField->getName(), $locale));
+                                ->where(Criteria::expr()->eq($this->localeField->getName(), $locale));
 
             /*
                 The collection filtering API will issue a SQL query every time if the
@@ -92,17 +118,19 @@ class ManagedTranslationProxy implements TranslatableInterface {
             */
             $x = $this->translationCollection->getValue($this->entity);
             $y = $x->matching($criteria);
-            
+
             if ($res = $y) {
                 self::$_translations[$this->oid][$locale] = $res[0];
-            } else
+            } else {
                 self::$_translations[$this->oid][$locale] = null;
+            }
         }
 
         return self::$_translations[$this->oid][$locale];
     }
 
-    protected function createTranslationEntity($locale) {
+    protected function createTranslationEntity($locale)
+    {
         $className = $this->translationClass->name;
         $localeField = $this->localeFieldname;
         $e = new $className;
@@ -117,19 +145,22 @@ class ManagedTranslationProxy implements TranslatableInterface {
         return $e;
     }
 
-    public function setTranslation($value, $locale = null) {
+    public function setTranslation($value, $locale = null)
+    {
         $locale = $locale ? : $this->getDefaultLocale();
         if ($locale == $this->primaryLocale) {
             $this->primaryValue = $value;
         } else {
             $e = $this->getTranslationEntity($locale);
-            if (!$e)
+            if (!$e) {
                 $e = $this->createTranslationEntity($locale);
+            }
             $this->translatedProperty->setValue($e, $value);
         }
     }
 
-    public function translate($locale = null) {
+    public function translate($locale = null)
+    {
         $locale = $locale ? : $this->getDefaultLocale();
 
         if ($locale == $this->primaryLocale) {
@@ -138,19 +169,21 @@ class ManagedTranslationProxy implements TranslatableInterface {
 
         if ($e = $this->getTranslationEntity($locale)) {
             $translated = $this->translatedProperty->getValue($e);
-            if (null !== $translated)
+            if (null !== $translated) {
                 return $translated;
+            }
         }
 
         return $this->primaryValue;
     }
 
-    public function __toString() {
+    public function __toString()
+    {
         return (string)$this->translate();
     }
-    
-    protected  function getDefaultLocale(){
+
+    protected function getDefaultLocale()
+    {
         return $this->defaultLocaleProvider->getDefaultLocale();
     }
 }
-

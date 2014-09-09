@@ -8,8 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\MappedSuperclass
  */
-class BaseTranslation {
-
+class BaseTranslation
+{
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -24,10 +24,12 @@ class BaseTranslation {
     protected $locale;
 
     /**
-     *  @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable=false)
      */
     protected $entity;
 
-    public function getLocale() { return $this->locale; }
-
+    public function getLocale()
+    {
+        return $this->locale;
+    }
 }

@@ -26,17 +26,19 @@ namespace Webfactory\Bundle\PolyglotBundle;
  *     public function __construct() {...
  *       $aField = new Translatable();
  */
-class Translatable implements TranslatableInterface {
-
+class Translatable implements TranslatableInterface
+{
     protected $defaultLocale;
     protected $translations = array();
 
-    public function __construct($value = null, $defaultLocale = null) {
-        $this->defaultLocale = $defaultLocale ?: '';
+    public function __construct($value = null, $defaultLocale = null)
+    {
+        $this->defaultLocale = $defaultLocale ? : '';
         $this->setTranslation($value);
     }
 
-    public function setDefaultLocale($locale) {
+    public function setDefaultLocale($locale)
+    {
         if ($this->defaultLocale == '') {
             $this->translations[$locale] = $this->translations[''];
             unset($this->translations['']);
@@ -44,28 +46,33 @@ class Translatable implements TranslatableInterface {
         $this->defaultLocale = $locale;
     }
 
-    public function translate($locale = null) {
-        $locale = $locale ?: $this->defaultLocale;
+    public function translate($locale = null)
+    {
+        $locale = $locale ? : $this->defaultLocale;
 
         if (isset($this->translations[$locale])) {
             return $this->translations[$locale];
-        } else return null;
+        } else {
+            return null;
+        }
     }
 
-    public function setTranslation($value, $locale = null) {
-        $locale = $locale ?: $this->defaultLocale;
+    public function setTranslation($value, $locale = null)
+    {
+        $locale = $locale ? : $this->defaultLocale;
 
         $this->translations[$locale] = $value;
     }
 
-    public function __toString() {
+    public function __toString()
+    {
         return $this->translate();
     }
 
-    public function copy(TranslatableInterface $p) {
+    public function copy(TranslatableInterface $p)
+    {
         foreach ($this->translations as $locale => $value) {
             $p->setTranslation($value, ($locale == '' ? null : $locale));
         }
     }
 }
-
