@@ -132,7 +132,6 @@ class ManagedTranslationProxy implements TranslatableInterface
     protected function createTranslationEntity($locale)
     {
         $className = $this->translationClass->name;
-        $localeField = $this->localeFieldname;
         $e = new $className;
 
         $this->localeField->setValue($e, $locale);
