@@ -10,6 +10,8 @@ A bundle to simplify translations for Doctrine entities. It's main advantages ov
 [We](https://www.webfactory.de/) use it to create multilingual navigation menus and links like "view this article in
 German", where the linked URL has a locale specific slug.
 
+If you're fine with the [known limitations](#KnownLimitations), read on!
+
 
 Installation
 ------------
@@ -193,6 +195,14 @@ You can retrieve a specific translation like this:
 
     $document->getText()->translate('de_DE')
 
+
+Known Limitations
+-----------------
+
+It's not very comfortable to persist entities and their translations. One might think: it's just Doctrine, the
+translation entity is the owning side of a cascade={"persist"}-association, so I'll just persist the translation. But no
+- we seem to have broken Doctrine's lifecycle management here. As a workaround, you can persist both the main entity and
+it's translation entities. See the tests for further details.
 
 Planned features/wish list
 --------------------------
