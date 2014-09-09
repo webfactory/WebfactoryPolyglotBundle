@@ -168,7 +168,8 @@ annotation
 
 ### Step 3) Update your database schema
 
-For example using doctrine-migrations-bundle.
+Use Doctrine zo update your database schema, e.g. via the
+[DoctrineMigrationsBundle](https://github.com/doctrine/DoctrineMigrationsBundle).
 
 
 **That's it.**
@@ -176,7 +177,7 @@ Your entities will now automatically be loaded in the language corresponding to 
 If there is no translation for the current locale, the primary locale is used as a fallback.
 
 You can retrieve a specific translation like this:
-	
+
 	$document->getText()->translate('de_DE')
 
 
@@ -186,4 +187,3 @@ Planned features/wish list
 * Each entity can only have one fixed primary locale. 
   We have encountered cases in which some record were only available in a language different from the primary locale.
   Therefore, we want to remove the annotation for the primary locale and store this information in the database. This allows each record to have its own primary locale.
-
