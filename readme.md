@@ -152,7 +152,7 @@ And now we want to make the `title` and `text` translateable.
 
 **Note**:
 
-* Set the language of the main entity (in this case, the language of the database fields `document.title` an `document.text`) via the Webfactory\Bundle\PolyglotBundle\Annotation\Locale
+* Set the primary locale of the main entity (in this case, the language of the database fields `document.title` an `document.text`) via the Webfactory\Bundle\PolyglotBundle\Annotation\Locale
 * All translateable fields need to be marked with the `Webfactory\Bundle\PolyglotBundle\Annotation\Translateable` annotation
 * The doctrine relation to the translation-entity needs to be mapped and the property needs to be marked with the `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` annotation
 
@@ -163,6 +163,7 @@ For example using doctrine-migrations-bundle.
 
 **That's it.**
 Your entities will now automatically be loaded in the language corresponding to the current request's locale.
+If there is no translation for the current locale, the primary locale is used as a fallback.
 
 You can retrieve a specific translation like this:
 	
