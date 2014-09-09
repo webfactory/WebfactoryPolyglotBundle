@@ -60,7 +60,7 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function defaultLocaleForDefaultLocaleRequest()
+    public function defaultLocaleForPrimaryLocaleRequest()
     {
         $this->addPolyglotListenerToDoctrineWithLocale('en_GB');
 
@@ -76,7 +76,7 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function differentLocaleForDifferentLocaleRequested()
+    public function differentLocaleForSecondaryLocaleRequest()
     {
         $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
 
@@ -88,6 +88,25 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
                                              ->find($entity->getId());
         $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedEntity->getText());
         $this->assertSame('deutsch', $loadedEntity->getText()->__toString());
+    }
+
+    /**
+     * Ensures one can request a locale other than the one from the request.
+     *
+     * @test
+     */
+    public function differentLocaleThanRequestedOne()
+    {
+        $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
+
+        $entity = new TestEntity('english');
+        $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
+        $this->infrastructure->import(array($translation, $entity));
+
+        $loadedEntity = $this->infrastructure->getRepository($entity)
+                                             ->find($entity->getId());
+        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedEntity->getText());
+        $this->assertSame('english', $loadedEntity->getText()->translate('en_GB'));
     }
 
     /**
