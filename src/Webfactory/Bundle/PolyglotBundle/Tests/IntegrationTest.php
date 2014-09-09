@@ -104,9 +104,9 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
     /**
      * @param string $locale, e.g. 'de_DE'
      * @param string $name translation in the locale
-     * @param mixed $entity
+     * @param TestEntity $entity
      */
-    private function addTranslationToTestEntity($locale, $name, $entity)
+    private function addTranslationToTestEntity($locale, $name, TestEntity $entity)
     {
         $translation = new TestEntityTranslation();
         $translation->setLocale($locale);
