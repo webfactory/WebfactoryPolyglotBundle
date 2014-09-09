@@ -192,12 +192,12 @@ And now we want to make the `text` translatable.
 Use Doctrine zo update your database schema, e.g. via the
 [DoctrineMigrationsBundle](https://github.com/Doctrine/DoctrineMigrationsBundle).
 
+### That's it!
 
-**That's it.**
-Your entities will now automatically be loaded in the language corresponding to the current request's locale.
-If there is no translation for the current locale, the primary locale is used as a fallback.
+Your entities will now be automatically loaded in the language corresponding to the current request's locale. If there
+is no translation for the current locale, the primary locale is used as a fallback.
 
-You can retrieve a specific translation like this:
+If you have a getText() method without the (string) cast from above, you can retrieve specific translations like this:
 
     $document->getText()->translate('de_DE')
 
