@@ -45,12 +45,28 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function defaultLocaleForPrimaryLocaleRequest()
+    public function worksWithoutTranslations()
     {
         $this->addPolyglotListenerToDoctrineWithLocale('en_GB');
 
         $entity = new TestEntity('english');
         $this->infrastructure->import($entity);
+
+        $loadedText = $this->getTextOfLoadedEntity($entity);
+        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
+        $this->assertSame('english', $loadedText->__toString());
+    }
+
+    /**
+     * @test
+     */
+    public function defaultLocaleForPrimaryLocaleRequest()
+    {
+        $this->addPolyglotListenerToDoctrineWithLocale('en_GB');
+
+        $entity = new TestEntity('english');
+        $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
+        $this->infrastructure->import(array($translation, $entity));
 
         $loadedText = $this->getTextOfLoadedEntity($entity);
         $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
