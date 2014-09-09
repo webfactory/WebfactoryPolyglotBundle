@@ -220,7 +220,7 @@ If you have a getText() method without the (string) cast from above, you can ret
 
 Magic Explained
 ---------------
-This bundle does it's magic by integrating the Doctrine listener
+This bundle does its magic by integrating the Doctrine listener
 `\Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener` into the Symfony stack, which provides the request locale.
 
 The main idea of the listener is to hook into
