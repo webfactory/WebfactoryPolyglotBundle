@@ -1,11 +1,23 @@
 {
     "name": "webfactory/polyglot-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony2 bundle simplifying translations in Doctrine.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "webfactory GmbH",
+            "email": "info@webfactory.de",
+            "homepage": "http://www.webfactory.de",
+            "role": "Developer"
+        }
+    ],
+
     "autoload": {
         "psr-0": { "Webfactory\\Bundle\\PolyglotBundle": "src" }
     },
 
     "require": {
-        "doctrine/orm": ">= 2.2.0",
+        "doctrine/orm": "~2.2",
         "symfony/symfony": "~2.0"
     },
 
