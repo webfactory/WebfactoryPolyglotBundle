@@ -163,7 +163,7 @@ For example using doctrine-migrations-bundle.
 
 **That's it.**
 Your entities will now automatically be loaded in the language corresponding to the current request's locale.
-If there is no translation for the current locale, the primary locale is use as a fallback.
+If there is no translation for the current locale, the primary locale is used as a fallback.
 
 You can retrieve a specific translation like this:
 	
