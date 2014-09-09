@@ -105,7 +105,7 @@ And now we want to make the `text` translatable.
 3. Add the association for the upcoming translation entity and annotate it's field with
    `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection`.
 4. You may want to change your type hint for the translated fields from string to string|TranslatableInterface and cast
-   to string in your getters (more on that later).
+   to string in your getters (more on that in the [Magic Explained](#MagicExplained) section).
 
 ... and you will get something like this:
 
@@ -177,11 +177,13 @@ And now we want to make the `text` translatable.
     {
         /**
          * @ORM\Column(type="text")
+         * @var string
          */
         protected $text;
 
         /**
          * @ORM\ManyToOne(targetEntity="Document", inversedBy="_translations")
+         * @var Document
          */
         protected $entity;
     }
@@ -200,6 +202,18 @@ is no translation for the current locale, the primary locale is used as a fallba
 If you have a getText() method without the (string) cast from above, you can retrieve specific translations like this:
 
     $document->getText()->translate('de_DE')
+
+
+Magic Explained
+---------------
+This bundle does it's magic by integrating the Doctrine listener
+`\Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener` into the Symfony stack, which provides the request locale.
+
+The main idea of the listener is to hook into
+[Doctrine's lifecycle events](http://doctrine-orm.readthedocs.org/en/latest/reference/events.html) to replace string
+values in annotated fields with `\Webfactory\Bundle\PolyglotBundle\TranslatableInterface`s. Their implementations use
+the request's locale to provide the matching translation in their __toString() method, besides offering the other
+translations as well.
 
 
 Known Limitations
