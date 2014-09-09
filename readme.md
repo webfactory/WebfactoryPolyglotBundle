@@ -46,10 +46,10 @@ The main entity is associated with a number of translation entities containing t
 see example below), one for each translated locale.
 
 
-Usage example
+Usage Example
 -------------
 
-Say you have an existing Doctrine entity `Document` that looks like this:
+Let's say you have an existing Doctrine entity `Document` that looks like this:
 
 	<?php
 	
@@ -65,15 +65,31 @@ Say you have an existing Doctrine entity `Document` that looks like this:
 	     * @ORM\Id
 	     * @ORM\GeneratedValue
 	     * @ORM\Column(type="integer")
+	     * @var int
 	     */
 	    protected $id;
 	
 	    /**
 	     * @ORM\Column(type="text")
+	     * @var string
 	     */
 	    protected $text;
 
-	    //... getters & setters
+	    /**
+	     * @return string
+	     */
+	    public function getText()
+	    {
+	        return $this->text;
+	    }
+	
+	    /**
+	     * @param string
+	     */
+	    public function setText()
+	    {
+	        return $this->text;
+	    }
 	}
 
 
