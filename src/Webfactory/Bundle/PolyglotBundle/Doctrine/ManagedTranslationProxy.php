@@ -107,10 +107,10 @@ class ManagedTranslationProxy implements TranslatableInterface
         if (!isset(self::$_translations[$this->oid][$locale])) {
             $criteria = Criteria::create()
                                 ->where(Criteria::expr()->eq($this->localeField->getName(), $locale));
-            /* @var $x \Doctrine\Common\Collections\Selectable */
-            $x = $this->translationCollection->getValue($this->entity);
-            /* @var $y \Doctrine\Common\Collections\Collection */
-            $y = $x->matching($criteria);
+            /* @var $translationsInAllLanguages \Doctrine\Common\Collections\Selectable */
+            $translationsInAllLanguages = $this->translationCollection->getValue($this->entity);
+            $translationsFilteredByLocale = $translationsInAllLanguages->matching($criteria);
+            $translationInLocale = $translationsFilteredByLocale->count() > 0 ? $translationsFilteredByLocale[0] : null;
 
             /*
                 The collection filtering API will issue a SQL query every time if the
@@ -120,7 +120,7 @@ class ManagedTranslationProxy implements TranslatableInterface
                 For this reason we cache the lookup results on our own (in-memory per-request)
                 in a static member variable so they can be shared among all TranslationProxies.
             */
-            self::$_translations[$this->oid][$locale] = ($y->count() > 0) ? $y[0] : null;
+            self::$_translations[$this->oid][$locale] = $translationInLocale;
         }
 
         return self::$_translations[$this->oid][$locale];
