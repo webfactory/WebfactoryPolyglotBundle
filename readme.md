@@ -52,7 +52,7 @@ Both entities are connected via doctrine relations.
 Usage example
 -------------
 
-Say you have an existing doctrine-entity `Document` that looks like this.
+Say you have an existing doctrine-entity `Document` that looks like this:
 
 	<?php
 	
@@ -62,19 +62,26 @@ Say you have an existing doctrine-entity `Document` that looks like this.
 	 * @ORM\Entity()
 	 * @ORM\Table()
 	 */
-	class Document {
-	
-	    /** @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer") */
+	class Document
+	{
+	    /**
+	     * @ORM\Id
+	     * @ORM\GeneratedValue
+	     * @ORM\Column(type="integer")
+	     */
 	    protected $id;
 	
-	    /** @ORM\Column */
+	    /**
+	     * @ORM\Column
+	     */
 	    protected $title;
 	
-	    /** @ORM\Column(type="text") */
+	    /**
+	     * @ORM\Column(type="text")
+	     */
 	    protected $text;
 	    
-	    //... getter & setter
-	
+	    //... getters & setters
 	}
 
 
@@ -94,17 +101,22 @@ And now we want to make the `title` and `text` translateable.
 	 *     }
 	 * )
 	 */
-	class DocumentTranslation extends \Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation {
-	
-	    /** @ORM\Column() */
+	class DocumentTranslation extends \Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation
+	{
+	    /**
+	     * @ORM\Column()
+	     */
 	    protected $title;
 	
-	    /** @ORM\Column(type="text") */
+	    /**
+	     * @ORM\Column(type="text")
+	     */
 	    protected $text;
 	
-	    /** @ORM\ManyToOne(targetEntity="Document", inversedBy="_translations") */
+	    /**
+	     * @ORM\ManyToOne(targetEntity="Document", inversedBy="_translations")
+	     */
 	    protected $entity;
-	
 	}
 
 
