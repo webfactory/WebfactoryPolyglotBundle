@@ -104,26 +104,11 @@ class ManagedTranslationProxy implements TranslatableInterface
 
     protected function getTranslationEntity($locale)
     {
-        if (!isset(self::$_translations[$this->oid][$locale])) {
-            $criteria = Criteria::create()
-                                ->where(Criteria::expr()->eq($this->localeField->getName(), $locale));
-            /* @var $translationsInAllLanguages \Doctrine\Common\Collections\Selectable */
-            $translationsInAllLanguages = $this->translationCollection->getValue($this->entity);
-            $translationsFilteredByLocale = $translationsInAllLanguages->matching($criteria);
-            $translationInLocale = $translationsFilteredByLocale->count() > 0 ? $translationsFilteredByLocale[0] : null;
-
-            /*
-                The collection filtering API will issue a SQL query every time if the
-                collection is not in memory; that is, it does not manage "partially initialized"
-                collections.
-
-                For this reason we cache the lookup results on our own (in-memory per-request)
-                in a static member variable so they can be shared among all TranslationProxies.
-            */
-            self::$_translations[$this->oid][$locale] = $translationInLocale;
+        if ($this->isTranslationCached($locale) === false) {
+            $this->cacheTranslation($locale);
         }
 
-        return self::$_translations[$this->oid][$locale];
+        return $this->getCachedTranslation($locale);
     }
 
     protected function createTranslationEntity($locale)
@@ -181,5 +166,52 @@ class ManagedTranslationProxy implements TranslatableInterface
     protected function getDefaultLocale()
     {
         return $this->defaultLocaleProvider->getDefaultLocale();
+    }
+
+    /**
+     * @param string $locale
+     * @return bool
+     */
+    protected function isTranslationCached($locale)
+    {
+        return isset(self::$_translations[$this->oid][$locale]);
+    }
+
+    /**
+     * The collection filtering API will issue a SQL query every time if the collection is not in memory; that is, it
+     * does not manage "partially initialized" collections. For this reason we cache the lookup results on our own
+     * (in-memory per-request) in a static member variable so they can be shared among all TranslationProxies.
+     *
+     * @param string $locale
+     */
+    protected function cacheTranslation($locale)
+    {
+        /* @var $translationsInAllLanguages \Doctrine\Common\Collections\Selectable */
+        $translationsInAllLanguages = $this->translationCollection->getValue($this->entity);
+        $translationsFilteredByLocale = $translationsInAllLanguages->matching($this->createLocaleCriteria($locale));
+        $translationInLocale = $translationsFilteredByLocale->count() > 0 ? $translationsFilteredByLocale[0] : null;
+
+        self::$_translations[$this->oid][$locale] = $translationInLocale;
+    }
+
+    /**
+     * @param $locale
+     * @return Criteria
+     */
+    protected function createLocaleCriteria($locale)
+    {
+        return Criteria::create()
+                       ->where(
+                           Criteria::expr()->eq($this->localeField->getName(), $locale)
+                       );
+    }
+
+    /**
+     * @param string $locale
+     * @return mixed
+     */
+    protected function getCachedTranslation($locale)
+    {
+        return self::$_translations[$this->oid][$locale];
     }
 }
