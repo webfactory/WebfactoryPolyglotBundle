@@ -50,7 +50,7 @@ Both entities are connected via doctrine relations.
 
 
 Usage example
-------------- 
+-------------
 
 Say you have an existing doctrine-entity `Document` that looks like this.
 
