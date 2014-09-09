@@ -1,14 +1,13 @@
 webfactory/polyglot-bundle
 ==========================
 
-Translations for doctrine-entities
-
+A bundle to simplify translations for Doctrine entities.
 
 Features
 --------
-* Transparency: you can easily add translations to existing projects without any API-changes
-* Fast: each entity has its own translation-table and translations are automatically eager-loaded for the current language
-* You can easily access all available translations of an entity
+* Transparency: add translations to existing entities without any API changes
+* Fast: entity translations are loaded eagerly from separate translation tables
+* Easy access to all available translations of an entity
 
 
 Installation
