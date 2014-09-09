@@ -10,7 +10,7 @@ A bundle to simplify translations for Doctrine entities. It's main advantages ov
 [We](https://www.webfactory.de/) use it to create multilingual navigation menus and links like "view this article in
 German", where the linked URL has a locale specific slug.
 
-If you're fine with the [known limitations](#KnownLimitations), read on!
+If you're fine with the [known limitations](#known-limitations), read on!
 
 
 Installation
@@ -106,7 +106,7 @@ And now we want to make the `text` translatable.
    `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` and make sure it's initialized with an empty
    Doctrine collection.
 4. You may want to change your type hint for the translated fields from string to string|TranslatableInterface and cast
-   to string in your getters (more on that in the [Magic Explained](#MagicExplained) section).
+   to string in your getters (more on that in the [Magic Explained](#magic-explained) section).
 
 ... and you will get something like this:
 
