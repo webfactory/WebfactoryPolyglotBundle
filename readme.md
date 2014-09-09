@@ -39,21 +39,21 @@ Add the following to your composer.json (see http://getcomposer.org/):
 Data model
 ----------
 
-A main doctrine entity (e.g. `Document`) contains all fields of the entity of which some are language specific. We
+A main Doctrine entity (e.g. `Document`) contains all fields of the entity of which some are language specific. We
 distinguish between two types of translations: one "master translation" and any number of "secondary translations":
 
 * The master translation is stored in the main entity (`Document`) itself. This is why the main entity is marked with a
 "primary locale" which indicates the language of the master translation.
-* The secondary translations are stored in a separate doctrine entity (e.g. `DocumentTranslation`) that contains only
+* The secondary translations are stored in a separate Doctrine entity (e.g. `DocumentTranslation`) that contains only
 the language specific fields (and some metadata, see example below).
 
-Both entities are connected via doctrine relations.
+Both entities are connected via Doctrine relations.
 
 
 Usage example
 -------------
 
-Say you have an existing doctrine-entity `Document` that looks like this:
+Say you have an existing Doctrine entity `Document` that looks like this:
 
 	<?php
 	
@@ -117,7 +117,7 @@ And now we want to make the `text` translatable.
 * The translation entity needs to have all properties that will be translated
 * The translation entity doesn't need to extend `\Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation`, it's just
 comfortable
-* The translation entity needs to have a property $entity which is mapped (via doctrine relation) to the original entity
+* The translation entity needs to have a property $entity which is mapped (via Doctrine relation) to the original entity
 
 ### Step 2) Update the main entity
 
@@ -163,14 +163,14 @@ comfortable
 Webfactory\Bundle\PolyglotBundle\Annotation\Locale
 * All translateable fields need to be marked with the `Webfactory\Bundle\PolyglotBundle\Annotation\Translateable`
 annotation
-* The doctrine relation to the translation-entity needs to be mapped and the property needs to be marked with the
+* The Doctrine relation to the translation entity needs to be mapped and the property needs to be marked with the
 `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` annotation
 
 
 ### Step 3) Update your database schema
 
 Use Doctrine zo update your database schema, e.g. via the
-[DoctrineMigrationsBundle](https://github.com/doctrine/DoctrineMigrationsBundle).
+[DoctrineMigrationsBundle](https://github.com/Doctrine/DoctrineMigrationsBundle).
 
 
 **That's it.**
