@@ -113,9 +113,10 @@ And now we want to make the `text` translatable.
 
 **Note**:
 
-* The translation-entity needs to have all properties that will be translated
-* The translation-entity needs to extend `\Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation`
-* The translation-entity is required to have a property $entity which is mapped (via doctrine relation) to the original entity
+* The translation entity needs to have all properties that will be translated
+* The translation entity doesn't need to extend `\Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation`, it's just
+comfortable
+* The translation entity needs to have a property $entity which is mapped (via doctrine relation) to the original entity
 
 ### Step 2) Update the main entity
 
