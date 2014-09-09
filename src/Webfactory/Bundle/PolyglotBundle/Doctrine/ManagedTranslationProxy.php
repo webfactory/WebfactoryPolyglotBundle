@@ -114,16 +114,16 @@ class ManagedTranslationProxy implements TranslatableInterface
     protected function createTranslationEntity($locale)
     {
         $className = $this->translationClass->name;
-        $e = new $className;
+        $entity = new $className;
 
-        $this->localeField->setValue($e, $locale);
+        $this->localeField->setValue($entity, $locale);
 
-        $this->translationMapping->setValue($e, $this->entity);
-        $this->translationCollection->getValue($this->entity)->add($e);
+        $this->translationMapping->setValue($entity, $this->entity);
+        $this->translationCollection->getValue($this->entity)->add($entity);
 
-        self::$_translations[$this->oid][$locale] = $e;
+        self::$_translations[$this->oid][$locale] = $entity;
 
-        return $e;
+        return $entity;
     }
 
     public function setTranslation($value, $locale = null)
@@ -132,11 +132,11 @@ class ManagedTranslationProxy implements TranslatableInterface
         if ($locale == $this->primaryLocale) {
             $this->primaryValue = $value;
         } else {
-            $e = $this->getTranslationEntity($locale);
-            if (!$e) {
-                $e = $this->createTranslationEntity($locale);
+            $entity = $this->getTranslationEntity($locale);
+            if (!$entity) {
+                $entity = $this->createTranslationEntity($locale);
             }
-            $this->translatedProperty->setValue($e, $value);
+            $this->translatedProperty->setValue($entity, $value);
         }
     }
 
@@ -148,8 +148,8 @@ class ManagedTranslationProxy implements TranslatableInterface
             return $this->primaryValue;
         }
 
-        if ($e = $this->getTranslationEntity($locale)) {
-            $translated = $this->translatedProperty->getValue($e);
+        if ($entity = $this->getTranslationEntity($locale)) {
+            $translated = $this->translatedProperty->getValue($entity);
             if (null !== $translated) {
                 return $translated;
             }
