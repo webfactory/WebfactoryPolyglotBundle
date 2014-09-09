@@ -169,4 +169,10 @@ You can retrieve a specific translation like this:
 	$document->getTitle()->translate('de_DE')
 
 
+Planned features/whish list
+---------------------------
+
+* Each entity can only have one fixed primary locale. 
+  We have encountered cases in which some record were only available in a language different from the primary locale.
+  Therefore, we want to remove the annotation for the primary locale and store this information in the database. This allows each record to have its own primary locale.
 
