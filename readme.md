@@ -97,52 +97,55 @@ Let's say you have an existing Doctrine entity `Document` that looks like this:
 
 And now we want to make the `text` translatable.
 
-### Step 1) Update the main entity
+### Step 1) Update the Main Entity
+
+1. Annotate the main entity with the primary locale (in this case, the language of the database field `document.text`)
+   with `Webfactory\Bundle\PolyglotBundle\Annotation\Locale`.
+2. Annotate all translatable fields with `Webfactory\Bundle\PolyglotBundle\Annotation\Translateable`.
+3. Add the association for the upcoming translation entity and annotate it's field with
+   `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection`.
+4. You may want to change your type hint for the translated fields from string to string|TranslatableInterface and cast
+   to string in your getters (more on that later).
+
+... and you will get something like this:
 
     <?php
 
-    use Doctrine\ORM\Mapping as ORM;
+    ...
     use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+    use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
+    use Doctrine\Common\Collections\Collection;
 
     /**
-     * @ORM\Entity()
-     * @ORM\Table()
+     * ...
      * @Polyglot\Locale(primary="en_GB")
      */
     class Document
     {
-        /**
-         * @ORM\Id
-         * @ORM\GeneratedValue
-         * @ORM\Column(type="integer") */
-        protected $id;
+        ...
 
         /**
          * @ORM\OneToMany(targetEntity="DocumentTranslation", mappedBy="entity")
          * @Polyglot\TranslationCollection
+         * @var Collection
          */
-        protected $_translations;
+        protected $translations;
 
         /**
-         * @ORM\Column(type="text")
          * @Polyglot\Translatable
+         * @var string|TranslatableInterface
          */
         protected $text;
 
+        /**
+         * @return string
+         */
         public function getText()
         {
-            return $this->text;
+            return (string) $this->text;
         }
     }
 
-**Note**:
-
-* Set the primary locale of the main entity (in this case, the language of the database field `document.text`) via
-  Webfactory\Bundle\PolyglotBundle\Annotation\Locale
-* All translateable fields need to be marked with the `Webfactory\Bundle\PolyglotBundle\Annotation\Translateable`
-  annotation
-* The Doctrine relation to the translation entity needs to be mapped and the property needs to be marked with the
-  `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` annotation
 
 ### Step 2) Create the translation entity
 
