@@ -18,7 +18,7 @@ Add the following to your composer.json (see http://getcomposer.org/):
 
     "require" :  {
         // ...
-        "webfactory/polyglot-bundle": "dev-master"
+        "webfactory/polyglot-bundle": "@stable"
     }
 
 ### Step 2) Enable the bundle in `app/AppKernel.php`:
