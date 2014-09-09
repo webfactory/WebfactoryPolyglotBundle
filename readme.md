@@ -130,7 +130,7 @@ And now we want to make the `text` translatable.
 
 * The translation entity needs to have all properties that will be translated
 * The translation entity doesn't need to extend `\Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation`, it's just
-comfortable
+  comfortable
 * The translation entity needs to have a property $entity which is mapped (via Doctrine relation) to the original entity
 
 ### Step 2) Update the main entity
@@ -174,11 +174,11 @@ comfortable
 **Note**:
 
 * Set the primary locale of the main entity (in this case, the language of the database field `document.text`) via
-Webfactory\Bundle\PolyglotBundle\Annotation\Locale
+  Webfactory\Bundle\PolyglotBundle\Annotation\Locale
 * All translateable fields need to be marked with the `Webfactory\Bundle\PolyglotBundle\Annotation\Translateable`
-annotation
+  annotation
 * The Doctrine relation to the translation entity needs to be mapped and the property needs to be marked with the
-`Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` annotation
+  `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` annotation
 
 
 ### Step 3) Update your database schema
@@ -203,6 +203,7 @@ It's not very comfortable to persist entities and their translations. One might 
 translation entity is the owning side of a cascade={"persist"}-association, so I'll just persist the translation. But no
 - we seem to have broken Doctrine's lifecycle management here. As a workaround, you can persist both the main entity and
 it's translation entities. See the tests for further details.
+
 
 Planned features/wish list
 --------------------------
