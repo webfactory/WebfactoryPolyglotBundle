@@ -49,7 +49,7 @@ Both entities are connected via doctrine relations.
 Usage example
 ------------- 
 
-Say you have an existing doctrine-entity `document` that looks like this.
+Say you have an existing doctrine-entity `Document` that looks like this.
 
 	<?php
 	
@@ -169,8 +169,8 @@ You can retrieve a specific translation like this:
 	$document->getTitle()->translate('de_DE')
 
 
-Planned features/whish list
----------------------------
+Planned features/wish list
+--------------------------
 
 * Each entity can only have one fixed primary locale. 
   We have encountered cases in which some record were only available in a language different from the primary locale.
