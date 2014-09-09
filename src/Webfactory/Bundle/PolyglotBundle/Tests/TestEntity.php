@@ -56,9 +56,4 @@ class TestEntity
     {
         return $this->id;
     }
-
-    public function addTranslation(TestEntityTranslation $translation)
-    {
-        $this->_translations->add($translation);
-    }
 }

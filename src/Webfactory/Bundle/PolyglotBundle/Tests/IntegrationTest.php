@@ -74,8 +74,13 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
 
         $entity = $this->createEntityFixture('english');
-        $this->addTranslationToTestEntity('de_DE', 'deutsch', $entity);
-        $this->infrastructure->import($entity);
+
+        $translation = new TestEntityTranslation();
+        $translation->setLocale('de_DE');
+        $translation->name = 'deutsch';
+        $translation->setEntity($entity);
+
+        $this->infrastructure->import(array($translation, $entity));
 
         $loadedEntity = $this->infrastructure->getRepository($entity)
                                              ->find($entity->getId());
@@ -106,19 +111,5 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $entity = new TestEntity();
         $entity->name = $name;
         return $entity;
-    }
-
-    /**
-     * @param string $locale, e.g. 'de_DE'
-     * @param string $name translation in the locale
-     * @param TestEntity $entity
-     */
-    private function addTranslationToTestEntity($locale, $name, TestEntity $entity)
-    {
-        $translation = new TestEntityTranslation();
-        $translation->setLocale($locale);
-        $translation->name = $name;
-
-        $entity->addTranslation($translation);
     }
 }

@@ -33,6 +33,7 @@ class TestEntityTranslation
     protected $locale;
 
     /**
+     * @ORM\ManyToOne(targetEntity="TestEntity", inversedBy="_translations")
      * @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable=false)
      */
     protected $entity;
