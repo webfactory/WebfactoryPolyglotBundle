@@ -158,9 +158,13 @@ comfortable
 
 **Note**:
 
-* Set the primary locale of the main entity (in this case, the language of the database field `document.text`) via the Webfactory\Bundle\PolyglotBundle\Annotation\Locale
-* All translateable fields need to be marked with the `Webfactory\Bundle\PolyglotBundle\Annotation\Translateable` annotation
-* The doctrine relation to the translation-entity needs to be mapped and the property needs to be marked with the `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` annotation
+* Set the primary locale of the main entity (in this case, the language of the database field `document.text`) via
+Webfactory\Bundle\PolyglotBundle\Annotation\Locale
+* All translateable fields need to be marked with the `Webfactory\Bundle\PolyglotBundle\Annotation\Translateable`
+annotation
+* The doctrine relation to the translation-entity needs to be mapped and the property needs to be marked with the
+`Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` annotation
+
 
 ### Step 3) Update your database schema
 
