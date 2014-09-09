@@ -120,8 +120,7 @@ class PolyglotListener implements EventSubscriber
         // Load/parse
         $meta = TranslationMetadata::parseFromClassMetadata(
             $metadataFactory->getMetadataFor($className),
-            $this->reader,
-            $reflectionService
+            $this->reader
         );
         if ($meta !== null) {
             $this->translatedClasses[$className] = $meta;
