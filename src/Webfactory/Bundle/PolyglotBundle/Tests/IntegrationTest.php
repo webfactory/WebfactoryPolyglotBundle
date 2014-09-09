@@ -12,7 +12,6 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
-use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 
 /**
@@ -52,9 +51,7 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $entity = new TestEntity('english');
         $this->infrastructure->import($entity);
 
-        $loadedText = $this->getTextOfLoadedEntity($entity);
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
-        $this->assertSame('english', $loadedText->__toString());
+        $this->assertTextInReloadedEntityEquals($entity, 'english');
     }
 
     /**
@@ -65,9 +62,7 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->addPolyglotListenerToDoctrineWithLocale('en_GB');
         $entity = $this->createAndImportFixtureWithTranslation();
 
-        $loadedText = $this->getTextOfLoadedEntity($entity);
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
-        $this->assertSame('english', $loadedText->__toString());
+        $this->assertTextInReloadedEntityEquals($entity, 'english');
     }
 
     /**
@@ -78,9 +73,7 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
         $entity = $this->createAndImportFixtureWithTranslation();
 
-        $loadedText = $this->getTextOfLoadedEntity($entity);
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
-        $this->assertSame('deutsch', $loadedText->__toString());
+        $this->assertTextInReloadedEntityEquals($entity, 'deutsch');
     }
 
     /**
@@ -93,7 +86,11 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
         $entity = $this->createAndImportFixtureWithTranslation();
 
-        $loadedText = $this->getTextOfLoadedEntity($entity);
+        /* @var $reloadedEntity TestEntity */
+        $reloadedEntity = $this->infrastructure->getRepository($entity)
+                                               ->find($entity->getId());
+        $loadedText = $reloadedEntity->getText();
+
         $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
         $this->assertSame('english', $loadedText->translate('en_GB'));
     }
@@ -106,6 +103,7 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $annotationReader = new AnnotationReader();
         $defaultLocaleProvider = new DefaultLocaleProvider();
         $defaultLocaleProvider->setDefaultLocale($locale);
+
         $listener = new PolyglotListener($annotationReader, $defaultLocaleProvider);
         $this->infrastructure->getEntityManager()
                              ->getEventManager()
@@ -126,13 +124,16 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param TestEntity $entity
-     * @return TranslatableInterface|string|null
+     * @param string $expectedText
      */
-    private function getTextOfLoadedEntity($entity)
+    private function assertTextInReloadedEntityEquals(TestEntity $entity, $expectedText)
     {
-        /* @var $loadedEntity TestEntity */
-        $loadedEntity =  $this->infrastructure->getRepository($entity)
-                                              ->find($entity->getId());
-        return $loadedEntity->getText();
+        /* @var $reloadedEntity TestEntity */
+        $reloadedEntity = $this->infrastructure->getRepository($entity)
+                                               ->find($entity->getId());
+        $loadedText = $reloadedEntity->getText();
+
+        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
+        $this->assertSame($expectedText, $loadedText->__toString());
     }
 }
