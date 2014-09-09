@@ -8,7 +8,7 @@ webfactory/polyglot-bundle
 
 A bundle to simplify translations for Doctrine entities.
 
-It's main advantages over similar bundles are:
+Its main advantages over similar bundles are:
 
 * Transparency: Add translations to existing entities without any API changes.
 * Fast: Entity translations are loaded eagerly from separate translation tables.
