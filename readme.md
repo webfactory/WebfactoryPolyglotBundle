@@ -24,16 +24,16 @@ Add the following to your composer.json (see http://getcomposer.org/):
 
 ### Step 2) Enable the bundle in `app/AppKernel.php`:
 
-	<?php
-	// app/AppKernel.php
-	
-	public function registerBundles()
-	{
-	    $bundles = array(
-	        // ...
-	        new Webfactory\Bundle\PolyglotBundle\WebfactoryPolyglotBundle(),
-	    );
-	}
+    <?php
+    // app/AppKernel.php
+    
+    public function registerBundles()
+    {
+        $bundles = array(
+            // ...
+            new Webfactory\Bundle\PolyglotBundle\WebfactoryPolyglotBundle(),
+        );
+    }
 
 
 Data Model
@@ -51,77 +51,77 @@ Usage Example
 
 Let's say you have an existing Doctrine entity `Document` that looks like this:
 
-	<?php
-	
-	use Doctrine\ORM\Mapping as ORM;
-	
-	/**
-	 * @ORM\Entity()
-	 * @ORM\Table()
-	 */
-	class Document
-	{
-	    /**
-	     * @ORM\Id
-	     * @ORM\GeneratedValue
-	     * @ORM\Column(type="integer")
-	     * @var int
-	     */
-	    protected $id;
-	
-	    /**
-	     * @ORM\Column(type="text")
-	     * @var string
-	     */
-	    protected $text;
+    <?php
+    
+    use Doctrine\ORM\Mapping as ORM;
+    
+    /**
+     * @ORM\Entity()
+     * @ORM\Table()
+     */
+    class Document
+    {
+        /**
+         * @ORM\Id
+         * @ORM\GeneratedValue
+         * @ORM\Column(type="integer")
+         * @var int
+         */
+        protected $id;
+    
+        /**
+         * @ORM\Column(type="text")
+         * @var string
+         */
+        protected $text;
 
-	    /**
-	     * @return string
-	     */
-	    public function getText()
-	    {
-	        return $this->text;
-	    }
-	
-	    /**
-	     * @param string
-	     */
-	    public function setText()
-	    {
-	        return $this->text;
-	    }
-	}
+        /**
+         * @return string
+         */
+        public function getText()
+        {
+            return $this->text;
+        }
+    
+        /**
+         * @param string
+         */
+        public function setText()
+        {
+            return $this->text;
+        }
+    }
 
 
 And now we want to make the `text` translatable.
 
 ### Step 1) Create the translation entity
 
-	<?php
-		
-	use Doctrine\ORM\Mapping as ORM;
-	use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
-	
-	/**
-	 * @ORM\Entity
-	 * @ORM\Table(
-	 *      uniqueConstraints = {
-	 *          @ORM\UniqueConstraint(name="lookup_unique_idx", columns={"entity_id", "locale"})
-	 *     }
-	 * )
-	 */
-	class DocumentTranslation extends BaseTranslation
-	{
-	    /**
-	     * @ORM\Column(type="text")
-	     */
-	    protected $text;
+    <?php
+        
+    use Doctrine\ORM\Mapping as ORM;
+    use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
+    
+    /**
+     * @ORM\Entity
+     * @ORM\Table(
+     *      uniqueConstraints = {
+     *          @ORM\UniqueConstraint(name="lookup_unique_idx", columns={"entity_id", "locale"})
+     *     }
+     * )
+     */
+    class DocumentTranslation extends BaseTranslation
+    {
+        /**
+         * @ORM\Column(type="text")
+         */
+        protected $text;
 
-	    /**
-	     * @ORM\ManyToOne(targetEntity="Document", inversedBy="_translations")
-	     */
-	    protected $entity;
-	}
+        /**
+         * @ORM\ManyToOne(targetEntity="Document", inversedBy="_translations")
+         */
+        protected $entity;
+    }
 
 
 **Note**:
@@ -133,41 +133,41 @@ comfortable
 
 ### Step 2) Update the main entity
 
-	<?php
+    <?php
 
-	use Doctrine\ORM\Mapping as ORM;
-	use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
-	
-	/**
-	 * @ORM\Entity()
-	 * @ORM\Table()
-	 * @Polyglot\Locale(primary="en_GB")
-	 */
-	class Document
-	{
-	    /**
-	     * @ORM\Id
-	     * @ORM\GeneratedValue
-	     * @ORM\Column(type="integer") */
-	    protected $id;
-	
-	    /**
-	     * @ORM\OneToMany(targetEntity="DocumentTranslation", mappedBy="entity")
-	     * @Polyglot\TranslationCollection
-	     */
-	    protected $_translations;
-	
-	    /**
-	     * @ORM\Column(type="text")
-	     * @Polyglot\Translatable
-	     */
-	    protected $text;
-	    
-	    public function getText()
-	    {
-	        return $this->text;
+    use Doctrine\ORM\Mapping as ORM;
+    use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+    
+    /**
+     * @ORM\Entity()
+     * @ORM\Table()
+     * @Polyglot\Locale(primary="en_GB")
+     */
+    class Document
+    {
+        /**
+         * @ORM\Id
+         * @ORM\GeneratedValue
+         * @ORM\Column(type="integer") */
+        protected $id;
+    
+        /**
+         * @ORM\OneToMany(targetEntity="DocumentTranslation", mappedBy="entity")
+         * @Polyglot\TranslationCollection
+         */
+        protected $_translations;
+    
+        /**
+         * @ORM\Column(type="text")
+         * @Polyglot\Translatable
+         */
+        protected $text;
+        
+        public function getText()
+        {
+            return $this->text;
         }
-	}
+    }
 
 **Note**:
 
@@ -191,7 +191,7 @@ If there is no translation for the current locale, the primary locale is used as
 
 You can retrieve a specific translation like this:
 
-	$document->getText()->translate('de_DE')
+    $document->getText()->translate('de_DE')
 
 
 Planned features/wish list
