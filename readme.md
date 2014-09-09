@@ -147,7 +147,18 @@ And now we want to make the `text` translatable.
     }
 
 
-### Step 2) Create the translation entity
+### Step 2) Create the Translation Entity
+
+1. Create a class for the translation entity. As for the name, we suggest suffixing your main entity's name with
+   "Translation". It has to contain all translated properties with regular Doctrine annotations
+   (e.g. @ORM\Column(type="text")).
+2. If you choose to name your back reference `entity` as we did in the example, you may want to extend
+   `\Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation` to save yourself the hassle of rewriting some meta data
+   and a getter. But extending not necessary!
+3. The translation entity needs to have the Doctrine back reference to the original entity, in our example the `$entity`
+   property.
+
+... and you will end up with something like this:
 
     <?php
         
@@ -174,13 +185,6 @@ And now we want to make the `text` translatable.
          */
         protected $entity;
     }
-
-**Note**:
-
-* The translation entity needs to have all properties that will be translated
-* The translation entity doesn't need to extend `\Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation`, it's just
-  comfortable
-* The translation entity needs to have a property $entity which is mapped (via Doctrine relation) to the original entity
 
 
 ### Step 3) Update your database schema
