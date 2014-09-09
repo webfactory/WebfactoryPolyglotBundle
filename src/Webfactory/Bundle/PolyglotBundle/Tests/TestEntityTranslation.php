@@ -11,56 +11,36 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests;
 
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
 
 /**
- * Translation Entity of the Doctrine entity that is used for testing.
+ * Translation entity of the Doctrine entity that is used for testing.
  *
  * @ORM\Entity
  */
-class TestEntityTranslation
+class TestEntityTranslation extends BaseTranslation
 {
     /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    protected $id;
-
-    /**
-     * @ORM\Column
-     * @Polyglot\Locale
-     */
-    protected $locale;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="TestEntity", inversedBy="_translations")
-     * @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable=false)
+     * @ORM\ManyToOne(targetEntity="TestEntity", inversedBy="translations")
+     * @var TestEntity
      */
     protected $entity;
 
     /**
-     * @ORM\Column(nullable = true)
+     * @ORM\Column(type="string")
+     * @var string
      */
-    public $name;
-
-    public function getLocale()
-    {
-        return $this->locale;
-    }
+    private $text;
 
     /**
-     * @param string $locale
+     * @param string $locale, e.g. 'de_DE'
+     * @param string $text
+     * @param TestEntity $entity
      */
-    public function setLocale($locale)
+    function __construct($locale, $text, TestEntity $entity)
     {
         $this->locale = $locale;
-    }
-
-    /**
-     * @param mixed $entity
-     */
-    public function setEntity($entity)
-    {
+        $this->text = $text;
         $this->entity = $entity;
     }
 }

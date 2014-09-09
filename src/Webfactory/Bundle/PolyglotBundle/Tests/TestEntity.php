@@ -23,32 +23,33 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 class TestEntity
 {
     /**
-     * @var integer|null
      * @ORM\Id
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
+     * @var integer|null
      */
-    private $id = null;
+    private $id;
 
     /**
-     * A text in the master language. Can be set with a string and gets replaced with a TranslatableInterface by the
+     * Text in the primary locale. Can be set with a string and gets replaced with a TranslatableInterface by the
      * Doctrine PolyglotListener.
      *
-     * @var TranslatableInterface|string|null
-     * @ORM\Column(type="string", name="name")
+     * @ORM\Column(type="string")
      * @Polyglot\Translatable
+     * @var TranslatableInterface|string|null
      */
-    public $name = null;
+    protected $text = null;
 
     /**
      * @ORM\OneToMany(targetEntity="TestEntityTranslation", mappedBy="entity")
      * @Polyglot\TranslationCollection
      */
-    protected $_translations;
+    protected $translations;
 
-    public function __construct()
+    public function __construct($text)
     {
-        $this->_translations = new ArrayCollection();
+        $this->translations = new ArrayCollection();
+        $this->text = $text;
     }
 
     /**
@@ -57,5 +58,13 @@ class TestEntity
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return TranslatableInterface|string|null
+     */
+    public function getText()
+    {
+        return $this->text;
     }
 }

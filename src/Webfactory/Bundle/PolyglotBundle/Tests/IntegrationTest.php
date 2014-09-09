@@ -20,10 +20,15 @@ use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 final class IntegrationTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * Infrastructure for ORM tests.
+     *
      * @var ORMInfrastructure
      */
     private $infrastructure;
 
+    /**
+     * @see \PHPUnit_Framework_TestCase::setUp()
+     */
     protected function setUp()
     {
         parent::setUp();
@@ -37,55 +42,52 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * If the Doctrine Listener is not registered, the entity works just like before.
+     *
      * @test
      */
     public function withoutListenerTextInDefaultLanguageIsReturned()
     {
-        $entity = $this->createEntityFixture('english');
+        $entity = new TestEntity('english');
         $this->infrastructure->import($entity);
 
         $loadedEntity = $this->infrastructure->getRepository($entity)
                                              ->find($entity->getId());
-        $this->assertInternalType('string', $loadedEntity->name);
-        $this->assertSame('english', $loadedEntity->name);
+        $this->assertInternalType('string', $loadedEntity->getText());
+        $this->assertSame('english', $loadedEntity->getText());
     }
 
     /**
      * @test
      */
-    public function withListenerWithDefualtLanguageTextInDefaultLanguageIsReturned()
+    public function defaultLocaleForDefaultLocaleRequest()
     {
         $this->addPolyglotListenerToDoctrineWithLocale('en_GB');
 
-        $entity = $this->createEntityFixture('english');
+        $entity = new TestEntity('english');
         $this->infrastructure->import($entity);
 
         $loadedEntity = $this->infrastructure->getRepository($entity)
                                              ->find($entity->getId());
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedEntity->name);
-        $this->assertSame('english', $loadedEntity->name->__toString());
+        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedEntity->getText());
+        $this->assertSame('english', $loadedEntity->getText()->__toString());
     }
 
     /**
      * @test
      */
-    public function differentLanguageForDifferentLocalRequested()
+    public function differentLocaleForDifferentLocaleRequested()
     {
         $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
 
-        $entity = $this->createEntityFixture('english');
-
-        $translation = new TestEntityTranslation();
-        $translation->setLocale('de_DE');
-        $translation->name = 'deutsch';
-        $translation->setEntity($entity);
-
+        $entity = new TestEntity('english');
+        $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
         $this->infrastructure->import(array($translation, $entity));
 
         $loadedEntity = $this->infrastructure->getRepository($entity)
                                              ->find($entity->getId());
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedEntity->name);
-        $this->assertSame('deutsch', $loadedEntity->name->__toString());
+        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedEntity->getText());
+        $this->assertSame('deutsch', $loadedEntity->getText()->__toString());
     }
 
     /**
@@ -100,16 +102,5 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->infrastructure->getEntityManager()
                              ->getEventManager()
                              ->addEventSubscriber($listener);
-    }
-
-    /**
-     * @param string $name
-     * @return TestEntity
-     */
-    private function createEntityFixture($name)
-    {
-        $entity = new TestEntity();
-        $entity->name = $name;
-        return $entity;
     }
 }
