@@ -11,8 +11,8 @@ use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\EntityManager;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
-class PolyglotListener implements EventSubscriber {
-
+class PolyglotListener implements EventSubscriber
+{
     const CACHE_SALT = '$WebfactoryPolyglot';
 
     protected $reader;
@@ -20,22 +20,26 @@ class PolyglotListener implements EventSubscriber {
     protected $_proxiesStripped = array();
     protected $defaultLocaleProvider;
 
-    public function __construct(Reader $annotationReader, DefaultLocaleProvider $defaultLocaleProvider) {
+    public function __construct(Reader $annotationReader, DefaultLocaleProvider $defaultLocaleProvider)
+    {
         $this->reader = $annotationReader;
         $this->defaultLocaleProvider = $defaultLocaleProvider;
     }
-    
-    public function getSubscribedEvents() {
+
+    public function getSubscribedEvents()
+    {
         return array(Events::postLoad, Events::preFlush, Events::prePersist, Events::postFlush);
     }
 
-    public function postLoad(LifecycleEventArgs $event) {
+    public function postLoad(LifecycleEventArgs $event)
+    {
         if ($tm = $this->getTranslationMetadataForLifecycleEvent($event)) {
             $tm->injectProxies($event->getEntity(), $this->defaultLocaleProvider);
         }
     }
 
-    public function prePersist(LifecycleEventArgs $event) {
+    public function prePersist(LifecycleEventArgs $event)
+    {
         $entity = $event->getEntity();
         $em = $event->getEntityManager();
 
@@ -48,9 +52,11 @@ class PolyglotListener implements EventSubscriber {
         }
     }
 
-    public function preFlush(PreFlushEventArgs $event) {
+    public function preFlush(PreFlushEventArgs $event)
+    {
         $em = $event->getEntityManager();
-        /** @var $uow \Doctrine\ORM\UnitOfWork */ $uow = $em->getUnitOfWork();
+        /** @var $uow \Doctrine\ORM\UnitOfWork */
+        $uow = $em->getUnitOfWork();
 
         foreach ($uow->getScheduledEntityInsertions() + $uow->getScheduledEntityUpdates() as $entity) {
             if ($tm = $this->getTranslationMetadata(get_class($entity), $em)) {
@@ -60,7 +66,8 @@ class PolyglotListener implements EventSubscriber {
         }
     }
 
-    public function postFlush(PostFlushEventArgs $event) {
+    public function postFlush(PostFlushEventArgs $event)
+    {
         $em = $event->getEntityManager();
 
         while ($entity = array_shift($this->_proxiesStripped)) {
@@ -69,7 +76,8 @@ class PolyglotListener implements EventSubscriber {
         }
     }
 
-    protected function getTranslationMetadataForLifecycleEvent(LifecycleEventArgs $event) {
+    protected function getTranslationMetadataForLifecycleEvent(LifecycleEventArgs $event)
+    {
         $entity = $event->getEntity();
         $em = $event->getEntityManager();
 
@@ -78,10 +86,12 @@ class PolyglotListener implements EventSubscriber {
         return $this->getTranslationMetadata($className, $em);
     }
 
-    protected function getTranslationMetadata($className, EntityManager $em) {
+    protected function getTranslationMetadata($className, EntityManager $em)
+    {
         // In memory cache
-        if (isset($this->translatedClasses[$className]))
+        if (isset($this->translatedClasses[$className])) {
             return $this->translatedClasses[$className];
+        }
 
         $metadataFactory = $em->getMetadataFactory();
         $reflectionService = $metadataFactory->getReflectionService();
@@ -101,7 +111,12 @@ class PolyglotListener implements EventSubscriber {
         }
 
         // Load/parse
-        if ($meta = TranslationMetadata::parseFromClassMetadata($metadataFactory->getMetadataFor($className), $this->reader, $reflectionService)) {
+        $meta = TranslationMetadata::parseFromClassMetadata(
+            $metadataFactory->getMetadataFor($className),
+            $this->reader,
+            $reflectionService
+        );
+        if ($meta !== null) {
             $this->translatedClasses[$className] = $meta;
         }
 
@@ -112,7 +127,4 @@ class PolyglotListener implements EventSubscriber {
 
         return $meta;
     }
-
-
 }
-

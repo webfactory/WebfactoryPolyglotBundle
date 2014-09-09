@@ -2,6 +2,9 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Annotation;
 
-/** @Annotation */
-class TranslationCollection {
+/**
+ * @Annotation
+ */
+class TranslationCollection
+{
 }
