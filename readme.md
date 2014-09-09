@@ -214,6 +214,6 @@ it's translation entities. See the tests for further details.
 Planned Features / Wish List
 ----------------------------
 
-* For now, each entity has one fixed primary locale. We have encountered cases in which some records were only available
-  in a language different from the primary locale. Therefore, we want to remove the primary locale annotation and store
-  this information in an attribute. This would allow each record to have its own primary locale.
+For now, each entity has one fixed primary locale. We have encountered cases in which some records were only available
+in a language different from the primary locale. Therefore, we want to remove the primary locale annotation and store
+this information in an attribute. This would allow each record to have its own primary locale.
