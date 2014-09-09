@@ -72,7 +72,7 @@ class TranslationMetadata
         return $tm;
     }
 
-    protected function resurrect($property, ReflectionService $reflectionService)
+    protected function resurrect(\ReflectionProperty $property, ReflectionService $reflectionService)
     {
         return $reflectionService->getAccessibleProperty($property->class, $property->name);
     }
