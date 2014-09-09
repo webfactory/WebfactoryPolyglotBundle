@@ -12,6 +12,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
+use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 
 /**
@@ -51,10 +52,9 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $entity = new TestEntity('english');
         $this->infrastructure->import($entity);
 
-        $loadedEntity = $this->infrastructure->getRepository($entity)
-                                             ->find($entity->getId());
-        $this->assertInternalType('string', $loadedEntity->getText());
-        $this->assertSame('english', $loadedEntity->getText());
+        $loadedText = $this->getTextOfLoadedEntity($entity);
+        $this->assertInternalType('string', $loadedText);
+        $this->assertSame('english', $loadedText);
     }
 
     /**
@@ -67,10 +67,9 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $entity = new TestEntity('english');
         $this->infrastructure->import($entity);
 
-        $loadedEntity = $this->infrastructure->getRepository($entity)
-                                             ->find($entity->getId());
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedEntity->getText());
-        $this->assertSame('english', $loadedEntity->getText()->__toString());
+        $loadedText = $this->getTextOfLoadedEntity($entity);
+        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
+        $this->assertSame('english', $loadedText->__toString());
     }
 
     /**
@@ -84,10 +83,9 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
         $this->infrastructure->import(array($translation, $entity));
 
-        $loadedEntity = $this->infrastructure->getRepository($entity)
-                                             ->find($entity->getId());
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedEntity->getText());
-        $this->assertSame('deutsch', $loadedEntity->getText()->__toString());
+        $loadedText = $this->getTextOfLoadedEntity($entity);
+        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
+        $this->assertSame('deutsch', $loadedText->__toString());
     }
 
     /**
@@ -103,10 +101,9 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
         $this->infrastructure->import(array($translation, $entity));
 
-        $loadedEntity = $this->infrastructure->getRepository($entity)
-                                             ->find($entity->getId());
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedEntity->getText());
-        $this->assertSame('english', $loadedEntity->getText()->translate('en_GB'));
+        $loadedText = $this->getTextOfLoadedEntity($entity);
+        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
+        $this->assertSame('english', $loadedText->translate('en_GB'));
     }
 
     /**
@@ -121,5 +118,17 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->infrastructure->getEntityManager()
                              ->getEventManager()
                              ->addEventSubscriber($listener);
+    }
+
+    /**
+     * @param TestEntity $entity
+     * @return TranslatableInterface|string|null
+     */
+    private function getTextOfLoadedEntity($entity)
+    {
+        /* @var $loadedEntity TestEntity */
+        $loadedEntity =  $this->infrastructure->getRepository($entity)
+                                              ->find($entity->getId());
+        return $loadedEntity->getText();
     }
 }
