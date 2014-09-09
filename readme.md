@@ -23,15 +23,14 @@ If you're fine with the [known limitations](#known-limitations), read on!
 Installation
 ------------
 
-### Step 1) Get the bundle via Composer
-Add the following to your composer.json (see http://getcomposer.org/):
+Simply add the following to your composer.json (see http://getcomposer.org/):
 
     "require" :  {
         // ...
         "webfactory/polyglot-bundle": "@stable"
     }
 
-### Step 2) Enable the bundle in `app/AppKernel.php`:
+And enable the bundle in `app/AppKernel.php`:
 
     <?php
     // app/AppKernel.php
