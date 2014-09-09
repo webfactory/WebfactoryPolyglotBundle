@@ -43,21 +43,6 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * If the Doctrine Listener is not registered, the entity works just like before.
-     *
-     * @test
-     */
-    public function withoutListenerTextInDefaultLanguageIsReturned()
-    {
-        $entity = new TestEntity('english');
-        $this->infrastructure->import($entity);
-
-        $loadedText = $this->getTextOfLoadedEntity($entity);
-        $this->assertInternalType('string', $loadedText);
-        $this->assertSame('english', $loadedText);
-    }
-
-    /**
      * @test
      */
     public function defaultLocaleForPrimaryLocaleRequest()
