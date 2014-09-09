@@ -227,9 +227,9 @@ Known Limitations
 -----------------
 
 It's not very comfortable to persist entities and their translations. One might think: it's just Doctrine, the
-translation entity is the owning side of a cascade={"persist"}-association, so I'll just persist the translation. But no
-- we seem to have broken Doctrine's lifecycle management here. As a workaround, you can persist both the main entity and
-it's translation entities. See the tests for further details.
+translation entity is the owning side of a cascade={"persist"}-association, so I'll just persist the translation. But
+no - we seem to have broken Doctrine's lifecycle management here. As a workaround, you can persist both the main entity
+and it's translation entities. See the tests for further details.
 
 
 Planned Features / Wish List
