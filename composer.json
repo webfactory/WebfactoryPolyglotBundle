@@ -5,7 +5,8 @@
     },
 
     "require": {
-        "doctrine/orm": ">= 2.2.0"
+        "doctrine/orm": ">= 2.2.0",
+        "symfony/symfony": "~2.0"
     },
 
     "require-dev": {
