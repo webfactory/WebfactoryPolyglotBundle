@@ -85,13 +85,14 @@ Say you have an existing doctrine-entity `Document` that looks like this:
 	}
 
 
-And now we want to make the `title` and `text` translateable.
+And now we want to make the `title` and `text` translatable.
 
-### Step 1) Create the translation-entity
+### Step 1) Create the translation entity
 
 	<?php
 		
 	use Doctrine\ORM\Mapping as ORM;
+	use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
 	
 	/**
 	 * @ORM\Entity
@@ -101,7 +102,7 @@ And now we want to make the `title` and `text` translateable.
 	 *     }
 	 * )
 	 */
-	class DocumentTranslation extends \Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation
+	class DocumentTranslation extends BaseTranslation
 	{
 	    /**
 	     * @ORM\Column()
