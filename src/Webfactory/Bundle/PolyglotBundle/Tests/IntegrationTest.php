@@ -63,10 +63,7 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
     public function defaultLocaleForPrimaryLocaleRequest()
     {
         $this->addPolyglotListenerToDoctrineWithLocale('en_GB');
-
-        $entity = new TestEntity('english');
-        $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
-        $this->infrastructure->import(array($translation, $entity));
+        $entity = $this->createAndImportFixtureWithTranslation();
 
         $loadedText = $this->getTextOfLoadedEntity($entity);
         $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
@@ -79,10 +76,7 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
     public function differentLocaleForSecondaryLocaleRequest()
     {
         $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
-
-        $entity = new TestEntity('english');
-        $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
-        $this->infrastructure->import(array($translation, $entity));
+        $entity = $this->createAndImportFixtureWithTranslation();
 
         $loadedText = $this->getTextOfLoadedEntity($entity);
         $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
@@ -97,10 +91,7 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
     public function differentLocaleThanRequestedOne()
     {
         $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
-
-        $entity = new TestEntity('english');
-        $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
-        $this->infrastructure->import(array($translation, $entity));
+        $entity = $this->createAndImportFixtureWithTranslation();
 
         $loadedText = $this->getTextOfLoadedEntity($entity);
         $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
@@ -119,6 +110,18 @@ final class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->infrastructure->getEntityManager()
                              ->getEventManager()
                              ->addEventSubscriber($listener);
+    }
+
+    /**
+     * @return TestEntity
+     */
+    private function createAndImportFixtureWithTranslation()
+    {
+        $entity = new TestEntity('english');
+        $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
+        $this->infrastructure->import(array($translation, $entity));
+
+        return $entity;
     }
 
     /**
