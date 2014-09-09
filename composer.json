@@ -30,7 +30,7 @@
         "mayflower/php-codebrowser": "~1.1",
         "phploc/phploc": "~2.0",
         "pdepend/pdepend": "~1.1",
-        "webfactory/doctrine-orm-test-infrastructure": "@dev"
+        "webfactory/doctrine-orm-test-infrastructure": "~1.0"
     },
 
     "extra": {
