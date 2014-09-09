@@ -189,7 +189,7 @@ And now we want to make the `text` translatable.
 
 ### Step 3) Update your database schema
 
-Use Doctrine zo update your database schema, e.g. via the
+Use Doctrine to update your database schema, e.g. via the
 [DoctrineMigrationsBundle](https://github.com/Doctrine/DoctrineMigrationsBundle).
 
 ### That's it!
