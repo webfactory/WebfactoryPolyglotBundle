@@ -12,6 +12,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
  * Doctrine entity that is used for testing.
@@ -30,10 +31,11 @@ class TestEntity
     private $id = null;
 
     /**
-     * A string property.
+     * A text in the master language. Can be set with a string and gets replaced with a TranslatableInterface by the
+     * Doctrine PolyglotListener.
      *
-     * @var string|null
-     * @ORM\Column(type="string", name="name", nullable=true)
+     * @var TranslatableInterface|string|null
+     * @ORM\Column(type="string", name="name")
      * @Polyglot\Translatable
      */
     public $name = null;
