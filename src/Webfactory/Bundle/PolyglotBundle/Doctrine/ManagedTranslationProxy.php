@@ -195,8 +195,10 @@ class ManagedTranslationProxy implements TranslatableInterface
     {
         /* @var $translationsInAllLanguages \Doctrine\Common\Collections\Selectable */
         $translationsInAllLanguages = $this->translationCollection->getValue($this->entity);
-        $translationsFilteredByLocale = $translationsInAllLanguages->matching($this->createLocaleCriteria($locale));
-        $translationInLocale = $translationsFilteredByLocale->count() > 0 ? $translationsFilteredByLocale[0] : null;
+        $criteria = $this->createLocaleCriteria($locale);
+        $translationsFilteredByLocale = $translationsInAllLanguages->matching($criteria);
+
+        $translationInLocale = ($translationsFilteredByLocale->count() > 0) ? $translationsFilteredByLocale->first() : null;
 
         self::$_translations[$this->oid][$locale] = $translationInLocale;
     }
