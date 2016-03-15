@@ -195,7 +195,7 @@ And now we want to make the `text` translatable.
         protected $text;
 
         /**
-         * @ORM\ManyToOne(targetEntity="Document", inversedBy="_translations")
+         * @ORM\ManyToOne(targetEntity="Document", inversedBy="translations")
          * @var Document
          */
         protected $entity;
