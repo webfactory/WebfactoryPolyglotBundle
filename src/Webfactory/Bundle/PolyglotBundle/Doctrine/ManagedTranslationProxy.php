@@ -137,7 +137,7 @@ class ManagedTranslationProxy implements TranslatableInterface
     }
 
     /**
-     * @param $locale
+     * @param string $locale
      * @return object
      */
     protected function createTranslationEntity($locale)
