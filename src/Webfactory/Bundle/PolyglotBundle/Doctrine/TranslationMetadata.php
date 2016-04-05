@@ -13,6 +13,7 @@ use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Psr\Log\LoggerInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 
@@ -55,6 +56,12 @@ class TranslationMetadata
      * @var string Die Locale der Werte in der Haupt-Klasse.
      */
     protected $primaryLocale;
+
+    /**
+     * @var LoggerInterface|null
+     */
+    protected $logger = null;
+
 
     public static function parseFromClassMetadata(ClassMetadataInfo $cm, Reader $reader)
     {
@@ -250,7 +257,8 @@ class TranslationMetadata
             $this->translationsCollectionProperty,
             $this->translationClass,
             $this->translationLocaleProperty,
-            $this->translationMappingProperty
+            $this->translationMappingProperty,
+            $this->logger
         );
     }
 }
