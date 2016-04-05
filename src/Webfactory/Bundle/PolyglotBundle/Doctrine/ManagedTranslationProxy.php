@@ -22,7 +22,7 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 class ManagedTranslationProxy implements TranslatableInterface
 {
     /**
-     * @var array Cache für die Übersetzungen, indiziert nach Entity-OID und Locale.
+     * @var array<string, array<string, object|null>> Cache für die Übersetzungen, indiziert nach Entity-OID und Locale.
      * Ist static, damit ihn sich verschiedene Proxies (für die gleiche Entität, aber
      * unterschiedliche Felder) teilen können.
      */
@@ -33,6 +33,10 @@ class ManagedTranslationProxy implements TranslatableInterface
      */
     protected $entity;
 
+    /**
+     * Der einzigartige Hash für die verwaltete Entität.
+     * @var string
+     */
     protected $oid;
 
     /**
@@ -78,6 +82,16 @@ class ManagedTranslationProxy implements TranslatableInterface
      */
     protected $translationMapping;
 
+    /**
+     * @param object $entity
+     * @param string $primaryLocale
+     * @param DefaultLocaleProvider $defaultLocaleProvider
+     * @param ReflectionProperty $translatedProperty
+     * @param ReflectionProperty $translationCollection
+     * @param ReflectionClass $translationClass
+     * @param ReflectionProperty $localeField
+     * @param ReflectionProperty $translationMapping
+     */
     public function __construct(
         $entity,
         $primaryLocale,
@@ -109,6 +123,10 @@ class ManagedTranslationProxy implements TranslatableInterface
         return $this->primaryValue;
     }
 
+    /**
+     * @param string $locale
+     * @return object|null
+     */
     protected function getTranslationEntity($locale)
     {
         if ($this->isTranslationCached($locale) === false) {
@@ -118,6 +136,10 @@ class ManagedTranslationProxy implements TranslatableInterface
         return $this->getCachedTranslation($locale);
     }
 
+    /**
+     * @param $locale
+     * @return object
+     */
     protected function createTranslationEntity($locale)
     {
         $className = $this->translationClass->name;
@@ -133,6 +155,10 @@ class ManagedTranslationProxy implements TranslatableInterface
         return $entity;
     }
 
+    /**
+     * @param string $value
+     * @param string|null $locale
+     */
     public function setTranslation($value, $locale = null)
     {
         $locale = $locale ? : $this->getDefaultLocale();
@@ -147,6 +173,10 @@ class ManagedTranslationProxy implements TranslatableInterface
         }
     }
 
+    /**
+     * @param string|null $locale
+     * @return string|mixed
+     */
     public function translate($locale = null)
     {
         $locale = $locale ? : $this->getDefaultLocale();
@@ -165,11 +195,17 @@ class ManagedTranslationProxy implements TranslatableInterface
         return $this->primaryValue;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return (string)$this->translate();
     }
 
+    /**
+     * @return string
+     */
     protected function getDefaultLocale()
     {
         return $this->defaultLocaleProvider->getDefaultLocale();
@@ -217,7 +253,7 @@ class ManagedTranslationProxy implements TranslatableInterface
 
     /**
      * @param string $locale
-     * @return mixed
+     * @return object|null
      */
     protected function getCachedTranslation($locale)
     {
