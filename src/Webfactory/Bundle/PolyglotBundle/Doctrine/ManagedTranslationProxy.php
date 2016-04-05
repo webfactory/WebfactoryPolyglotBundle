@@ -10,6 +10,8 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use \Doctrine\Common\Collections\Criteria;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use \ReflectionProperty;
 use \ReflectionClass;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
@@ -83,6 +85,11 @@ class ManagedTranslationProxy implements TranslatableInterface
     protected $translationMapping;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @param object $entity
      * @param string $primaryLocale
      * @param DefaultLocaleProvider $defaultLocaleProvider
@@ -91,6 +98,7 @@ class ManagedTranslationProxy implements TranslatableInterface
      * @param ReflectionClass $translationClass
      * @param ReflectionProperty $localeField
      * @param ReflectionProperty $translationMapping
+     * @param LoggerInterface $logger
      */
     public function __construct(
         $entity,
@@ -100,7 +108,8 @@ class ManagedTranslationProxy implements TranslatableInterface
         ReflectionProperty $translationCollection,
         ReflectionClass $translationClass,
         ReflectionProperty $localeField,
-        ReflectionProperty $translationMapping
+        ReflectionProperty $translationMapping,
+        LoggerInterface $logger = null
     ) {
         $this->entity = $entity;
         $this->oid = spl_object_hash($entity);
@@ -111,6 +120,7 @@ class ManagedTranslationProxy implements TranslatableInterface
         $this->translationClass = $translationClass;
         $this->localeField = $localeField;
         $this->translationMapping = $translationMapping;
+        $this->logger = ($logger == null) ? new NullLogger() : $logger;
     }
 
     public function setPrimaryValue($value)
@@ -200,7 +210,12 @@ class ManagedTranslationProxy implements TranslatableInterface
      */
     public function __toString()
     {
-        return (string)$this->translate();
+        try {
+            return (string)$this->translate();
+        } catch (\Exception $e) {
+            $this->logger->error((string)$e);
+            return '';
+        }
     }
 
     /**

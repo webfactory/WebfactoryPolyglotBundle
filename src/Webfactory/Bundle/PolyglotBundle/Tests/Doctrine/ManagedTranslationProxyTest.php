@@ -18,6 +18,7 @@ class ManagedTranslationProxyTest extends \PHPUnit_Framework_TestCase
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
+
         // Simulate some translations.
         $proxy->setTranslation('bar', 'de');
         $proxy->setTranslation('bar in en', 'en');
