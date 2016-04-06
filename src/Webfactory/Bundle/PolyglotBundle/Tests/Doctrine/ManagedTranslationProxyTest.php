@@ -130,7 +130,7 @@ class ManagedTranslationProxyTest extends \PHPUnit_Framework_TestCase
      */
     private function breakEntity(TestEntity $entity)
     {
-        $brokenCollection = $this->getMock(ArrayCollection::class);
+        $brokenCollection = $this->getMock('Doctrine\Common\Collections\ArrayCollection');
         $brokenCollection->expects($this->any())
             ->method('matching')
             ->will($this->throwException(new \RuntimeException('Cannot find translations')));
