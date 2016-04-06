@@ -17,6 +17,7 @@ use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Psr\Log\LoggerInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 class PolyglotListener implements EventSubscriber
@@ -28,10 +29,26 @@ class PolyglotListener implements EventSubscriber
     protected $_proxiesStripped = array();
     protected $defaultLocaleProvider;
 
-    public function __construct(Reader $annotationReader, DefaultLocaleProvider $defaultLocaleProvider)
+    /**
+     * @var null|LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * PolyglotListener constructor.
+     * @param Reader $annotationReader
+     * @param DefaultLocaleProvider $defaultLocaleProvider
+     * @param LoggerInterface|null $logger
+     */
+    public function __construct(
+        Reader $annotationReader,
+        DefaultLocaleProvider $defaultLocaleProvider,
+        LoggerInterface $logger = null
+    )
     {
         $this->reader = $annotationReader;
         $this->defaultLocaleProvider = $defaultLocaleProvider;
+        $this->logger = $logger;
     }
 
     public function getSubscribedEvents()
@@ -111,7 +128,9 @@ class PolyglotListener implements EventSubscriber
             if (($cached = $cacheDriver->fetch($className . self::CACHE_SALT)) !== false) {
                 $this->translatedClasses[$className] = $cached;
                 if ($cached) { // evtl. ist im Cache gespeichert, das die Klasse *nicht* übersetzt ist
+                    /** @var $cached TranslationMetadata */
                     $cached->wakeupReflection($reflectionService);
+                    $cached->setLogger($this->logger);
                 }
 
                 return $cached;
@@ -123,6 +142,7 @@ class PolyglotListener implements EventSubscriber
         $metadataInfo = $metadataFactory->getMetadataFor($className);
         $meta = TranslationMetadata::parseFromClassMetadata($metadataInfo, $this->reader);
         if ($meta !== null) {
+            $meta->setLogger($this->logger);
             $this->translatedClasses[$className] = $meta;
         }
 
