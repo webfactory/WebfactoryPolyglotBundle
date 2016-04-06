@@ -61,6 +61,44 @@ class ManagedTranslationProxyTest extends \PHPUnit_Framework_TestCase
         $this->assertGreaterThan(0, count($logger->cleanLogs()), 'Expected at least one log message');
     }
 
+    public function testLoggedMessageContainsInformationAboutTranslatedProperty()
+    {
+        $entity = new TestEntity('foo');
+
+        $logger = new BufferingLogger();
+        $proxy = $this->createProxy($entity, $logger);
+        $this->breakEntity($entity);
+
+        $proxy->__toString();
+
+        $logs = $logger->cleanLogs();
+        $logEntry = current($logs);
+        $this->assertInternalType('array', $logEntry);
+        $this->assertArrayHasKey(1, $logEntry, 'Missing log message.');
+        $logMessage = $logEntry[1];
+        $this->assertContains('TestEntity', $logMessage, 'Missing entity class name.');
+        $this->assertContains('text', $logMessage, 'Missing translated property.');
+        $this->assertContains('de', $logMessage, 'Missing locale.');
+    }
+
+    public function testLoggedMessageContainsOriginalException()
+    {
+        $entity = new TestEntity('foo');
+
+        $logger = new BufferingLogger();
+        $proxy = $this->createProxy($entity, $logger);
+        $this->breakEntity($entity);
+
+        $proxy->__toString();
+
+        $logs = $logger->cleanLogs();
+        $logEntry = current($logs);
+        $this->assertInternalType('array', $logEntry);
+        $this->assertArrayHasKey(1, $logEntry, 'Missing log message.');
+        $logMessage = $logEntry[1];
+        $this->assertContains('Cannot find translations', $logMessage, 'Original exception not contained.');
+    }
+
     /**
      * @param TestEntity $entity
      * @param LoggerInterface|null $logger

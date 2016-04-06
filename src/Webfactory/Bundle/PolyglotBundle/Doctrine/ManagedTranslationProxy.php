@@ -190,19 +190,27 @@ class ManagedTranslationProxy implements TranslatableInterface
     public function translate($locale = null)
     {
         $locale = $locale ? : $this->getDefaultLocale();
-
-        if ($locale == $this->primaryLocale) {
-            return $this->primaryValue;
-        }
-
-        if ($entity = $this->getTranslationEntity($locale)) {
-            $translated = $this->translatedProperty->getValue($entity);
-            if (null !== $translated) {
-                return $translated;
+        try {
+            if ($locale == $this->primaryLocale) {
+                return $this->primaryValue;
             }
-        }
 
-        return $this->primaryValue;
+            if ($entity = $this->getTranslationEntity($locale)) {
+                $translated = $this->translatedProperty->getValue($entity);
+                if (null !== $translated) {
+                    return $translated;
+                }
+            }
+            return $this->primaryValue;
+        } catch (\Exception $e) {
+            $message = sprintf(
+                'Cannot translate property %s::%s into locale %s',
+                get_class($this->entity),
+                $this->translatedProperty->getName(),
+                $locale
+            );
+            throw new \RuntimeException($message, 0, $e);
+        }
     }
 
     /**
