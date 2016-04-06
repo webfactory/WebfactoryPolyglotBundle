@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use \ReflectionProperty;
 use \ReflectionClass;
+use Webfactory\Bundle\PolyglotBundle\Exception\TranslationException;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
@@ -110,7 +111,8 @@ class ManagedTranslationProxy implements TranslatableInterface
         ReflectionProperty $localeField,
         ReflectionProperty $translationMapping,
         LoggerInterface $logger = null
-    ) {
+    )
+    {
         $this->entity = $entity;
         $this->oid = spl_object_hash($entity);
         $this->primaryLocale = $primaryLocale;
@@ -171,7 +173,7 @@ class ManagedTranslationProxy implements TranslatableInterface
      */
     public function setTranslation($value, $locale = null)
     {
-        $locale = $locale ? : $this->getDefaultLocale();
+        $locale = $locale ?: $this->getDefaultLocale();
         if ($locale == $this->primaryLocale) {
             $this->primaryValue = $value;
         } else {
@@ -185,11 +187,12 @@ class ManagedTranslationProxy implements TranslatableInterface
 
     /**
      * @param string|null $locale
-     * @return string|mixed
+     * @return mixed|string
+     * @throws TranslationException
      */
     public function translate($locale = null)
     {
-        $locale = $locale ? : $this->getDefaultLocale();
+        $locale = $locale ?: $this->getDefaultLocale();
         try {
             if ($locale == $this->primaryLocale) {
                 return $this->primaryValue;
@@ -209,7 +212,7 @@ class ManagedTranslationProxy implements TranslatableInterface
                 $this->translatedProperty->getName(),
                 $locale
             );
-            throw new \RuntimeException($message, 0, $e);
+            throw new TranslationException($message, $e);
         }
     }
 
@@ -221,7 +224,7 @@ class ManagedTranslationProxy implements TranslatableInterface
         try {
             return (string)$this->translate();
         } catch (\Exception $e) {
-            $this->logger->error((string)$e);
+            $this->logger->error($this->stringifyException($e));
             return '';
         }
     }
@@ -269,9 +272,9 @@ class ManagedTranslationProxy implements TranslatableInterface
     protected function createLocaleCriteria($locale)
     {
         return Criteria::create()
-                       ->where(
-                           Criteria::expr()->eq($this->localeField->getName(), $locale)
-                       );
+            ->where(
+                Criteria::expr()->eq($this->localeField->getName(), $locale)
+            );
     }
 
     /**
@@ -281,5 +284,29 @@ class ManagedTranslationProxy implements TranslatableInterface
     protected function getCachedTranslation($locale)
     {
         return self::$_translations[$this->oid][$locale];
+    }
+
+    /**
+     * @param \Exception $e
+     * @return string
+     */
+    private function stringifyException(\Exception $e)
+    {
+        $exceptionAsString = '';
+        while ($e !== null) {
+            if (!empty($exceptionAsString)) {
+                $exceptionAsString .= PHP_EOL . 'Previous exception: ' . PHP_EOL;
+            }
+            $exceptionAsString .= sprintf(
+                "Exception '%s' with message '%s' in %s:%d\n%s",
+                get_class($e),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine(),
+                $e->getTraceAsString()
+            );
+            $e = $e->getPrevious();
+        }
+        return $exceptionAsString;
     }
 }
