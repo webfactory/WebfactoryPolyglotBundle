@@ -10,8 +10,11 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use \Doctrine\Common\Collections\Criteria;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use \ReflectionProperty;
 use \ReflectionClass;
+use Webfactory\Bundle\PolyglotBundle\Exception\TranslationException;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
@@ -22,7 +25,7 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 class ManagedTranslationProxy implements TranslatableInterface
 {
     /**
-     * @var array Cache für die Übersetzungen, indiziert nach Entity-OID und Locale.
+     * @var array<string, array<string, object|null>> Cache für die Übersetzungen, indiziert nach Entity-OID und Locale.
      * Ist static, damit ihn sich verschiedene Proxies (für die gleiche Entität, aber
      * unterschiedliche Felder) teilen können.
      */
@@ -33,6 +36,10 @@ class ManagedTranslationProxy implements TranslatableInterface
      */
     protected $entity;
 
+    /**
+     * Der einzigartige Hash für die verwaltete Entität.
+     * @var string
+     */
     protected $oid;
 
     /**
@@ -78,6 +85,22 @@ class ManagedTranslationProxy implements TranslatableInterface
      */
     protected $translationMapping;
 
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @param object $entity
+     * @param string $primaryLocale
+     * @param DefaultLocaleProvider $defaultLocaleProvider
+     * @param ReflectionProperty $translatedProperty
+     * @param ReflectionProperty $translationCollection
+     * @param ReflectionClass $translationClass
+     * @param ReflectionProperty $localeField
+     * @param ReflectionProperty $translationMapping
+     * @param LoggerInterface $logger
+     */
     public function __construct(
         $entity,
         $primaryLocale,
@@ -86,8 +109,10 @@ class ManagedTranslationProxy implements TranslatableInterface
         ReflectionProperty $translationCollection,
         ReflectionClass $translationClass,
         ReflectionProperty $localeField,
-        ReflectionProperty $translationMapping
-    ) {
+        ReflectionProperty $translationMapping,
+        LoggerInterface $logger = null
+    )
+    {
         $this->entity = $entity;
         $this->oid = spl_object_hash($entity);
         $this->primaryLocale = $primaryLocale;
@@ -97,6 +122,7 @@ class ManagedTranslationProxy implements TranslatableInterface
         $this->translationClass = $translationClass;
         $this->localeField = $localeField;
         $this->translationMapping = $translationMapping;
+        $this->logger = ($logger == null) ? new NullLogger() : $logger;
     }
 
     public function setPrimaryValue($value)
@@ -109,6 +135,10 @@ class ManagedTranslationProxy implements TranslatableInterface
         return $this->primaryValue;
     }
 
+    /**
+     * @param string $locale
+     * @return object|null
+     */
     protected function getTranslationEntity($locale)
     {
         if ($this->isTranslationCached($locale) === false) {
@@ -118,6 +148,10 @@ class ManagedTranslationProxy implements TranslatableInterface
         return $this->getCachedTranslation($locale);
     }
 
+    /**
+     * @param string $locale
+     * @return object
+     */
     protected function createTranslationEntity($locale)
     {
         $className = $this->translationClass->name;
@@ -133,9 +167,13 @@ class ManagedTranslationProxy implements TranslatableInterface
         return $entity;
     }
 
+    /**
+     * @param string $value
+     * @param string|null $locale
+     */
     public function setTranslation($value, $locale = null)
     {
-        $locale = $locale ? : $this->getDefaultLocale();
+        $locale = $locale ?: $this->getDefaultLocale();
         if ($locale == $this->primaryLocale) {
             $this->primaryValue = $value;
         } else {
@@ -147,29 +185,53 @@ class ManagedTranslationProxy implements TranslatableInterface
         }
     }
 
+    /**
+     * @param string|null $locale
+     * @return mixed|string
+     * @throws TranslationException
+     */
     public function translate($locale = null)
     {
-        $locale = $locale ? : $this->getDefaultLocale();
-
-        if ($locale == $this->primaryLocale) {
-            return $this->primaryValue;
-        }
-
-        if ($entity = $this->getTranslationEntity($locale)) {
-            $translated = $this->translatedProperty->getValue($entity);
-            if (null !== $translated) {
-                return $translated;
+        $locale = $locale ?: $this->getDefaultLocale();
+        try {
+            if ($locale == $this->primaryLocale) {
+                return $this->primaryValue;
             }
-        }
 
-        return $this->primaryValue;
+            if ($entity = $this->getTranslationEntity($locale)) {
+                $translated = $this->translatedProperty->getValue($entity);
+                if (null !== $translated) {
+                    return $translated;
+                }
+            }
+            return $this->primaryValue;
+        } catch (\Exception $e) {
+            $message = sprintf(
+                'Cannot translate property %s::%s into locale %s',
+                get_class($this->entity),
+                $this->translatedProperty->getName(),
+                $locale
+            );
+            throw new TranslationException($message, $e);
+        }
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        return (string)$this->translate();
+        try {
+            return (string)$this->translate();
+        } catch (\Exception $e) {
+            $this->logger->error($this->stringifyException($e));
+            return '';
+        }
     }
 
+    /**
+     * @return string
+     */
     protected function getDefaultLocale()
     {
         return $this->defaultLocaleProvider->getDefaultLocale();
@@ -210,17 +272,41 @@ class ManagedTranslationProxy implements TranslatableInterface
     protected function createLocaleCriteria($locale)
     {
         return Criteria::create()
-                       ->where(
-                           Criteria::expr()->eq($this->localeField->getName(), $locale)
-                       );
+            ->where(
+                Criteria::expr()->eq($this->localeField->getName(), $locale)
+            );
     }
 
     /**
      * @param string $locale
-     * @return mixed
+     * @return object|null
      */
     protected function getCachedTranslation($locale)
     {
         return self::$_translations[$this->oid][$locale];
+    }
+
+    /**
+     * @param \Exception $e
+     * @return string
+     */
+    private function stringifyException(\Exception $e)
+    {
+        $exceptionAsString = '';
+        while ($e !== null) {
+            if (!empty($exceptionAsString)) {
+                $exceptionAsString .= PHP_EOL . 'Previous exception: ' . PHP_EOL;
+            }
+            $exceptionAsString .= sprintf(
+                "Exception '%s' with message '%s' in %s:%d\n%s",
+                get_class($e),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine(),
+                $e->getTraceAsString()
+            );
+            $e = $e->getPrevious();
+        }
+        return $exceptionAsString;
     }
 }

@@ -27,17 +27,21 @@ class TestEntityTranslation extends BaseTranslation
     protected $entity;
 
     /**
+     * Contains the translation.
+     *
+     * Must be protected to be usable when this class is used as base for a mock.
+     *
      * @ORM\Column(type="string")
      * @var string
      */
-    private $text;
+    protected $text;
 
     /**
-     * @param string $locale, e.g. 'de_DE'
-     * @param string $text
-     * @param TestEntity $entity
+     * @param string|null $locale, e.g. 'de_DE'
+     * @param string|null $text
+     * @param TestEntity|null $entity
      */
-    function __construct($locale, $text, TestEntity $entity)
+    function __construct($locale = null, $text = null, TestEntity $entity = null)
     {
         $this->locale = $locale;
         $this->text = $text;

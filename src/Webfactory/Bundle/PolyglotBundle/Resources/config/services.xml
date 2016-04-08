@@ -15,8 +15,10 @@
                 class="%webfactory.polyglot.doctrine_listener.class%">
             <argument type="service" id="annotation_reader"/>
             <argument type="service" id="webfactory.polyglot.default_locale_provider"/>
+            <argument type="service" id="logger" on-invalid="null"/>
 
             <tag name="doctrine.event_subscriber"/>
+            <tag name="monolog.logger" channel="webfactory_polyglot_bundle"/>
         </service>
 
         <service id="webfactory.polyglot.symfony_locale_listener"

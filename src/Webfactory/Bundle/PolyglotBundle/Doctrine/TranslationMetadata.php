@@ -13,6 +13,7 @@ use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Psr\Log\LoggerInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 
@@ -56,6 +57,12 @@ class TranslationMetadata
      */
     protected $primaryLocale;
 
+    /**
+     * @var LoggerInterface|null
+     */
+    protected $logger = null;
+
+
     public static function parseFromClassMetadata(ClassMetadataInfo $cm, Reader $reader)
     {
         /* @var $tm TranslationMetadata */
@@ -70,6 +77,32 @@ class TranslationMetadata
         $tm->assertAnnotationsAreComplete();
 
         return $tm;
+    }
+
+    /**
+     * @param LoggerInterface|null $logger
+     */
+    public function setLogger(LoggerInterface $logger = null)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * serialize() checks if your class has a function with the magic name __sleep.
+     * If so, that function is executed prior to any serialization.
+     * It can clean up the object and is supposed to return an array with the names of all variables of that object that should be serialized.
+     * If the method doesn't return anything then NULL is serialized and E_NOTICE is issued.
+     * The intended use of __sleep is to commit pending data or perform similar cleanup tasks.
+     * Also, the function is useful if you have very large objects which do not need to be saved completely.
+     *
+     * @return array|NULL
+     * @link http://php.net/manual/en/language.oop5.magic.php#language.oop5.magic.sleep
+     */
+    function __sleep()
+    {
+        $properties = array_keys(get_object_vars($this));
+        $notSerializableProperties = array('logger');
+        return array_diff($properties, $notSerializableProperties);
     }
 
     protected function resurrect(\ReflectionProperty $property, ReflectionService $reflectionService)
@@ -250,7 +283,8 @@ class TranslationMetadata
             $this->translationsCollectionProperty,
             $this->translationClass,
             $this->translationLocaleProperty,
-            $this->translationMappingProperty
+            $this->translationMappingProperty,
+            $this->logger
         );
     }
 }
