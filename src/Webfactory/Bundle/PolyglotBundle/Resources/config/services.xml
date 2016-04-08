@@ -18,6 +18,7 @@
             <argument type="service" id="logger" on-invalid="null"/>
 
             <tag name="doctrine.event_subscriber"/>
+            <tag name="monolog.logger" channel="webfactory_polyglot_bundle"/>
         </service>
 
         <service id="webfactory.polyglot.symfony_locale_listener"
