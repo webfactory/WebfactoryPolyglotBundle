@@ -97,6 +97,16 @@ class ManagedTranslationProxyTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Cannot find translations', $logMessage, 'Original exception not contained.');
     }
 
+    public function testCountReturnsLengthOfStringInDefaultLocale()
+    {
+        $entity = new TestEntity('foo');
+        $proxy = $this->createProxy($entity);
+        // Simulate default translation.
+        $proxy->setTranslation('bar in de', 'de');
+
+        $this->assertCount(strlen('bar in de'), $proxy);
+    }
+
     /**
      * @param TestEntity $entity
      * @param LoggerInterface|null $logger

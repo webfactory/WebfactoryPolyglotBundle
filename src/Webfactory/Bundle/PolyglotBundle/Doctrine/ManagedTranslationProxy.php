@@ -234,7 +234,7 @@ class ManagedTranslationProxy implements TranslatableInterface
      */
     public function count()
     {
-        // TODO: Implement count() method.
+        return mb_strlen((string)$this, 'UTF-8');
     }
 
     /**
