@@ -245,6 +245,28 @@ For now, each entity has one fixed primary locale. We have encountered cases in 
 in a language different from the primary locale. Therefore, we want to remove the primary locale annotation and store
 this information in an attribute. This would allow each record to have its own primary locale.
 
+
+## Changelog ##
+
+### 1.1.0 -> 2.0.0 ###
+
+Instances of ``\Webfactory\Bundle\PolyglotBundle\TranslatableInterface`` must now provide a ``count()`` method that returns the length of the translation in the currently active locale.
+
+This allows the usage of translatable objects in Twig in a way that feels more like a real string: 
+
+    {# Length checks and output of length are possible now #}
+    {% if translatableObject|length > 5 %}
+        { translatableObject|length }}
+    {% endif %}
+    
+    {# Empty check works now #}
+    {% if translatableObject is not empty %}
+        {{ translatableObject }}
+    {% endif %}
+
+If you do not use your own implementation of ``\Webfactory\Bundle\PolyglotBundle\TranslatableInterface``, then you are not affected by this backward compatibility  break.
+
+
 Credits, Copyright and License
 ------------------------------
 Copyright 2012-2014 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
