@@ -269,7 +269,7 @@ If you do not use your own implementation of ``\Webfactory\Bundle\PolyglotBundle
 
 Credits, Copyright and License
 ------------------------------
-Copyright 2012-2014 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
+Copyright 2012-2017 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
 
 - <http://www.webfactory.de>
 - <http://twitter.com/webfactory>
