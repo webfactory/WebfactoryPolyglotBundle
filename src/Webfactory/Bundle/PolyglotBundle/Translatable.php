@@ -37,6 +37,8 @@ namespace Webfactory\Bundle\PolyglotBundle;
  */
 class Translatable implements TranslatableInterface
 {
+    use StringLengthTrait;
+
     /**
      * @var string
      */
@@ -103,14 +105,6 @@ class Translatable implements TranslatableInterface
     public function __toString()
     {
         return (string)$this->translate();
-    }
-
-    /**
-     * @return integer
-     */
-    public function count()
-    {
-        return mb_strlen((string)$this, 'UTF-8');
     }
 
     /**

@@ -15,6 +15,7 @@ use Psr\Log\NullLogger;
 use \ReflectionProperty;
 use \ReflectionClass;
 use Webfactory\Bundle\PolyglotBundle\Exception\TranslationException;
+use Webfactory\Bundle\PolyglotBundle\StringLengthTrait;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
@@ -24,6 +25,8 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
  */
 class ManagedTranslationProxy implements TranslatableInterface
 {
+    use StringLengthTrait;
+
     /**
      * @var array<string, array<string, object|null>> Cache für die Übersetzungen, indiziert nach Entity-OID und Locale.
      * Ist static, damit ihn sich verschiedene Proxies (für die gleiche Entität, aber
@@ -227,14 +230,6 @@ class ManagedTranslationProxy implements TranslatableInterface
             $this->logger->error($this->stringifyException($e));
             return '';
         }
-    }
-
-    /**
-     * @return integer
-     */
-    public function count()
-    {
-        return mb_strlen((string)$this, 'UTF-8');
     }
 
     /**
