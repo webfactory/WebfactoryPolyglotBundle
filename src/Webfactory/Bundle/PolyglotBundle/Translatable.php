@@ -106,6 +106,14 @@ class Translatable implements TranslatableInterface
     }
 
     /**
+     * @return integer
+     */
+    public function count()
+    {
+        // TODO: Implement count() method.
+    }
+
+    /**
      * Copies translations from this object into the given one.
      *
      * @param TranslatableInterface $p

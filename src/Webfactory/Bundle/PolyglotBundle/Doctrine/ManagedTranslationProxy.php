@@ -230,6 +230,14 @@ class ManagedTranslationProxy implements TranslatableInterface
     }
 
     /**
+     * @return integer
+     */
+    public function count()
+    {
+        // TODO: Implement count() method.
+    }
+
+    /**
      * @return string
      */
     protected function getDefaultLocale()
