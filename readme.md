@@ -247,7 +247,7 @@ this information in an attribute. This would allow each record to have its own p
 
 Credits, Copyright and License
 ------------------------------
-Copyright 2012-2014 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
+Copyright 2012-2017 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
 
 - <http://www.webfactory.de>
 - <http://twitter.com/webfactory>
