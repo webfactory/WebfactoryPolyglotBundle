@@ -9,11 +9,31 @@
 
 namespace Webfactory\Bundle\PolyglotBundle;
 
+/**
+ * Represents a text with multiple translations.
+ */
 interface TranslatableInterface
 {
+    /**
+     * Returns the translation for the given locale.
+     *
+     * @param string|null $locale The target locale or null for the current locale.
+     * @return string|null The translation or null if not available.
+     */
     public function translate($locale = null);
 
+    /**
+     * Overwrites the translation for the given locale.
+     *
+     * @param string $value
+     * @param string|null $locale The target locale or null for the current locale.
+     */
     public function setTranslation($value, $locale = null);
 
+    /**
+     * Returns the translation for the current locale.
+     *
+     * @return string
+     */
     public function __toString();
 }
