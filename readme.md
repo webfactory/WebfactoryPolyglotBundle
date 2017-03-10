@@ -1,5 +1,5 @@
-webfactory/polyglot-bundle
-==========================
+![webfactory Logo](https://www.webfactory.de/bundles/webfactorytwiglayout/img/logo.png) WebfactoryPolyglotBundle
+========
 
 [![Build Status](https://travis-ci.org/webfactory/polyglot-bundle.svg?branch=master)](https://travis-ci.org/webfactory/polyglot-bundle)
 [![Coverage Status](https://coveralls.io/repos/webfactory/polyglot-bundle/badge.png?branch=master)](https://coveralls.io/r/webfactory/polyglot-bundle?branch=master)
@@ -247,7 +247,7 @@ this information in an attribute. This would allow each record to have its own p
 
 Credits, Copyright and License
 ------------------------------
-Copyright 2012-2014 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
+Copyright 2012-2017 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
 
-- <http://www.webfactory.de>
-- <http://twitter.com/webfactory>
+- <https://www.webfactory.de>
+- <https://twitter.com/webfactory>
