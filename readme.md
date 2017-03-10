@@ -182,7 +182,7 @@ And now we want to make the `text` translatable.
      * @ORM\Entity
      * @ORM\Table(
      *      uniqueConstraints = {
-     *          @ORM\UniqueConstraint(name="lookup_unique_idx", columns={"entity_id", "locale"})
+     *          @ORM\UniqueConstraint(columns={"entity_id", "locale"})
      *     }
      * )
      */
