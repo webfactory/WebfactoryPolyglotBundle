@@ -245,6 +245,15 @@ For now, each entity has one fixed primary locale. We have encountered cases in 
 in a language different from the primary locale. Therefore, we want to remove the primary locale annotation and store
 this information in an attribute. This would allow each record to have its own primary locale.
 
+
+## Changelog ##
+
+### 1.1.0 -> 1.1.1 ###
+
+- Support for Symfony 3
+- Dropped support for PHP < 5.5
+
+
 Credits, Copyright and License
 ------------------------------
 Copyright 2012-2017 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
