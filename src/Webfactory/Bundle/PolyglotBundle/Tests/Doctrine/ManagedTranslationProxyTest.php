@@ -2,8 +2,6 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
-
-use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Debug\BufferingLogger;
