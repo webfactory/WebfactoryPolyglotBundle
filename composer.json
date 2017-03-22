@@ -18,6 +18,7 @@
 
     "require": {
         "php": "^5.5 | ^7.0",
+        "ext-mbstring": "*",
         "doctrine/orm": "~2.2",
         "symfony/symfony": "~2.0 | ^3.0.0"
     },

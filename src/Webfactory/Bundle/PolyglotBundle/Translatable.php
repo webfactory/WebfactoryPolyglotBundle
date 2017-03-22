@@ -37,6 +37,8 @@ namespace Webfactory\Bundle\PolyglotBundle;
  */
 class Translatable implements TranslatableInterface
 {
+    use StringLengthTrait;
+
     /**
      * @var string
      */

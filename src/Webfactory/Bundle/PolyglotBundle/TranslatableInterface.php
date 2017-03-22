@@ -12,7 +12,7 @@ namespace Webfactory\Bundle\PolyglotBundle;
 /**
  * Represents a text with multiple translations.
  */
-interface TranslatableInterface
+interface TranslatableInterface extends \Countable
 {
     /**
      * Returns the translation for the given locale.
@@ -36,4 +36,11 @@ interface TranslatableInterface
      * @return string
      */
     public function __toString();
+
+    /**
+     * Returns the length of the translation in the current locale.
+     *
+     * @return integer
+     */
+    public function count();
 }
