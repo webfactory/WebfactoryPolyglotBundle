@@ -12,11 +12,19 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Log\LoggerInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 
+/**
+ * Enthält für eine Klasse mit @Translatable-Annotations die Informationen darüber,
+ * welche Felder der Klasse übersetzbar sind, wo die Übersetzungen gespeichert werden
+ * etc.
+ *
+ * Es gibt eine Instanz dieser Klasse pro Entitätsklasse mit Übersetzungen.
+ */
 class TranslationMetadata
 {
     /**
@@ -235,11 +243,12 @@ class TranslationMetadata
         }
     }
 
-    public function stripProxies($entity)
+    public function stripProxies($entity, EntityManager $entityManager)
     {
         foreach ($this->translatedProperties as $property) {
             $proxy = $property->getValue($entity);
             if ($proxy instanceof ManagedTranslationProxy) {
+                $proxy->preFlush($entityManager);
                 $property->setValue($entity, $proxy->getPrimaryValue());
             }
         }

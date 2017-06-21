@@ -8,6 +8,7 @@
  */
 
 namespace Webfactory\Bundle\PolyglotBundle;
+use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 /**
  * Eine TranslationProxy-Implementierung für eine Entität, die
@@ -51,11 +52,11 @@ class Translatable implements TranslatableInterface
 
     /**
      * @param string|null $value
-     * @param string|null $defaultLocale
+     * @param string|DefaultLocaleProvider|null $defaultLocale
      */
     public function __construct($value = null, $defaultLocale = null)
     {
-        $this->defaultLocale = $defaultLocale ? : '';
+        $this->defaultLocale = $defaultLocale;
         $this->setTranslation($value);
     }
 
@@ -64,9 +65,13 @@ class Translatable implements TranslatableInterface
      */
     public function setDefaultLocale($locale)
     {
-        if ($this->defaultLocale == '') {
-            $this->translations[$locale] = $this->translations[''];
-            unset($this->translations['']);
+        $oldLocale = $this->getDefaultLocale();
+        $this->defaultLocale = $locale;
+        $newLocale = $this->getDefaultLocale();
+
+        if ($oldLocale == '' && $newLocale != '') {
+            $this->translations[$newLocale] = $this->translations[$oldLocale];
+            unset($this->translations[$oldLocale]);
         }
         $this->defaultLocale = $locale;
     }
@@ -77,7 +82,7 @@ class Translatable implements TranslatableInterface
      */
     public function translate($locale = null)
     {
-        $locale = $locale ? : $this->defaultLocale;
+        $locale = $locale ? : $this->getDefaultLocale();
 
         if (isset($this->translations[$locale])) {
             return $this->translations[$locale];
@@ -92,7 +97,7 @@ class Translatable implements TranslatableInterface
      */
     public function setTranslation($value, $locale = null)
     {
-        $locale = $locale ? : $this->defaultLocale;
+        $locale = $locale ? : $this->getDefaultLocale();
 
         $this->translations[$locale] = $value;
     }
@@ -102,7 +107,7 @@ class Translatable implements TranslatableInterface
      */
     public function __toString()
     {
-        return (string)$this->translate();
+        return (string) $this->translate();
     }
 
     /**
@@ -115,5 +120,10 @@ class Translatable implements TranslatableInterface
         foreach ($this->translations as $locale => $value) {
             $p->setTranslation($value, ($locale == '' ? null : $locale));
         }
+    }
+
+    private function getDefaultLocale()
+    {
+        return (string) $this->defaultLocale;
     }
 }

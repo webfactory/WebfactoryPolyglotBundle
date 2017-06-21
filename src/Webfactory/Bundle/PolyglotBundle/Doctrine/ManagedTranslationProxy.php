@@ -10,6 +10,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use \Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use \ReflectionProperty;
@@ -91,6 +92,12 @@ class ManagedTranslationProxy implements TranslatableInterface
     protected $logger;
 
     /**
+     * Sammelt neu hinzugefügte Übersetzungen, damit wir sie explizit speichern können, wenn ein
+     * Objekt im ORM abgelegt wird.
+     */
+    private $addedTranslations = [];
+
+    /**
      * @param object $entity
      * @param string $primaryLocale
      * @param DefaultLocaleProvider $defaultLocaleProvider
@@ -155,7 +162,7 @@ class ManagedTranslationProxy implements TranslatableInterface
     protected function createTranslationEntity($locale)
     {
         $className = $this->translationClass->name;
-        $entity = new $className;
+        $entity = new $className();
 
         $this->localeField->setValue($entity, $locale);
 
@@ -163,6 +170,7 @@ class ManagedTranslationProxy implements TranslatableInterface
         $this->translationCollection->getValue($this->entity)->add($entity);
 
         self::$_translations[$this->oid][$locale] = $entity;
+        $this->addedTranslations[] = $entity;
 
         return $entity;
     }
@@ -227,6 +235,14 @@ class ManagedTranslationProxy implements TranslatableInterface
             $this->logger->error($this->stringifyException($e));
             return '';
         }
+    }
+
+    public function preFlush(EntityManager $entityManager)
+    {
+        array_map(function ($entity) use ($entityManager) {
+            $entityManager->persist($entity);
+        }, $this->addedTranslations);
+        $this->addedTranslations = [];
     }
 
     /**

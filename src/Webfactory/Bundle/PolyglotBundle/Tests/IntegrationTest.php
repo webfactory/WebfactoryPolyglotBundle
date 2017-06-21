@@ -1,139 +1,165 @@
 <?php
 
-/*
- * (c) webfactory GmbH <info@webfactory.de>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
-namespace Webfactory\Bundle\PolyglotBundle\Tests;
+namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ORM\EntityManagerInterface;
+use Webfactory\Bundle\PolyglotBundle\Doctrine\ManagedTranslationProxy;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
+use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
+use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
+use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 
-/**
- * Integration Tests.
- */
-final class IntegrationTest extends \PHPUnit_Framework_TestCase
+class IntegrationTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * Infrastructure for ORM tests.
-     *
-     * @var ORMInfrastructure
-     */
+    /** @var ORMInfrastructure */
     private $infrastructure;
 
-    /**
-     * @see \PHPUnit_Framework_TestCase::setUp()
-     */
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
+    /** @var DefaultLocaleProvider */
+    private $defaultLocaleProvider;
+
     protected function setUp()
     {
         parent::setUp();
+        $this->infrastructure = ORMInfrastructure::createOnlyFor([TestEntity::class, TestEntityTranslation::class]);
+        $this->entityManager = $this->infrastructure->getEntityManager();
+        $this->defaultLocaleProvider = new DefaultLocaleProvider('en_GB');
 
-        $this->infrastructure = new ORMInfrastructure(
-            array(
-                '\Webfactory\Bundle\PolyglotBundle\Tests\TestEntity',
-                '\Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation',
-            )
-        );
+        $listener = new PolyglotListener(new AnnotationReader(), $this->defaultLocaleProvider);
+        $this->entityManager->getEventManager()->addEventSubscriber($listener);
     }
 
-    /**
-     * @test
-     */
-    public function worksWithoutTranslations()
+    public function testNewEntityCanBeUsedWithoutAddingTranslations()
     {
-        $this->addPolyglotListenerToDoctrineWithLocale('en_GB');
-
-        $entity = new TestEntity('english');
+        $entity = new TestEntity('text');
         $this->infrastructure->import($entity);
 
-        $this->assertTextInReloadedEntityEquals($entity, 'english');
+        $entity = $this->clearAndRefetch($entity);
+        $this->assertEquals('text', $entity->getText());
     }
 
-    /**
-     * @test
-     */
-    public function defaultLocaleForPrimaryLocaleRequest()
+    public function testSwitchingLocaleForUnmanagedEntities()
     {
-        $this->addPolyglotListenerToDoctrineWithLocale('en_GB');
-        $entity = $this->createAndImportFixtureWithTranslation();
+        /*
+         * You can initialize @Translatable fields in your entities with a Translatable() instance.
+         * When you pass in an instance of DefaultLocaleProvider, it can be used to change the
+         * default locale later on. (Of course this poses the question of how you can get the
+         * locale provider into your object.)
+         */
+        $entity = new TestEntity(new Translatable('text en_GB', $this->defaultLocaleProvider));
+        $entity->getText()->setTranslation('text de_DE', 'de_DE');
 
-        $this->assertTextInReloadedEntityEquals($entity, 'english');
+        $this->assertEquals('text en_GB', (string) $entity->getText());
+        $this->defaultLocaleProvider->setDefaultLocale('de_DE');
+        $this->assertEquals('text de_DE', (string) $entity->getText());
     }
 
-    /**
-     * @test
-     */
-    public function differentLocaleForSecondaryLocaleRequest()
+    public function testOnceEntityHasBeenFetchedFromDbTheDefaultLocaleCanBeSwitched()
     {
-        $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
-        $entity = $this->createAndImportFixtureWithTranslation();
+        $entity = $this->createAndFetchTestEntity();
+        $this->assertEquals('text en_GB', (string) $entity->getText());
 
-        $this->assertTextInReloadedEntityEquals($entity, 'deutsch');
+        $this->defaultLocaleProvider->setDefaultLocale('de_DE');
+        $this->assertEquals('text de_DE', (string) $entity->getText());
     }
 
-    /**
-     * Ensures one can request a locale other than the one from the request.
-     *
-     * @test
-     */
-    public function differentLocaleThanRequestedOne()
+    public function testGettingTranslationsFromManagedEntity()
     {
-        $this->addPolyglotListenerToDoctrineWithLocale('de_DE');
-        $entity = $this->createAndImportFixtureWithTranslation();
-
-        /* @var $reloadedEntity TestEntity */
-        $reloadedEntity = $this->infrastructure->getRepository($entity)
-                                               ->find($entity->getId());
-        $loadedText = $reloadedEntity->getText();
-
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
-        $this->assertSame('english', $loadedText->translate('en_GB'));
+        $entity = $this->createAndFetchTestEntity();
+        $this->assertEquals('text en_GB', $entity->getText()->translate('en_GB'));
+        $this->assertEquals('text de_DE', $entity->getText()->translate('de_DE'));
     }
 
-    /**
-     * @param string $locale, e.g. 'en_GB'
-     */
-    private function addPolyglotListenerToDoctrineWithLocale($locale)
+    public function testTranslationsNeedNotBeHandledExplicitlyWhenAddingNewEntity()
     {
-        $annotationReader = new AnnotationReader();
-        $defaultLocaleProvider = new DefaultLocaleProvider();
-        $defaultLocaleProvider->setDefaultLocale($locale);
+        $test = $this->createTestEntity();
+        $this->assertInstanceOf(Translatable::class, $test->getText());
 
-        $listener = new PolyglotListener($annotationReader, $defaultLocaleProvider);
-        $this->infrastructure->getEntityManager()
-                             ->getEventManager()
-                             ->addEventSubscriber($listener);
+        $this->infrastructure->import($test); // just import the "main" entity, which has no 'cascade="..."' configuration
+        $this->assertInstanceOf(ManagedTranslationProxy::class, $test->getText()); // implementation detail?
+
+        $test = $this->clearAndRefetch($test);
+        $this->assertEquals('text de_DE', $test->getText()->translate('de_DE')); // translation is available, must have been persisted in the DB
+    }
+
+    public function testTranslationsNeedNotBeHandledExplicitlyWhenUpdatingEntity()
+    {
+        $entity = $this->createAndFetchTestEntity(); // Entity is not new, but has been fetched from the DB
+
+        $entity->getText()->setTranslation('text xx_XX', 'xx_XX'); // Add a translation
+
+        $this->entityManager->flush(); // flush changes
+        $this->assertEquals('text xx_XX', $entity->getText()->translate('xx_XX')); // Translation is still there
+
+        $entity = $this->clearAndRefetch($entity); // Completely discard and refetch
+        $this->assertEquals('text xx_XX', $entity->getText()->translate('xx_XX')); // Translation still there, must come from DB
+    }
+
+    public function testProxiesAreRemovedBeforeFlushSoTheyDoNotCauseUpdates()
+    {
+        $entity = $this->createAndFetchTestEntity();
+
+        $queryCount = count($this->getQueries());
+
+        /*
+           Nothing was changed here, so the flush() should not need to write anything
+           to the DB. To make this work, the PolyglotListener needs to remove all
+           injected proxies before Doctrine performs the change detection. Afterwards,
+           all proxies should be put back in place.
+         */
+        $this->infrastructure->getEntityManager()->flush();
+
+        $queries = $this->getQueries();
+        $this->assertEquals($queryCount, count($queries));
+
+        $this->assertInstanceOf(ManagedTranslationProxy::class, $entity->getText());
     }
 
     /**
      * @return TestEntity
      */
-    private function createAndImportFixtureWithTranslation()
+    private function createAndFetchTestEntity()
     {
-        $entity = new TestEntity('english');
-        $translation = new TestEntityTranslation('de_DE', 'deutsch', $entity);
-        $this->infrastructure->import(array($translation, $entity));
+        $entity = $this->createTestEntity();
+        $this->infrastructure->import([$entity]);
+        $this->entityManager->clear(); // work around https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/23
 
-        return $entity;
+        /** @var TestEntity $persistedEntity */
+        $persistedEntity = $this->entityManager->find(TestEntity::class, $entity->getId());
+
+        return $persistedEntity;
     }
 
     /**
-     * @param TestEntity $entity
-     * @param string $expectedText
+     * @return \Webfactory\Doctrine\ORMTestInfrastructure\Query[]
      */
-    private function assertTextInReloadedEntityEquals(TestEntity $entity, $expectedText)
+    private function getQueries()
     {
-        /* @var $reloadedEntity TestEntity */
-        $reloadedEntity = $this->infrastructure->getRepository($entity)
-                                               ->find($entity->getId());
-        $loadedText = $reloadedEntity->getText();
+        return $this->infrastructure->getQueries();
+    }
 
-        $this->assertInstanceOf('\Webfactory\Bundle\PolyglotBundle\TranslatableInterface', $loadedText);
-        $this->assertSame($expectedText, $loadedText->__toString());
+    private function createTestEntity()
+    {
+        $translatable = new Translatable('text en_GB', 'en_GB');
+        $translatable->setTranslation('text de_DE', 'de_DE');
+        $translatable->setTranslation('text fr_FR', 'fr_FR');
+
+        return new TestEntity($translatable);
+    }
+
+    private function clearAndRefetch(TestEntity $entity)
+    {
+        $id = $entity->getId();
+        $this->entityManager->clear(); // forget about all entities
+
+        /** @var TestEntity $fetched */
+        $fetched = $this->entityManager->find(TestEntity::class, $id); // Clean state, fetch entity from DB again
+
+        return $fetched;
     }
 }

@@ -29,6 +29,9 @@ class PolyglotListener implements EventSubscriber
     protected $_proxiesStripped = array();
     protected $defaultLocaleProvider;
 
+    /** @var \SplObjectStorage */
+    private $entitiesWithTranslations;
+
     /**
      * @var null|LoggerInterface
      */
@@ -49,6 +52,8 @@ class PolyglotListener implements EventSubscriber
         $this->reader = $annotationReader;
         $this->defaultLocaleProvider = $defaultLocaleProvider;
         $this->logger = $logger;
+
+        $this->entitiesWithTranslations = new \SplObjectStorage();
     }
 
     public function getSubscribedEvents()
@@ -58,17 +63,23 @@ class PolyglotListener implements EventSubscriber
 
     public function postLoad(LifecycleEventArgs $event)
     {
+        // Called when the entity has been hydrated
+        $entity = $event->getEntity();
+
         if ($tm = $this->getTranslationMetadataForLifecycleEvent($event)) {
-            $tm->injectProxies($event->getEntity(), $this->defaultLocaleProvider);
+            $this->entitiesWithTranslations->attach($entity, $tm);
+            $tm->injectProxies($entity, $this->defaultLocaleProvider);
         }
     }
 
     public function prePersist(LifecycleEventArgs $event)
     {
+        // Called before a new entity is persisted for the first time
         $entity = $event->getEntity();
         $em = $event->getEntityManager();
 
         if ($tm = $this->getTranslationMetadataForLifecycleEvent($event)) {
+//            $this->entitiesWithTranslations->attach($entity, $tm);
             $tm->replaceDetachedProxies($entity, $this->defaultLocaleProvider);
             /* Übersetzungen explizit persisten, -> kein "cascade" in der Klienten-Entitäts-Klasse notwendig */
             foreach ($tm->getTranslations($entity) as $translation) {
@@ -79,25 +90,21 @@ class PolyglotListener implements EventSubscriber
 
     public function preFlush(PreFlushEventArgs $event)
     {
-        $em = $event->getEntityManager();
-        /** @var $uow \Doctrine\ORM\UnitOfWork */
-        $uow = $em->getUnitOfWork();
-
-        foreach ($uow->getScheduledEntityInsertions() + $uow->getScheduledEntityUpdates() as $entity) {
-            if ($tm = $this->getTranslationMetadata(get_class($entity), $em)) {
-                $tm->stripProxies($entity);
-                $this->_proxiesStripped[] = $entity;
-            }
+        $entityManager = $event->getEntityManager();
+        // Called before changes are flushed out to the database - even before the change sets are computed
+        foreach ($this->entitiesWithTranslations as $entity) {
+            /** @var TranslationMetadata $translationMetadata */
+            $translationMetadata = $this->entitiesWithTranslations[$entity];
+            $translationMetadata->stripProxies($entity, $entityManager);
         }
     }
 
     public function postFlush(PostFlushEventArgs $event)
     {
-        $em = $event->getEntityManager();
-
-        while ($entity = array_shift($this->_proxiesStripped)) {
-            $className = get_class($entity);
-            $this->getTranslationMetadata($className, $em)->injectProxies($entity, $this->defaultLocaleProvider);
+        // The postFlush event occurs at the end of a flush operation.
+        foreach ($this->entitiesWithTranslations as $entity) {
+            $translationMetadata = $this->entitiesWithTranslations[$entity];
+            $translationMetadata->injectProxies($entity, $this->defaultLocaleProvider);
         }
     }
 

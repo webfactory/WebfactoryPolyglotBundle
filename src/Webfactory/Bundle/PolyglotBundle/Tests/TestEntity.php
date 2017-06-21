@@ -12,6 +12,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**

@@ -22,4 +22,9 @@ class DefaultLocaleProvider
     {
         return $this->defaultLocale;
     }
+
+    public function __toString()
+    {
+        return $this->defaultLocale;
+    }
 }
