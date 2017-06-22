@@ -43,22 +43,6 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('text', $entity->getText());
     }
 
-    public function testSwitchingLocaleForUnmanagedEntities()
-    {
-        /*
-         * You can initialize @Translatable fields in your entities with a Translatable() instance.
-         * When you pass in an instance of DefaultLocaleProvider, it can be used to change the
-         * default locale later on. (Of course this poses the question of how you can get the
-         * locale provider into your object.)
-         */
-        $entity = new TestEntity(new Translatable('text en_GB', $this->defaultLocaleProvider));
-        $entity->getText()->setTranslation('text de_DE', 'de_DE');
-
-        $this->assertEquals('text en_GB', (string) $entity->getText());
-        $this->defaultLocaleProvider->setDefaultLocale('de_DE');
-        $this->assertEquals('text de_DE', (string) $entity->getText());
-    }
-
     public function testOnceEntityHasBeenFetchedFromDbTheDefaultLocaleCanBeSwitched()
     {
         $entity = $this->createAndFetchTestEntity();

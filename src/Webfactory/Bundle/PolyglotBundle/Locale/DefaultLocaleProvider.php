@@ -11,7 +11,12 @@ namespace Webfactory\Bundle\PolyglotBundle\Locale;
 
 class DefaultLocaleProvider
 {
-    protected $defaultLocale = 'en_GB';
+    private $defaultLocale;
+
+    public function __construct($locale = 'en_GB')
+    {
+        $this->defaultLocale = $locale;
+    }
 
     public function setDefaultLocale($locale)
     {
