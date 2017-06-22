@@ -23,7 +23,7 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
  * Eine TranslationProxy-Implementierung für eine Entität, die
  * bereits unter Verwaltung des EntityManagers steht.
  */
-class ManagedTranslationProxy implements TranslatableInterface
+class PersistentTranslatable implements TranslatableInterface
 {
     /**
      * @var array<string, array<string, object|null>> Cache für die Übersetzungen, indiziert nach Entity-OID und Locale.

@@ -248,7 +248,7 @@ class TranslationMetadata
         foreach ($this->translatedProperties as $property) {
             $proxy = $property->getValue($entity);
 
-            if ($proxy instanceof ManagedTranslationProxy) {
+            if ($proxy instanceof PersistentTranslatable) {
                 foreach ($proxy->getAndResetNewTranslations() as $translationEntity) {
                     $entityManager->persist($translationEntity);
                 }
@@ -268,7 +268,7 @@ class TranslationMetadata
 
     /**
      * For a given entity, find all @Translatable fields that contain new (not yet persisted)
-     * Translatable objects and replace those with ManagedTranslationProxy.
+     * Translatable objects and replace those with PersistentTranslatable.
      *
      * @param object                $entity
      * @param DefaultLocaleProvider $defaultLocaleProvider
@@ -294,7 +294,7 @@ class TranslationMetadata
 
     protected function createProxy($entity, $fieldname, DefaultLocaleProvider $defaultLocaleProvider)
     {
-        return new ManagedTranslationProxy(
+        return new PersistentTranslatable(
             $entity,
             $this->primaryLocale,
             $defaultLocaleProvider,

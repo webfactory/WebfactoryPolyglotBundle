@@ -5,11 +5,11 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Debug\BufferingLogger;
-use Webfactory\Bundle\PolyglotBundle\Doctrine\ManagedTranslationProxy;
+use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
 
-class ManagedTranslationProxyTest extends \PHPUnit_Framework_TestCase
+class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testToStringReturnsTranslatedMessage()
@@ -100,7 +100,8 @@ class ManagedTranslationProxyTest extends \PHPUnit_Framework_TestCase
     /**
      * @param TestEntity $entity
      * @param LoggerInterface|null $logger
-     * @return ManagedTranslationProxy
+     *
+     * @return PersistentTranslatable
      */
     private function createProxy(TestEntity $entity, LoggerInterface $logger = null)
     {
@@ -109,7 +110,7 @@ class ManagedTranslationProxyTest extends \PHPUnit_Framework_TestCase
 
         // We need a translation class without required constructor parameters.
         $translationClass = 'Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation';
-        $proxy = new ManagedTranslationProxy(
+        $proxy = new PersistentTranslatable(
             $entity,
             'en',
             $localeProvider,
