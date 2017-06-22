@@ -10,12 +10,12 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use \Doctrine\Common\Collections\Criteria;
-use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use \ReflectionProperty;
 use \ReflectionClass;
 use Webfactory\Bundle\PolyglotBundle\Exception\TranslationException;
+use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
@@ -237,12 +237,17 @@ class ManagedTranslationProxy implements TranslatableInterface
         }
     }
 
-    public function preFlush(EntityManager $entityManager)
+    /**
+     * Clears the list of newly added translation entities, returning the old value.
+     *
+     * @return object[] The list of new entites holding translations (exact class depends on the entity containing this proxy), before being reset.
+     */
+    public function getAndResetNewTranslations()
     {
-        array_map(function ($entity) use ($entityManager) {
-            $entityManager->persist($entity);
-        }, $this->addedTranslations);
+        $newTranslations = $this->addedTranslations;
         $this->addedTranslations = [];
+
+        return $newTranslations;
     }
 
     /**

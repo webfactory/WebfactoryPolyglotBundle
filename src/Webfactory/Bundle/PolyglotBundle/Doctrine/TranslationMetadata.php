@@ -243,12 +243,15 @@ class TranslationMetadata
         }
     }
 
-    public function stripProxies($entity, EntityManager $entityManager)
+    public function preFlush($entity, EntityManager $entityManager)
     {
         foreach ($this->translatedProperties as $property) {
             $proxy = $property->getValue($entity);
+
             if ($proxy instanceof ManagedTranslationProxy) {
-                $proxy->preFlush($entityManager);
+                foreach ($proxy->getAndResetNewTranslations() as $translationEntity) {
+                    $entityManager->persist($translationEntity);
+                }
                 $property->setValue($entity, $proxy->getPrimaryValue());
             }
         }
@@ -263,14 +266,21 @@ class TranslationMetadata
         }
     }
 
-    public function replaceDetachedProxies($entity, DefaultLocaleProvider $defaultLocaleProvider)
+    /**
+     * For a given entity, find all @Translatable fields that contain new (not yet persisted)
+     * Translatable objects and replace those with ManagedTranslationProxy.
+     *
+     * @param object                $entity
+     * @param DefaultLocaleProvider $defaultLocaleProvider
+     */
+    public function manageTranslations($entity, DefaultLocaleProvider $defaultLocaleProvider)
     {
         foreach ($this->translatedProperties as $fieldname => $property) {
-            $proxy = $property->getValue($entity);
+            $translatableValue = $property->getValue($entity);
 
-            if ($proxy instanceof Translatable) {
+            if ($translatableValue instanceof Translatable) {
                 $newProxy = $this->createProxy($entity, $fieldname, $defaultLocaleProvider);
-                $proxy->copy($newProxy);
+                $translatableValue->copy($newProxy);
                 $property->setValue($entity, $newProxy);
             }
         }
