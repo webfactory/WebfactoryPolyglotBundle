@@ -11,13 +11,13 @@ namespace Webfactory\Bundle\PolyglotBundle;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 /**
- * Eine TranslationProxy-Implementierung für eine Entität, die
+ * Eine TranslationInterface-Implementierung für eine Entität, die
  * noch neu und dem EntityManager nicht bekannt ist. Diese Implementierung
  * kann von Klassen mit Translatable-Feldern im Konstruktor ohne weitere
  * Abhängigkeiten erzeugt werden.
  *
  * Wir können an dieser Stelle nicht auf die Reflection-
- * Mechanismen (TranslationMetadata) zurückgreifen, weil diese z. T. auch
+ * Mechanismen (TranslatableClassMetadata) zurückgreifen, weil diese z. T. auch
  * Details des EntityManagers (z. B. den Metadata-Cache) benötigen, was
  * wir alles an der Stelle in Klienten nicht zur Verfügung haben.
  *

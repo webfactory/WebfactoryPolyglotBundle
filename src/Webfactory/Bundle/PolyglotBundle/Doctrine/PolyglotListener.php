@@ -88,7 +88,7 @@ class PolyglotListener implements EventSubscriber
         $entityManager = $event->getEntityManager();
         // Called before changes are flushed out to the database - even before the change sets are computed
         foreach ($this->entitiesWithTranslations as $entity) {
-            /** @var TranslationMetadata $translationMetadata */
+            /** @var TranslatableClassMetadata $translationMetadata */
             $translationMetadata = $this->entitiesWithTranslations[$entity];
             $translationMetadata->preFlush($entity, $entityManager);
         }
@@ -130,7 +130,7 @@ class PolyglotListener implements EventSubscriber
             if (($cached = $cacheDriver->fetch($className . self::CACHE_SALT)) !== false) {
                 $this->translatedClasses[$className] = $cached;
                 if ($cached) { // evtl. ist im Cache gespeichert, das die Klasse *nicht* übersetzt ist
-                    /** @var $cached TranslationMetadata */
+                    /** @var $cached TranslatableClassMetadata */
                     $cached->wakeupReflection($reflectionService);
                     $cached->setLogger($this->logger);
                 }
@@ -142,7 +142,7 @@ class PolyglotListener implements EventSubscriber
         // Load/parse
         /* @var $metadataInfo ClassMetadataInfo */
         $metadataInfo = $metadataFactory->getMetadataFor($className);
-        $meta = TranslationMetadata::parseFromClassMetadata($metadataInfo, $this->reader);
+        $meta = TranslatableClassMetadata::parseFromClassMetadata($metadataInfo, $this->reader);
         if ($meta !== null) {
             $meta->setLogger($this->logger);
             $this->translatedClasses[$className] = $meta;

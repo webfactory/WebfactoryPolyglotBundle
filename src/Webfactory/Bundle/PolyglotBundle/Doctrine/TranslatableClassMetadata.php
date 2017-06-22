@@ -19,13 +19,12 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 
 /**
- * Enthält für eine Klasse mit @Translatable-Annotations die Informationen darüber,
- * welche Felder der Klasse übersetzbar sind, wo die Übersetzungen gespeichert werden
- * etc.
- *
- * Es gibt eine Instanz dieser Klasse pro Entitätsklasse mit Übersetzungen.
+ * For an entity class that contains @Translatable annotations, this class holds metadata
+ * like which fields in the class are @Translatable_s, which field holds the collection
+ * of translations etc. There need only be one instance of this class for every
+ * entity class with translations.
  */
-class TranslationMetadata
+class TranslatableClassMetadata
 {
     /**
      * @var \ReflectionProperty[] Ein Mapping von Feldnamen in der Hauptklasse auf die Felder in der
@@ -73,7 +72,7 @@ class TranslationMetadata
 
     public static function parseFromClassMetadata(ClassMetadataInfo $cm, Reader $reader)
     {
-        /* @var $tm TranslationMetadata */
+        /* @var $tm TranslatableClassMetadata */
         $tm = new static();
         $tm->findPrimaryLocale($reader, $cm);
         $tm->findTranslationsCollection($reader, $cm);

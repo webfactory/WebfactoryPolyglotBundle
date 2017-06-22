@@ -4,10 +4,10 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Psr\Log\LoggerInterface;
-use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslationMetadata;
+use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableClassMetadata;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 
-class TranslationMetadataTest extends \PHPUnit_Framework_TestCase
+class TranslatableClassMetadataTest extends \PHPUnit_Framework_TestCase
 {
     public function testIsSerializableWithoutLogger()
     {
@@ -16,12 +16,12 @@ class TranslationMetadataTest extends \PHPUnit_Framework_TestCase
         $serialized = serialize($metadata);
         $unserialized = unserialize($serialized);
 
-        $this->assertInstanceOf('Webfactory\Bundle\PolyglotBundle\Doctrine\TranslationMetadata', $unserialized);
+        $this->assertInstanceOf(TranslatableClassMetadata::class, $unserialized);
     }
 
     public function testIsSerializableEvenIfInjectedLoggerIsNotSerializable()
     {
-        $notSerializableLogger = $this->getMock('Symfony\Component\Debug\BufferingLogger', array('__sleep'));
+        $notSerializableLogger = $this->getMock('Symfony\Component\Debug\BufferingLogger', ['__sleep']);
         $notSerializableLogger->expects($this->any())
             ->method('__sleep')
             ->will($this->throwException(new \RuntimeException('You cannot serialize me!')));
@@ -31,29 +31,31 @@ class TranslationMetadataTest extends \PHPUnit_Framework_TestCase
         $serialized = serialize($metadata);
         $unserialized = unserialize($serialized);
 
-        $this->assertInstanceOf('Webfactory\Bundle\PolyglotBundle\Doctrine\TranslationMetadata', $unserialized);
+        $this->assertInstanceOf(TranslatableClassMetadata::class, $unserialized);
     }
 
     /**
      * Creates metadata for testing.
      *
      * @param LoggerInterface|null $logger
-     * @return TranslationMetadata
+     *
+     * @return TranslatableClassMetadataTest
      */
     private function createMetadata(LoggerInterface $logger = null)
     {
         $reader = new AnnotationReader();
         $infrastructure = new ORMInfrastructure(
-            array(
+            [
                 '\Webfactory\Bundle\PolyglotBundle\Tests\TestEntity',
                 '\Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation',
-            )
+            ]
         );
-        $metadata =$infrastructure->getEntityManager()->getClassMetadata('Webfactory\Bundle\PolyglotBundle\Tests\TestEntity');
-        $translationMetadata =  TranslationMetadata::parseFromClassMetadata($metadata, $reader);
+        $metadata = $infrastructure->getEntityManager()->getClassMetadata('Webfactory\Bundle\PolyglotBundle\Tests\TestEntity');
+        $metadata = TranslatableClassMetadata::parseFromClassMetadata($metadata, $reader);
         if ($logger !== null) {
-            $translationMetadata->setLogger($logger);
+            $metadata->setLogger($logger);
         }
-        return $translationMetadata;
+
+        return $metadata;
     }
 }
