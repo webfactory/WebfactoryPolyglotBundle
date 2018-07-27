@@ -9,8 +9,6 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
-use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
@@ -20,7 +18,7 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Log\LoggerInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
-class PolyglotListener implements EventSubscriber
+class PolyglotListener
 {
     const CACHE_SALT = '$WebfactoryPolyglot';
 
@@ -54,11 +52,6 @@ class PolyglotListener implements EventSubscriber
         $this->logger = $logger;
 
         $this->entitiesWithTranslations = new \SplObjectStorage();
-    }
-
-    public function getSubscribedEvents()
-    {
-        return array(Events::postLoad, Events::preFlush, Events::prePersist, Events::postFlush);
     }
 
     public function postLoad(LifecycleEventArgs $event)

@@ -4,7 +4,6 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManagerInterface;
-use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
@@ -32,7 +31,9 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->defaultLocaleProvider = new DefaultLocaleProvider('en_GB');
 
         $listener = new PolyglotListener(new AnnotationReader(), $this->defaultLocaleProvider);
-        $this->entityManager->getEventManager()->addEventSubscriber($listener);
+        $this->entityManager->getEventManager()->addEventListener(
+            ['postFlush', 'prePersist', 'preFlush', 'postLoad'],
+            $listener);
     }
 
     public function testPersistingEntityWithPlainStringInTranslatableField()
