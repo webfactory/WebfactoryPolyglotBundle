@@ -6,7 +6,7 @@ build:
         node: false
         redis: false
         variables:
-            COMPOSER_MEMORY_LIMIT: "1500M"
+            COMPOSER_MEMORY_LIMIT: "-1"
 
     tests:
         override:
