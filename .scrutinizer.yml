@@ -5,6 +5,8 @@ build:
         postgresql: false
         node: false
         redis: false
+        variables:
+            COMPOSER_MEMORY_LIMIT: "1500M"
 
     tests:
         override:
