@@ -1,9 +1,8 @@
 # ![webfactory Logo](https://www.webfactory.de/bundles/webfactorytwiglayout/img/logo.png) WebfactoryPolyglotBundle
 
-[![Build Status](https://travis-ci.org/webfactory/polyglot-bundle.svg?branch=master)](https://travis-ci.org/webfactory/polyglot-bundle)
-[![Coverage Status](https://coveralls.io/repos/webfactory/polyglot-bundle/badge.png?branch=master)](https://coveralls.io/r/webfactory/polyglot-bundle?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/webfactory/polyglot-bundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/webfactory/polyglot-bundle/?branch=master)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/85a47687-38e7-41ca-9483-6698fb7e4ca8/mini.png)](https://insight.sensiolabs.com/projects/85a47687-38e7-41ca-9483-6698fb7e4ca8)
+[![Build Status](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/badges/build.png?b=master)](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/build-status/master)
+[![Code Coverage](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/?branch=master)
 
 A bundle to simplify translations for Doctrine entities.
 
