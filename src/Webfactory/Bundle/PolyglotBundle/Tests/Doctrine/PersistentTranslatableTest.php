@@ -129,7 +129,7 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
      */
     private function breakEntity(TestEntity $entity)
     {
-        $brokenCollection = $this->getMock('Doctrine\Common\Collections\ArrayCollection');
+        $brokenCollection = $this->getMockBuilder('Doctrine\Common\Collections\ArrayCollection')->getMock();
         $brokenCollection->expects($this->any())
             ->method('matching')
             ->will($this->throwException(new \RuntimeException('Cannot find translations')));

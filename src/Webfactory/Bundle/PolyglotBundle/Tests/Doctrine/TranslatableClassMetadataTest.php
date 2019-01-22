@@ -21,7 +21,7 @@ class TranslatableClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     public function testIsSerializableEvenIfInjectedLoggerIsNotSerializable()
     {
-        $notSerializableLogger = $this->getMock('Symfony\Component\Debug\BufferingLogger', ['__sleep']);
+        $notSerializableLogger = $this->getMockBuilder('Symfony\Component\Debug\BufferingLogger', ['__sleep'])->getMock();
         $notSerializableLogger->expects($this->any())
             ->method('__sleep')
             ->will($this->throwException(new \RuntimeException('You cannot serialize me!')));
