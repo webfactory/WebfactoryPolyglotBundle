@@ -224,6 +224,16 @@ class PersistentTranslatable implements TranslatableInterface
         }
     }
 
+    public function isTranslatedInto($locale)
+    {
+        if ($locale === $this->primaryLocale) {
+            return !empty($this->primaryValue);
+        }
+
+        $entity = $this->getTranslationEntity($locale);
+        return $entity && $this->translatedProperty->getValue($entity) !== null;
+    }
+
     /**
      * @return string
      */
