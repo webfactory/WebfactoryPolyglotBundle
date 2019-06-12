@@ -106,6 +106,11 @@ class Translatable implements TranslatableInterface
         $this->translations[$locale] = $value;
     }
 
+    public function isTranslatedInto($locale)
+    {
+        return isset($this->translations[$locale]) && !empty($this->translations[$locale]);
+    }
+
     /**
      * @return string
      */

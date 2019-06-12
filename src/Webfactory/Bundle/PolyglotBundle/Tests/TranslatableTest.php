@@ -78,4 +78,37 @@ class TranslatableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('text locale_B', (string)$t);
         $this->assertEquals('text locale_B', $t->translate());
     }
+
+    /** @test */
+    public function isTranslatedInto_returns_true_for_primary_translation_if_set()
+    {
+        $translatable = new Translatable('text locale_A', 'locale_A');
+
+        $this->assertTrue($translatable->isTranslatedInto('locale_A'));
+    }
+
+    /** @test */
+    public function isTranslatedInto_returns_true_for_translation_if_set()
+    {
+        $translatable = new Translatable('text locale_A', 'locale_A');
+        $translatable->setTranslation('text locale_B', 'locale_B');
+
+        $this->assertTrue($translatable->isTranslatedInto('locale_B'));
+    }
+
+    /** @test */
+    public function isTranslatedInto_returns_false_if_primary_translation_is_empty()
+    {
+        $translatable = new Translatable('', 'locale_A');
+
+        $this->assertFalse($translatable->isTranslatedInto('locale_A'));
+    }
+
+    /** @test */
+    public function isTranslatedInto_returns_false_if_translation_is_not_set()
+    {
+        $translatable = new Translatable('', 'locale_A');
+
+        $this->assertFalse($translatable->isTranslatedInto('locale_B'));
+    }
 }

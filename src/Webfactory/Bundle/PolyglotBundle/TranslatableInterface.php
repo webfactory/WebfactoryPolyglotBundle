@@ -31,6 +31,14 @@ interface TranslatableInterface
     public function setTranslation($value, $locale = null);
 
     /**
+     * Returns wether the text is translated into the target locale.
+     *
+     * @param string $locale The target locale.
+     * @return bool
+     */
+    public function isTranslatedInto($locale);
+
+    /**
      * Returns the translation for the current locale.
      *
      * @return string

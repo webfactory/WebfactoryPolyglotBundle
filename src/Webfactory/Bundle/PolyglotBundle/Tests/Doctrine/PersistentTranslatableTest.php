@@ -97,6 +97,51 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Cannot find translations', $logMessage, 'Original exception not contained.');
     }
 
+    /** @test */
+    public function isTranslatedInto_returns_true_for_primary_translation_if_set()
+    {
+        $entity = new TestEntity('foo');
+        $proxy = $this->createProxy($entity);
+        $proxy->setTranslation('bar', 'de');
+        $proxy->setTranslation('bar in en', 'en');
+
+        $this->assertTrue($proxy->isTranslatedInto('en'));
+    }
+
+    /** @test */
+    public function isTranslatedInto_returns_true_for_translation_if_set()
+    {
+        $entity = new TestEntity('foo');
+        $proxy = $this->createProxy($entity);
+        $proxy->setTranslation('bar', 'de');
+        $proxy->setTranslation('bar in en', 'en');
+
+        $this->assertTrue($proxy->isTranslatedInto('de'));
+    }
+
+    /** @test */
+    public function isTranslatedInto_returns_false_if_primary_translation_is_empty()
+    {
+        $entity = new TestEntity('foo');
+        $proxy = $this->createProxy($entity);
+        $proxy->setTranslation('bar', 'de');
+        $proxy->setTranslation('', 'en');
+
+        $isTranslatedInto = $proxy->isTranslatedInto('en');
+        $this->assertFalse($isTranslatedInto);
+    }
+
+    /** @test */
+    public function isTranslatedInto_returns_false_if_translation_is_not_set()
+    {
+        $entity = new TestEntity('foo');
+        $proxy = $this->createProxy($entity);
+        $proxy->setTranslation('bar', 'de');
+        $proxy->setTranslation('bar in en', 'en');
+
+        $this->assertFalse($proxy->isTranslatedInto('fr'));
+    }
+
     /**
      * @param TestEntity $entity
      * @param LoggerInterface|null $logger
