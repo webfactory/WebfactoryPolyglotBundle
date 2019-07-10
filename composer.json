@@ -1,7 +1,7 @@
 {
     "name": "webfactory/polyglot-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony2 bundle simplifying translations in Doctrine.",
+    "description": "Symfony Bundle simplifying translations of values stored in Doctrine ORM entities",
     "license": "MIT",
     "authors": [
         {
@@ -19,22 +19,20 @@
     "require": {
         "doctrine/orm": "~2.2",
         "php": "^5.5|^7.0",
-        "symfony/config": "^2.0|^3.0",
-        "symfony/debug": "^2.0|^3.0",
-        "symfony/dependency-injection": "^2.0|^3.0",
-        "symfony/event-dispatcher": "^2.0|^3.0",
-        "symfony/http-kernel": "^2.0|^3.0"
+        "symfony/config": "^2.0|^3.0|^4.0",
+        "symfony/dependency-injection": "^2.0|^3.0|^4.0",
+        "symfony/event-dispatcher": "^2.0|^3.0|^4.0",
+        "symfony/http-kernel": "^2.0|^3.0|^4.0"
     },
 
     "require-dev": {
-        "symfony/debug": "^2.8.0 | ^3.0.0",
-        "phpunit/phpunit": "^4.8|^5.0",
+        "phpunit/phpunit": "^5.7",
+        "symfony/debug": "^2.8|^3.0|^4.0",
+        "symfony/phpunit-bridge": "dev-master",
         "webfactory/doctrine-orm-test-infrastructure": "~1.0"
     },
 
-    "extra": {
-        "branch-alias": {
-            "dev-default": "1.0.x-dev"
-        }
+    "config": {
+        "sort-packages": true
     }
 }

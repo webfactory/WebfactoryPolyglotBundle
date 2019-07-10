@@ -4,7 +4,10 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Debug\BufferingLogger;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableClassMetadata;
+use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
+use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 
 class TranslatableClassMetadataTest extends \PHPUnit_Framework_TestCase
@@ -21,7 +24,7 @@ class TranslatableClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     public function testIsSerializableEvenIfInjectedLoggerIsNotSerializable()
     {
-        $notSerializableLogger = $this->getMockBuilder('Symfony\Component\Debug\BufferingLogger', ['__sleep'])->getMock();
+        $notSerializableLogger = $this->getMockBuilder(BufferingLogger::class)->setMethods(['__sleep'])->getMock();
         $notSerializableLogger->expects($this->any())
             ->method('__sleep')
             ->will($this->throwException(new \RuntimeException('You cannot serialize me!')));
@@ -46,11 +49,11 @@ class TranslatableClassMetadataTest extends \PHPUnit_Framework_TestCase
         $reader = new AnnotationReader();
         $infrastructure = new ORMInfrastructure(
             [
-                '\Webfactory\Bundle\PolyglotBundle\Tests\TestEntity',
-                '\Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation',
+                TestEntity::class,
+                TestEntityTranslation::class,
             ]
         );
-        $metadata = $infrastructure->getEntityManager()->getClassMetadata('Webfactory\Bundle\PolyglotBundle\Tests\TestEntity');
+        $metadata = $infrastructure->getEntityManager()->getClassMetadata(TestEntity::class);
         $metadata = TranslatableClassMetadata::parseFromClassMetadata($metadata, $reader);
         if ($logger !== null) {
             $metadata->setLogger($logger);
