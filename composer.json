@@ -1,7 +1,7 @@
 {
     "name": "webfactory/polyglot-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony2 bundle simplifying translations in Doctrine.",
+    "description": "Symfony Bundle simplifying translations of values stored in Doctrine ORM entities",
     "license": "MIT",
     "authors": [
         {
@@ -20,7 +20,6 @@
         "doctrine/orm": "~2.2",
         "php": "^5.5|^7.0",
         "symfony/config": "^2.0|^3.0|^4.0",
-        "symfony/debug": "^2.0|^3.0|^4.0",
         "symfony/dependency-injection": "^2.0|^3.0|^4.0",
         "symfony/event-dispatcher": "^2.0|^3.0|^4.0",
         "symfony/http-kernel": "^2.0|^3.0|^4.0"
