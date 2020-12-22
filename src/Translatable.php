@@ -8,6 +8,7 @@
  */
 
 namespace Webfactory\Bundle\PolyglotBundle;
+
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 /**
@@ -48,15 +49,15 @@ class Translatable implements TranslatableInterface
      *
      * @var array<string, string>
      */
-    protected $translations = array();
+    protected $translations = [];
 
     /**
-     * @param string|null $value
+     * @param string|null                       $value
      * @param string|DefaultLocaleProvider|null $defaultLocale
      */
     public function __construct($value = null, $defaultLocale = null)
     {
-        if ($defaultLocale !== null && !is_string($defaultLocale) && !$defaultLocale instanceof DefaultLocaleProvider) {
+        if (null !== $defaultLocale && !\is_string($defaultLocale) && !$defaultLocale instanceof DefaultLocaleProvider) {
             throw new \InvalidArgumentException('When provided, the $defaultLocale argument must either be a string or an instance of DefaultLocaleProvider');
         }
 
@@ -73,7 +74,7 @@ class Translatable implements TranslatableInterface
         $this->defaultLocale = $locale;
         $newLocale = $this->getDefaultLocale();
 
-        if ($oldLocale == '' && $newLocale != '') {
+        if ('' == $oldLocale && '' != $newLocale) {
             $this->translations[$newLocale] = $this->translations[$oldLocale];
             unset($this->translations[$oldLocale]);
         }
@@ -82,11 +83,12 @@ class Translatable implements TranslatableInterface
 
     /**
      * @param string|null $locale
+     *
      * @return string|null
      */
     public function translate($locale = null)
     {
-        $locale = $locale ? : $this->getDefaultLocale();
+        $locale = $locale ?: $this->getDefaultLocale();
 
         if (isset($this->translations[$locale])) {
             return $this->translations[$locale];
@@ -96,12 +98,12 @@ class Translatable implements TranslatableInterface
     }
 
     /**
-     * @param string $value
+     * @param string      $value
      * @param string|null $locale
      */
     public function setTranslation($value, $locale = null)
     {
-        $locale = $locale ? : $this->getDefaultLocale();
+        $locale = $locale ?: $this->getDefaultLocale();
 
         $this->translations[$locale] = $value;
     }
@@ -121,13 +123,11 @@ class Translatable implements TranslatableInterface
 
     /**
      * Copies translations from this object into the given one.
-     *
-     * @param TranslatableInterface $p
      */
     public function copy(TranslatableInterface $p)
     {
         foreach ($this->translations as $locale => $value) {
-            $p->setTranslation($value, ($locale == '' ? null : $locale));
+            $p->setTranslation($value, ('' == $locale ? null : $locale));
         }
     }
 

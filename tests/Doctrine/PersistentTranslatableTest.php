@@ -11,7 +11,6 @@ use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
 
 class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
 {
-
     public function testToStringReturnsTranslatedMessage()
     {
         $entity = new TestEntity('foo');
@@ -21,7 +20,7 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
         $proxy->setTranslation('bar', 'de');
         $proxy->setTranslation('bar in en', 'en');
 
-        $translation = (string)$proxy;
+        $translation = (string) $proxy;
 
         $this->assertEquals('bar', $translation);
     }
@@ -31,7 +30,7 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
         $this->breakEntity($entity);
-        $translation = (string)$proxy;
+        $translation = (string) $proxy;
 
         $this->assertInternalType('string', $translation);
     }
@@ -41,7 +40,7 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity, new NullLogger());
         $this->breakEntity($entity);
-        $translation = (string)$proxy;
+        $translation = (string) $proxy;
 
         $this->assertInternalType('string', $translation);
     }
@@ -56,7 +55,7 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
 
         $proxy->__toString();
 
-        $this->assertGreaterThan(0, count($logger->cleanLogs()), 'Expected at least one log message');
+        $this->assertGreaterThan(0, \count($logger->cleanLogs()), 'Expected at least one log message');
     }
 
     public function testLoggedMessageContainsInformationAboutTranslatedProperty()
@@ -143,9 +142,6 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param TestEntity $entity
-     * @param LoggerInterface|null $logger
-     *
      * @return PersistentTranslatable
      */
     private function createProxy(TestEntity $entity, LoggerInterface $logger = null)
@@ -166,12 +162,10 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
             $this->makeAccessible(new \ReflectionProperty($translationClass, 'entity')),
             $logger
         );
+
         return $proxy;
     }
 
-    /**
-     * @param TestEntity $entity
-     */
     private function breakEntity(TestEntity $entity)
     {
         $brokenCollection = $this->getMockBuilder('Doctrine\Common\Collections\ArrayCollection')->getMock();
@@ -184,12 +178,12 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param \ReflectionProperty $property
      * @return \ReflectionProperty
      */
     private function makeAccessible(\ReflectionProperty $property)
     {
         $property->setAccessible(true);
+
         return $property;
     }
 }

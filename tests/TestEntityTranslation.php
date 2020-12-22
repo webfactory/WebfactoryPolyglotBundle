@@ -10,7 +10,6 @@
 namespace Webfactory\Bundle\PolyglotBundle\Tests;
 
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
 
 /**
@@ -22,6 +21,7 @@ class TestEntityTranslation extends BaseTranslation
 {
     /**
      * @ORM\ManyToOne(targetEntity="TestEntity", inversedBy="translations")
+     *
      * @var TestEntity
      */
     protected $entity;
@@ -32,6 +32,7 @@ class TestEntityTranslation extends BaseTranslation
      * Must be protected to be usable when this class is used as base for a mock.
      *
      * @ORM\Column(type="string")
+     *
      * @var string
      */
     protected $text;
@@ -39,7 +40,6 @@ class TestEntityTranslation extends BaseTranslation
     /**
      * @param string|null $locale, e.g. 'de_DE'
      * @param string|null $text
-     * @param TestEntity|null $entity
      */
     public function __construct($locale = null, $text = null, TestEntity $entity = null)
     {

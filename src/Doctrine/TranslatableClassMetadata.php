@@ -16,9 +16,9 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\ReflectionService;
 use Psr\Log\LoggerInterface;
+use Webfactory\Bundle\PolyglotBundle\Annotation as Annotation;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Annotation;
 
 /**
  * For an entity class that contains @Translatable annotations, this class holds metadata
@@ -29,30 +29,38 @@ use Webfactory\Bundle\PolyglotBundle\Annotation as Annotation;
 class TranslatableClassMetadata
 {
     /**
-     * @var \ReflectionProperty[] Ein Mapping von Feldnamen in der Hauptklasse auf die Felder in der
+     * Ein Mapping von Feldnamen in der Hauptklasse auf die Felder in der
      * Übersetzungs-Klasse, in denen die jeweilige Übersetzung liegt.
+     *
+     * @var \ReflectionProperty[]
      */
-    protected $translationFieldMapping = array();
+    protected $translationFieldMapping = [];
 
     /**
-     * @var \ReflectionProperty[] Die Eigenschaften der Haupt-Klasse, die übersetzbar sind; indiziert nach Feldnamen.
+     * Die Eigenschaften der Haupt-Klasse, die übersetzbar sind; indiziert nach Feldnamen.
+     *
+     * @var \ReflectionProperty[]
      */
-    protected $translatedProperties = array();
+    protected $translatedProperties = [];
 
     /**
-     * @var \ReflectionProperty Die Eigenschaft der Haupt-Klasse, die die Collection der Übersetzungen hält.
+     * Die Eigenschaft der Haupt-Klasse, die die Collection der Übersetzungen hält.
+     *
+     * @var \ReflectionProperty
      */
     protected $translationsCollectionProperty;
 
     /**
-     * @var \ReflectionProperty Die Eigenschaft der Übersetzungs-Klasse, die als many-to-one auf die Haupt-Klasse
-     * verweist.
+     * Die Eigenschaft der Übersetzungs-Klasse, die als many-to-one auf die Haupt-Klasse verweist.
+     *
+     * @var \ReflectionProperty
      */
     protected $translationMappingProperty;
 
     /**
-     * @var \ReflectionProperty Die Eigenschaft in der Übersetzungs-Klasse, die die Sprache einer Übersetzungsinstanz
-     * enhtält.
+     * Die Eigenschaft in der Übersetzungs-Klasse, die die Sprache einer Übersetzungsinstanz enhtält.
+     *
+     * @var \ReflectionProperty
      */
     protected $translationLocaleProperty;
 
@@ -117,50 +125,41 @@ class TranslatableClassMetadata
         $this->translationClass = $reflectionService->getClass($this->translationClass);
 
         foreach ($this->translationFieldMapping as $fieldname => $property) {
-            $this->translationFieldMapping[$fieldname] = call_user_func_array([$reflectionService, 'getAccessibleProperty'], $property);
+            $this->translationFieldMapping[$fieldname] = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $property);
         }
 
         foreach ($this->translatedProperties as $fieldname => $property) {
-            $this->translatedProperties[$fieldname] = call_user_func_array([$reflectionService, 'getAccessibleProperty'], $property);
+            $this->translatedProperties[$fieldname] = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $property);
         }
 
-        $this->translationsCollectionProperty = call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationsCollectionProperty);
-        $this->translationMappingProperty = call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationMappingProperty);
-        $this->translationLocaleProperty = call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationLocaleProperty);
+        $this->translationsCollectionProperty = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationsCollectionProperty);
+        $this->translationMappingProperty = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationMappingProperty);
+        $this->translationLocaleProperty = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationLocaleProperty);
     }
 
     protected function assertNoAnnotationsArePresent()
     {
-        return $this->translationClass === null
-            && $this->translationLocaleProperty === null
-            && $this->translationMappingProperty === null
-            && count($this->translatedProperties) === 0;
+        return null === $this->translationClass
+            && null === $this->translationLocaleProperty
+            && null === $this->translationMappingProperty
+            && 0 === \count($this->translatedProperties);
     }
 
     protected function assertAnnotationsAreComplete()
     {
-        if ($this->translationClass === null) {
-            throw new \RuntimeException(
-                'The annotation with the translation class name is missing or incorrect, e.g. '
-                . '@ORM\OneToMany(targetEntity="TestEntityTranslation", ...)'
-            );
+        if (null === $this->translationClass) {
+            throw new \RuntimeException('The annotation with the translation class name is missing or incorrect, e.g. '.'@ORM\OneToMany(targetEntity="TestEntityTranslation", ...)');
         }
 
-        if ($this->translationLocaleProperty === null) {
-            throw new \RuntimeException(
-                'The @Polyglot\Locale annotation at the language property of the translation class is missing or '
-                . 'incorrect'
-            );
+        if (null === $this->translationLocaleProperty) {
+            throw new \RuntimeException('The @Polyglot\Locale annotation at the language property of the translation class is missing or '.'incorrect');
         }
 
-        if ($this->translationMappingProperty === null) {
-            throw new \RuntimeException(
-                'The attribute referenced in the mappedBy-Attribute of the @ORM\OneToMany(..., mappedBy="...") is '
-                . 'missing or incorrect'
-            );
+        if (null === $this->translationMappingProperty) {
+            throw new \RuntimeException('The attribute referenced in the mappedBy-Attribute of the @ORM\OneToMany(..., mappedBy="...") is '.'missing or incorrect');
         }
 
-        if (count($this->translatedProperties) === 0) {
+        if (0 === \count($this->translatedProperties)) {
             throw new \RuntimeException('No translatable attributes annotated with @Polyglot\Translatable were found');
         }
     }
@@ -173,13 +172,13 @@ class TranslatableClassMetadata
                     $property,
                     Annotation\Translatable::class
                 );
-                if ($annotation !== null) {
+                if (null !== $annotation) {
                     $fieldname = $property->getName();
                     $property->setAccessible(true);
 
                     $this->translatedProperties[$fieldname] = $property;
 
-                    $translationFieldname = $annotation->getTranslationFieldname() ? : $fieldname;
+                    $translationFieldname = $annotation->getTranslationFieldname() ?: $fieldname;
                     $translationField = $this->translationClass->getProperty($translationFieldname);
                     $translationField->setAccessible(true);
                     $this->translationFieldMapping[$fieldname] = $translationField;
@@ -195,7 +194,7 @@ class TranslatableClassMetadata
                 $property,
                 Annotation\TranslationCollection::class
             );
-            if ($annotation !== null) {
+            if (null !== $annotation) {
                 $property->setAccessible(true);
                 $this->translationsCollectionProperty = $property;
                 $am = $classMetadata->getAssociationMapping($property->getName());
@@ -215,7 +214,7 @@ class TranslatableClassMetadata
             $classMetadata->getReflectionClass(),
             Annotation\Locale::class
         );
-        if ($annotation !== null) {
+        if (null !== $annotation) {
             $this->primaryLocale = $annotation->getPrimary();
         }
     }
@@ -229,7 +228,7 @@ class TranslatableClassMetadata
                 $property,
                 Annotation\Locale::class
             );
-            if ($annotation !== null) {
+            if (null !== $annotation) {
                 $property->setAccessible(true);
                 $this->translationLocaleProperty = $property;
             }

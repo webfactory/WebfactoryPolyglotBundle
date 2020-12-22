@@ -9,8 +9,8 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Entity;
 
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
 use Doctrine\ORM\Mapping as ORM;
+use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
 
 /**
  * @ORM\MappedSuperclass

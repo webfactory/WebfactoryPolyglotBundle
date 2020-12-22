@@ -9,11 +9,11 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\PreFlushEventArgs;
-use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostFlushEventArgs;
+use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Log\LoggerInterface;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
@@ -23,30 +23,26 @@ class PolyglotListener
     const CACHE_SALT = '$WebfactoryPolyglot';
 
     protected $reader;
-    protected $translatedClasses = array();
-    protected $_proxiesStripped = array();
+    protected $translatedClasses = [];
+    protected $_proxiesStripped = [];
     protected $defaultLocaleProvider;
 
     /** @var \SplObjectStorage */
     private $entitiesWithTranslations;
 
     /**
-     * @var null|LoggerInterface
+     * @var LoggerInterface|null
      */
     protected $logger;
 
     /**
      * PolyglotListener constructor.
-     * @param Reader $annotationReader
-     * @param DefaultLocaleProvider $defaultLocaleProvider
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         Reader $annotationReader,
         DefaultLocaleProvider $defaultLocaleProvider,
         LoggerInterface $logger = null
-    )
-    {
+    ) {
         $this->reader = $annotationReader;
         $this->defaultLocaleProvider = $defaultLocaleProvider;
         $this->logger = $logger;
@@ -101,7 +97,7 @@ class PolyglotListener
         $entity = $event->getEntity();
         $em = $event->getEntityManager();
 
-        $className = get_class($entity);
+        $className = \get_class($entity);
 
         return $this->getTranslationMetadata($className, $em);
     }
@@ -119,11 +115,10 @@ class PolyglotListener
 
         // Cache driver available and in cache
         if ($cacheDriver) {
-
-            if (($cached = $cacheDriver->fetch($className . self::CACHE_SALT)) !== false) {
+            if (($cached = $cacheDriver->fetch($className.self::CACHE_SALT)) !== false) {
                 $this->translatedClasses[$className] = $cached;
                 if ($cached) { // evtl. ist im Cache gespeichert, das die Klasse *nicht* übersetzt ist
-                    /** @var $cached TranslatableClassMetadata */
+                    /* @var $cached TranslatableClassMetadata */
                     $cached->wakeupReflection($reflectionService);
                     $cached->setLogger($this->logger);
                 }
@@ -136,14 +131,14 @@ class PolyglotListener
         /* @var $metadataInfo ClassMetadataInfo */
         $metadataInfo = $metadataFactory->getMetadataFor($className);
         $meta = TranslatableClassMetadata::parseFromClassMetadata($metadataInfo, $this->reader);
-        if ($meta !== null) {
+        if (null !== $meta) {
             $meta->setLogger($this->logger);
             $this->translatedClasses[$className] = $meta;
         }
 
         // Save if cache driver available
         if ($cacheDriver) {
-            $cacheDriver->save($className . self::CACHE_SALT, $meta ? $meta->prepareSleepInstance() : null);
+            $cacheDriver->save($className.self::CACHE_SALT, $meta ? $meta->prepareSleepInstance() : null);
         }
 
         return $meta;

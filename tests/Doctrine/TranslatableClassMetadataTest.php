@@ -36,7 +36,7 @@ class TranslatableClassMetadataTest extends \PHPUnit_Framework_TestCase
         );
         $metadata = $infrastructure->getEntityManager()->getClassMetadata(TestEntity::class);
         $metadata = TranslatableClassMetadata::parseFromClassMetadata($metadata, $reader);
-        if ($logger !== null) {
+        if (null !== $logger) {
             $metadata->setLogger($logger);
         }
 

@@ -12,7 +12,6 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
-use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
@@ -27,7 +26,8 @@ class TestEntity
      * @ORM\Id
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
-     * @var integer|null
+     *
+     * @var int|null
      */
     private $id;
 
@@ -37,6 +37,7 @@ class TestEntity
      *
      * @ORM\Column(type="string")
      * @Polyglot\Translatable
+     *
      * @var TranslatableInterface|string|null
      */
     protected $text = null;

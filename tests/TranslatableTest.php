@@ -61,7 +61,7 @@ class TranslatableTest extends \PHPUnit_Framework_TestCase
     public function testReturnsDefaultValueWhenCastToString()
     {
         $t = new Translatable('text locale_A', 'locale_A');
-        $this->assertEquals('text locale_A', (string)$t);
+        $this->assertEquals('text locale_A', (string) $t);
     }
 
     public function testDefaultLocaleProviderCanProvideDefaultLocale()
@@ -71,11 +71,11 @@ class TranslatableTest extends \PHPUnit_Framework_TestCase
         $t = new Translatable('text locale_A', $defaultLocaleProvider);
         $t->setTranslation('text locale_B', 'locale_B');
 
-        $this->assertEquals('text locale_A', (string)$t);
+        $this->assertEquals('text locale_A', (string) $t);
         $this->assertEquals('text locale_A', $t->translate());
 
         $defaultLocaleProvider->setDefaultLocale('locale_B');
-        $this->assertEquals('text locale_B', (string)$t);
+        $this->assertEquals('text locale_B', (string) $t);
         $this->assertEquals('text locale_B', $t->translate());
     }
 
