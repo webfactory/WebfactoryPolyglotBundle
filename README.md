@@ -1,8 +1,7 @@
 # ![webfactory Logo](https://www.webfactory.de/bundles/webfactorytwiglayout/img/logo.png) WebfactoryPolyglotBundle
 
-[![Build Status](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/badges/build.png?b=master)](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/build-status/master)
-[![Code Coverage](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/webfactory/WebfactoryPolyglotBundle/?branch=master)
+![Tests](https://github.com/webfactory/WebfactoryPolyglotBundle/workflows/Tests/badge.svg)
+![Dependencies](https://github.com/webfactory/WebfactoryPolyglotBundle/workflows/Dependencies/badge.svg)
 
 A bundle to simplify translations for Doctrine entities.
 
@@ -263,7 +262,7 @@ this information in an attribute. This would allow each record to have its own p
 
 ## Credits, Copyright and License
 
-Copyright 2012-2017 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
+This Bundle was written by webfactory GmbH, Bonn, Germany. We're a software development agency with a focus on PHP (mostly [Symfony](http://github.com/symfony/symfony)). If you're a developer looking for new challenges, we'd like to hear from you!
 
 - <https://www.webfactory.de>
 - <https://twitter.com/webfactory>

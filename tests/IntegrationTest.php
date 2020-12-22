@@ -102,7 +102,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $entity = $this->createAndFetchTestEntity();
 
-        $queryCount = count($this->getQueries());
+        $queryCount = \count($this->getQueries());
 
         /*
            Nothing was changed here, so the flush() should not need to write anything
@@ -113,7 +113,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
         $this->infrastructure->getEntityManager()->flush();
 
         $queries = $this->getQueries();
-        $this->assertEquals($queryCount, count($queries));
+        $this->assertEquals($queryCount, \count($queries));
 
         $this->assertInstanceOf(TranslatableInterface::class, $entity->getText());
     }

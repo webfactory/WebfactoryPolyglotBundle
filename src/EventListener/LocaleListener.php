@@ -33,8 +33,6 @@ class LocaleListener implements EventSubscriberInterface
      * Set the translation listener locale from the request.
      *
      * This method should be attached to the kernel.request event.
-     *
-     * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
      */
     public function onKernelRequest(GetResponseEvent $event)
     {
@@ -43,8 +41,8 @@ class LocaleListener implements EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             KernelEvents::REQUEST => 'onKernelRequest',
-        );
+        ];
     }
 }

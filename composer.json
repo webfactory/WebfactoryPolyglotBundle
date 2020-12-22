@@ -13,12 +13,19 @@
     ],
 
     "autoload": {
-        "psr-0": { "Webfactory\\Bundle\\PolyglotBundle": "src" }
+        "psr-4": { "Webfactory\\Bundle\\PolyglotBundle\\": "src" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Webfactory\\Bundle\\PolyglotBundle\\Tests\\": "tests" }
     },
 
     "require": {
+        "php": "^7.2",
+        "doctrine/annotations": "^1.11",
+        "doctrine/collections": "^1.0",
+        "doctrine/persistence": "^1.3.8",
         "doctrine/orm": "~2.2",
-        "php": "^5.5|^7.0",
+        "psr/log": "^1.0",
         "symfony/config": "^2.0|^3.0|^4.0",
         "symfony/dependency-injection": "^2.0|^3.0|^4.0",
         "symfony/event-dispatcher": "^2.0|^3.0|^4.0",
@@ -27,9 +34,9 @@
 
     "require-dev": {
         "phpunit/phpunit": "^5.7",
-        "symfony/debug": "^2.8|^3.0|^4.0",
-        "symfony/phpunit-bridge": "dev-master",
-        "webfactory/doctrine-orm-test-infrastructure": "~1.0"
+        "symfony/error-handler": "^4.4",
+        "symfony/phpunit-bridge": "*",
+        "webfactory/doctrine-orm-test-infrastructure": "^1.9"
     },
 
     "config": {
