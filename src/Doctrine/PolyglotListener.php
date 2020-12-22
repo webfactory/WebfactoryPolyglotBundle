@@ -143,7 +143,7 @@ class PolyglotListener
 
         // Save if cache driver available
         if ($cacheDriver) {
-            $cacheDriver->save($className . self::CACHE_SALT, $meta);
+            $cacheDriver->save($className . self::CACHE_SALT, $meta ? $meta->prepareSleepInstance() : null);
         }
 
         return $meta;
