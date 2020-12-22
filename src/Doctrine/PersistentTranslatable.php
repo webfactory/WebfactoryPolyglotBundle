@@ -113,7 +113,7 @@ class PersistentTranslatable implements TranslatableInterface
      */
     public function __construct(
         object $entity,
-        string $primaryLocale,
+        ?string $primaryLocale,
         DefaultLocaleProvider $defaultLocaleProvider,
         ReflectionProperty $translatedProperty,
         ReflectionProperty $translationCollection,
