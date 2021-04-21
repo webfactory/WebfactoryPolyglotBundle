@@ -24,7 +24,7 @@ jobs:
                 uses: docker://oskarstark/php-cs-fixer-ga:2.16.7
 
             -   name: Create PR for CS fixups
-                uses: peter-evans/create-pull-request@c7f493a8000b8aeb17a1332e326ba76b57cb83eb
+                uses: peter-evans/create-pull-request@v3.8.2
                 id: create-pull-request
                 with:
                     token: ${{ secrets.GITHUB_TOKEN }}
