@@ -2,11 +2,12 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests;
 
+use PHPUnit_Framework_TestCase;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
-class TranslatableTest extends \PHPUnit_Framework_TestCase
+class TranslatableTest extends PHPUnit_Framework_TestCase
 {
     public function testImplementsInterface()
     {

@@ -16,6 +16,7 @@ use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Log\LoggerInterface;
+use SplObjectStorage;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 class PolyglotListener
@@ -27,7 +28,7 @@ class PolyglotListener
     protected $_proxiesStripped = [];
     protected $defaultLocaleProvider;
 
-    /** @var \SplObjectStorage */
+    /** @var SplObjectStorage */
     private $entitiesWithTranslations;
 
     /**
@@ -47,7 +48,7 @@ class PolyglotListener
         $this->defaultLocaleProvider = $defaultLocaleProvider;
         $this->logger = $logger;
 
-        $this->entitiesWithTranslations = new \SplObjectStorage();
+        $this->entitiesWithTranslations = new SplObjectStorage();
     }
 
     public function postLoad(LifecycleEventArgs $event)

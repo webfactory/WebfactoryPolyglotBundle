@@ -16,6 +16,9 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\ReflectionService;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
+use ReflectionProperty;
+use RuntimeException;
 use Webfactory\Bundle\PolyglotBundle\Annotation as Annotation;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
@@ -32,40 +35,40 @@ class TranslatableClassMetadata
      * Ein Mapping von Feldnamen in der Hauptklasse auf die Felder in der
      * Übersetzungs-Klasse, in denen die jeweilige Übersetzung liegt.
      *
-     * @var \ReflectionProperty[]
+     * @var ReflectionProperty[]
      */
     protected $translationFieldMapping = [];
 
     /**
      * Die Eigenschaften der Haupt-Klasse, die übersetzbar sind; indiziert nach Feldnamen.
      *
-     * @var \ReflectionProperty[]
+     * @var ReflectionProperty[]
      */
     protected $translatedProperties = [];
 
     /**
      * Die Eigenschaft der Haupt-Klasse, die die Collection der Übersetzungen hält.
      *
-     * @var \ReflectionProperty
+     * @var ReflectionProperty
      */
     protected $translationsCollectionProperty;
 
     /**
      * Die Eigenschaft der Übersetzungs-Klasse, die als many-to-one auf die Haupt-Klasse verweist.
      *
-     * @var \ReflectionProperty
+     * @var ReflectionProperty
      */
     protected $translationMappingProperty;
 
     /**
      * Die Eigenschaft in der Übersetzungs-Klasse, die die Sprache einer Übersetzungsinstanz enhtält.
      *
-     * @var \ReflectionProperty
+     * @var ReflectionProperty
      */
     protected $translationLocaleProperty;
 
     /**
-     * @var \ReflectionClass Die Übersetzungs-Klasse.
+     * @var ReflectionClass Die Übersetzungs-Klasse.
      */
     protected $translationClass;
 
@@ -148,19 +151,19 @@ class TranslatableClassMetadata
     protected function assertAnnotationsAreComplete()
     {
         if (null === $this->translationClass) {
-            throw new \RuntimeException('The annotation with the translation class name is missing or incorrect, e.g. '.'@ORM\OneToMany(targetEntity="TestEntityTranslation", ...)');
+            throw new RuntimeException('The annotation with the translation class name is missing or incorrect, e.g. '.'@ORM\OneToMany(targetEntity="TestEntityTranslation", ...)');
         }
 
         if (null === $this->translationLocaleProperty) {
-            throw new \RuntimeException('The @Polyglot\Locale annotation at the language property of the translation class is missing or '.'incorrect');
+            throw new RuntimeException('The @Polyglot\Locale annotation at the language property of the translation class is missing or '.'incorrect');
         }
 
         if (null === $this->translationMappingProperty) {
-            throw new \RuntimeException('The attribute referenced in the mappedBy-Attribute of the @ORM\OneToMany(..., mappedBy="...") is '.'missing or incorrect');
+            throw new RuntimeException('The attribute referenced in the mappedBy-Attribute of the @ORM\OneToMany(..., mappedBy="...") is '.'missing or incorrect');
         }
 
         if (0 === \count($this->translatedProperties)) {
-            throw new \RuntimeException('No translatable attributes annotated with @Polyglot\Translatable were found');
+            throw new RuntimeException('No translatable attributes annotated with @Polyglot\Translatable were found');
         }
     }
 
@@ -221,7 +224,7 @@ class TranslatableClassMetadata
 
     protected function parseTranslationsEntity(Reader $reader, $class)
     {
-        $this->translationClass = new \ReflectionClass($class);
+        $this->translationClass = new ReflectionClass($class);
 
         foreach ($this->translationClass->getProperties() as $property) {
             $annotation = $reader->getPropertyAnnotation(

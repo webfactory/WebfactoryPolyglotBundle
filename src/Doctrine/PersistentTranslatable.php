@@ -10,6 +10,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\Common\Collections\Criteria;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -220,7 +221,7 @@ class PersistentTranslatable implements TranslatableInterface
             }
 
             return $this->primaryValue;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $message = sprintf(
                 'Cannot translate property %s::%s into locale %s',
                 \get_class($this->entity),
@@ -249,7 +250,7 @@ class PersistentTranslatable implements TranslatableInterface
     {
         try {
             return (string) $this->translate();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($this->stringifyException($e));
 
             return '';
@@ -332,12 +333,12 @@ class PersistentTranslatable implements TranslatableInterface
     /**
      * @return string
      */
-    private function stringifyException(\Exception $e)
+    private function stringifyException(Exception $e)
     {
         $exceptionAsString = '';
         while (null !== $e) {
             if (!empty($exceptionAsString)) {
-                $exceptionAsString .= PHP_EOL.'Previous exception: '.PHP_EOL;
+                $exceptionAsString .= \PHP_EOL.'Previous exception: '.\PHP_EOL;
             }
             $exceptionAsString .= sprintf(
                 "Exception '%s' with message '%s' in %s:%d\n%s",
