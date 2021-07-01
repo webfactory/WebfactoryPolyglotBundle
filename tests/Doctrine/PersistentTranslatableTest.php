@@ -2,14 +2,18 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
+use PHPUnit_Framework_TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use ReflectionClass;
+use ReflectionProperty;
+use RuntimeException;
 use Symfony\Component\ErrorHandler\BufferingLogger;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
 
-class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
+class PersistentTranslatableTest extends PHPUnit_Framework_TestCase
 {
     public function testToStringReturnsTranslatedMessage()
     {
@@ -155,11 +159,11 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
             $entity,
             'en',
             $localeProvider,
-            $this->makeAccessible(new \ReflectionProperty($translationClass, 'text')),
-            $this->makeAccessible(new \ReflectionProperty($entity, 'translations')),
-            new \ReflectionClass($translationClass),
-            $this->makeAccessible(new \ReflectionProperty($translationClass, 'locale')),
-            $this->makeAccessible(new \ReflectionProperty($translationClass, 'entity')),
+            $this->makeAccessible(new ReflectionProperty($translationClass, 'text')),
+            $this->makeAccessible(new ReflectionProperty($entity, 'translations')),
+            new ReflectionClass($translationClass),
+            $this->makeAccessible(new ReflectionProperty($translationClass, 'locale')),
+            $this->makeAccessible(new ReflectionProperty($translationClass, 'entity')),
             $logger
         );
 
@@ -171,16 +175,16 @@ class PersistentTranslatableTest extends \PHPUnit_Framework_TestCase
         $brokenCollection = $this->getMockBuilder('Doctrine\Common\Collections\ArrayCollection')->getMock();
         $brokenCollection->expects($this->any())
             ->method('matching')
-            ->will($this->throwException(new \RuntimeException('Cannot find translations')));
-        $property = new \ReflectionProperty($entity, 'translations');
+            ->will($this->throwException(new RuntimeException('Cannot find translations')));
+        $property = new ReflectionProperty($entity, 'translations');
         $property->setAccessible(true);
         $property->setValue($entity, $brokenCollection);
     }
 
     /**
-     * @return \ReflectionProperty
+     * @return ReflectionProperty
      */
-    private function makeAccessible(\ReflectionProperty $property)
+    private function makeAccessible(ReflectionProperty $property)
     {
         $property->setAccessible(true);
 
