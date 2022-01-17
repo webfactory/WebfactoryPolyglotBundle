@@ -10,7 +10,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\EventListener;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
@@ -34,7 +34,7 @@ class LocaleListener implements EventSubscriberInterface
      *
      * This method should be attached to the kernel.request event.
      */
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(RequestEvent $event)
     {
         $this->defaultLocaleProvider->setDefaultLocale($event->getRequest()->getLocale());
     }
