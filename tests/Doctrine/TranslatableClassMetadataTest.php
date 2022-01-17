@@ -4,14 +4,14 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableClassMetadata;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 
-class TranslatableClassMetadataTest extends PHPUnit_Framework_TestCase
+class TranslatableClassMetadataTest extends TestCase
 {
     /**
      * @test

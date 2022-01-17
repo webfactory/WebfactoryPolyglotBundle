@@ -2,7 +2,7 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -13,7 +13,7 @@ use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
 
-class PersistentTranslatableTest extends PHPUnit_Framework_TestCase
+class PersistentTranslatableTest extends TestCase
 {
     public function testToStringReturnsTranslatedMessage()
     {
@@ -36,7 +36,7 @@ class PersistentTranslatableTest extends PHPUnit_Framework_TestCase
         $this->breakEntity($entity);
         $translation = (string) $proxy;
 
-        $this->assertInternalType('string', $translation);
+        self::assertIsString($translation);
     }
 
     public function testToStringReturnsStringIfExceptionOccurredAndLoggerIsAvailable()
@@ -46,7 +46,7 @@ class PersistentTranslatableTest extends PHPUnit_Framework_TestCase
         $this->breakEntity($entity);
         $translation = (string) $proxy;
 
-        $this->assertInternalType('string', $translation);
+        self::assertIsString($translation);
     }
 
     public function testToStringLogsExceptionIfLoggerIsAvailable()
@@ -74,12 +74,12 @@ class PersistentTranslatableTest extends PHPUnit_Framework_TestCase
 
         $logs = $logger->cleanLogs();
         $logEntry = current($logs);
-        $this->assertInternalType('array', $logEntry);
+        self::assertIsArray($logEntry);
         $this->assertArrayHasKey(1, $logEntry, 'Missing log message.');
         $logMessage = $logEntry[1];
-        $this->assertContains('TestEntity', $logMessage, 'Missing entity class name.');
-        $this->assertContains('text', $logMessage, 'Missing translated property.');
-        $this->assertContains('de', $logMessage, 'Missing locale.');
+        self::assertStringContainsString('TestEntity', $logMessage, 'Missing entity class name.');
+        self::assertStringContainsString('text', $logMessage, 'Missing translated property.');
+        self::assertStringContainsString('de', $logMessage, 'Missing locale.');
     }
 
     public function testLoggedMessageContainsOriginalException()
@@ -94,10 +94,10 @@ class PersistentTranslatableTest extends PHPUnit_Framework_TestCase
 
         $logs = $logger->cleanLogs();
         $logEntry = current($logs);
-        $this->assertInternalType('array', $logEntry);
+        self::assertIsArray($logEntry);
         $this->assertArrayHasKey(1, $logEntry, 'Missing log message.');
         $logMessage = $logEntry[1];
-        $this->assertContains('Cannot find translations', $logMessage, 'Original exception not contained.');
+        self::assertStringContainsString('Cannot find translations', $logMessage, 'Original exception not contained.');
     }
 
     /** @test */
