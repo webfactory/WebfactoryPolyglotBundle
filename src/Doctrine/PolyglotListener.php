@@ -19,7 +19,7 @@ use Psr\Log\LoggerInterface;
 use SplObjectStorage;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
-class PolyglotListener
+final class PolyglotListener
 {
     const CACHE_SALT = '$WebfactoryPolyglot';
 
@@ -51,7 +51,7 @@ class PolyglotListener
         $this->entitiesWithTranslations = new SplObjectStorage();
     }
 
-    public function postLoad(LifecycleEventArgs $event)
+    public function postLoad(LifecycleEventArgs $event): void
     {
         // Called when the entity has been hydrated
         $entity = $event->getEntity();
@@ -62,7 +62,7 @@ class PolyglotListener
         }
     }
 
-    public function prePersist(LifecycleEventArgs $event)
+    public function prePersist(LifecycleEventArgs $event): void
     {
         // Called before a new entity is persisted for the first time
         $entity = $event->getEntity();
@@ -73,7 +73,7 @@ class PolyglotListener
         }
     }
 
-    public function preFlush(PreFlushEventArgs $event)
+    public function preFlush(PreFlushEventArgs $event): void
     {
         $entityManager = $event->getEntityManager();
         // Called before changes are flushed out to the database - even before the change sets are computed
@@ -84,7 +84,7 @@ class PolyglotListener
         }
     }
 
-    public function postFlush(PostFlushEventArgs $event)
+    public function postFlush(PostFlushEventArgs $event): void
     {
         // The postFlush event occurs at the end of a flush operation.
         foreach ($this->entitiesWithTranslations as $entity) {
@@ -93,7 +93,7 @@ class PolyglotListener
         }
     }
 
-    protected function getTranslationMetadataForLifecycleEvent(LifecycleEventArgs $event)
+    protected function getTranslationMetadataForLifecycleEvent(LifecycleEventArgs $event): ?TranslatableClassMetadata
     {
         $entity = $event->getEntity();
         $em = $event->getEntityManager();
@@ -103,7 +103,7 @@ class PolyglotListener
         return $this->getTranslationMetadata($className, $em);
     }
 
-    protected function getTranslationMetadata($className, EntityManager $em)
+    protected function getTranslationMetadata($className, EntityManager $em): ?TranslatableClassMetadata
     {
         // In memory cache
         if (isset($this->translatedClasses[$className])) {

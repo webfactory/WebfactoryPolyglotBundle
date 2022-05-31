@@ -16,14 +16,15 @@ use Doctrine\Common\Annotations\Annotation;
  */
 class Translatable extends Annotation
 {
+    /** @var string */
     protected $translationFieldname;
 
-    public function setTranslationFieldname($value)
+    public function setTranslationFieldname(string $value): void
     {
         $this->translationFieldname = $value;
     }
 
-    public function getTranslationFieldname()
+    public function getTranslationFieldname(): ?string
     {
         return $this->translationFieldname;
     }

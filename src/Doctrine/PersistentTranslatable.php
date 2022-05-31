@@ -22,6 +22,8 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 /**
  * Eine TranslationProxy-Implementierung für eine Entität, die
  * bereits unter Verwaltung des EntityManagers steht.
+ *
+ * @final
  */
 class PersistentTranslatable implements TranslatableInterface
 {
@@ -109,9 +111,6 @@ class PersistentTranslatable implements TranslatableInterface
      */
     private $addedTranslations = [];
 
-    /**
-     * @param LoggerInterface $logger
-     */
     public function __construct(
         object $entity,
         ?string $primaryLocale,
@@ -146,11 +145,9 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * @param string $locale
-     *
      * @return object|null
      */
-    protected function getTranslationEntity($locale)
+    protected function getTranslationEntity(string $locale)
     {
         if (false === $this->isTranslationCached($locale)) {
             $this->cacheTranslation($locale);
@@ -160,11 +157,9 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * @param string $locale
-     *
      * @return object
      */
-    protected function createTranslationEntity($locale)
+    protected function createTranslationEntity(string $locale)
     {
         $className = $this->translationClass->name;
         $entity = new $className();
@@ -181,10 +176,9 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * @param string      $value
-     * @param string|null $locale
+     * @return void
      */
-    public function setTranslation($value, $locale = null)
+    public function setTranslation(?string $value, string $locale = null)
     {
         $locale = $locale ?: $this->getDefaultLocale();
         if ($locale == $this->primaryLocale) {
@@ -199,13 +193,11 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * @param string|null $locale
-     *
      * @return mixed|string
      *
      * @throws TranslationException
      */
-    public function translate($locale = null)
+    public function translate(string $locale = null)
     {
         $locale = $locale ?: $this->getDefaultLocale();
         try {
@@ -232,7 +224,10 @@ class PersistentTranslatable implements TranslatableInterface
         }
     }
 
-    public function isTranslatedInto($locale)
+    /**
+     * @return bool
+     */
+    public function isTranslatedInto(string $locale)
     {
         if ($locale === $this->primaryLocale) {
             return !empty($this->primaryValue);
@@ -279,11 +274,9 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * @param string $locale
-     *
      * @return bool
      */
-    protected function isTranslationCached($locale)
+    protected function isTranslationCached(string $locale)
     {
         return isset(self::$_translations[$this->oid][$locale]);
     }
@@ -292,10 +285,8 @@ class PersistentTranslatable implements TranslatableInterface
      * The collection filtering API will issue a SQL query every time if the collection is not in memory; that is, it
      * does not manage "partially initialized" collections. For this reason we cache the lookup results on our own
      * (in-memory per-request) in a static member variable so they can be shared among all TranslationProxies.
-     *
-     * @param string $locale
      */
-    protected function cacheTranslation($locale)
+    protected function cacheTranslation(string $locale)
     {
         /* @var $translationsInAllLanguages \Doctrine\Common\Collections\Selectable */
         $translationsInAllLanguages = $this->translationCollection->getValue($this->entity);
@@ -308,11 +299,9 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * @param $locale
-     *
      * @return Criteria
      */
-    protected function createLocaleCriteria($locale)
+    protected function createLocaleCriteria(string $locale)
     {
         return Criteria::create()
             ->where(
@@ -321,11 +310,9 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * @param string $locale
-     *
      * @return object|null
      */
-    protected function getCachedTranslation($locale)
+    protected function getCachedTranslation(string $locale)
     {
         return self::$_translations[$this->oid][$locale];
     }

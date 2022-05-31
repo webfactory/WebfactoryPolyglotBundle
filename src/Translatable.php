@@ -67,9 +67,9 @@ class Translatable implements TranslatableInterface
     }
 
     /**
-     * @param string $locale
+     * @return void
      */
-    public function setDefaultLocale($locale)
+    public function setDefaultLocale(string $locale)
     {
         $oldLocale = $this->getDefaultLocale();
         $this->defaultLocale = $locale;
@@ -83,11 +83,9 @@ class Translatable implements TranslatableInterface
     }
 
     /**
-     * @param string|null $locale
-     *
      * @return string|null
      */
-    public function translate($locale = null)
+    public function translate(string $locale = null)
     {
         $locale = $locale ?: $this->getDefaultLocale();
 
@@ -99,17 +97,19 @@ class Translatable implements TranslatableInterface
     }
 
     /**
-     * @param string      $value
-     * @param string|null $locale
+     * @return void
      */
-    public function setTranslation($value, $locale = null)
+    public function setTranslation(?string $value, string $locale = null)
     {
         $locale = $locale ?: $this->getDefaultLocale();
 
         $this->translations[$locale] = $value;
     }
 
-    public function isTranslatedInto($locale)
+    /**
+     * @return bool
+     */
+    public function isTranslatedInto(string $locale)
     {
         return isset($this->translations[$locale]) && !empty($this->translations[$locale]);
     }
@@ -124,6 +124,8 @@ class Translatable implements TranslatableInterface
 
     /**
      * Copies translations from this object into the given one.
+     *
+     * @return void
      */
     public function copy(TranslatableInterface $p)
     {
@@ -132,7 +134,7 @@ class Translatable implements TranslatableInterface
         }
     }
 
-    private function getDefaultLocale()
+    private function getDefaultLocale(): string
     {
         return (string) $this->defaultLocale;
     }

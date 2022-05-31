@@ -34,12 +34,12 @@ class LocaleListener implements EventSubscriberInterface
      *
      * This method should be attached to the kernel.request event.
      */
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         $this->defaultLocaleProvider->setDefaultLocale($event->getRequest()->getLocale());
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => 'onKernelRequest',

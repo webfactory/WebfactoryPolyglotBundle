@@ -17,14 +17,15 @@ use Doctrine\Common\Annotations\Annotation;
  */
 class Locale extends Annotation
 {
+    /** @var string */
     protected $primary;
 
-    public function setPrimary($value)
+    public function setPrimary(string $value): void
     {
         $this->primary = $value;
     }
 
-    public function getPrimary()
+    public function getPrimary(): string
     {
         return $this->primary;
     }

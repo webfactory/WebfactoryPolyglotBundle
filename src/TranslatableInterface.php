@@ -21,15 +21,16 @@ interface TranslatableInterface
      *
      * @return string|null The translation or null if not available.
      */
-    public function translate($locale = null);
+    public function translate(string $locale = null);
 
     /**
      * Overwrites the translation for the given locale.
      *
      * @param string      $value
      * @param string|null $locale The target locale or null for the current locale.
+     * @return void
      */
-    public function setTranslation($value, $locale = null);
+    public function setTranslation(?string $value, string $locale = null);
 
     /**
      * Returns wether the text is translated into the target locale.
@@ -38,7 +39,7 @@ interface TranslatableInterface
      *
      * @return bool
      */
-    public function isTranslatedInto($locale);
+    public function isTranslatedInto(string $locale);
 
     /**
      * Returns the translation for the current locale.

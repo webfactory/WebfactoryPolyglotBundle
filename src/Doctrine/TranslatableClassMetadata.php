@@ -29,7 +29,7 @@ use Webfactory\Bundle\PolyglotBundle\Translatable;
  * of translations etc. There need only be one instance of this class for every
  * entity class with translations.
  */
-class TranslatableClassMetadata
+final class TranslatableClassMetadata
 {
     /**
      * Ein Mapping von Feldnamen in der Hauptklasse auf die Felder in der
@@ -123,7 +123,7 @@ class TranslatableClassMetadata
         return $sleep;
     }
 
-    public function wakeupReflection(ReflectionService $reflectionService)
+    public function wakeupReflection(ReflectionService $reflectionService): void
     {
         $this->translationClass = $reflectionService->getClass($this->translationClass);
 
@@ -140,7 +140,7 @@ class TranslatableClassMetadata
         $this->translationLocaleProperty = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationLocaleProperty);
     }
 
-    protected function assertNoAnnotationsArePresent()
+    protected function assertNoAnnotationsArePresent(): bool
     {
         return null === $this->translationClass
             && null === $this->translationLocaleProperty
@@ -148,7 +148,7 @@ class TranslatableClassMetadata
             && 0 === \count($this->translatedProperties);
     }
 
-    protected function assertAnnotationsAreComplete()
+    protected function assertAnnotationsAreComplete(): void
     {
         if (null === $this->translationClass) {
             throw new RuntimeException('The annotation with the translation class name is missing or incorrect, e.g. '.'@ORM\OneToMany(targetEntity="TestEntityTranslation", ...)');
@@ -167,7 +167,7 @@ class TranslatableClassMetadata
         }
     }
 
-    protected function findTranslatedProperties(Reader $reader, ClassMetadata $classMetadata)
+    protected function findTranslatedProperties(Reader $reader, ClassMetadata $classMetadata): void
     {
         if ($this->translationClass) {
             foreach ($classMetadata->getReflectionClass()->getProperties() as $property) {
@@ -190,7 +190,7 @@ class TranslatableClassMetadata
         }
     }
 
-    protected function findTranslationsCollection(Reader $reader, ClassMetadataInfo $classMetadata)
+    protected function findTranslationsCollection(Reader $reader, ClassMetadataInfo $classMetadata): void
     {
         foreach ($classMetadata->getReflectionClass()->getProperties() as $property) {
             $annotation = $reader->getPropertyAnnotation(
@@ -211,7 +211,7 @@ class TranslatableClassMetadata
         }
     }
 
-    protected function findPrimaryLocale(Reader $reader, ClassMetadata $classMetadata)
+    protected function findPrimaryLocale(Reader $reader, ClassMetadata $classMetadata): void
     {
         $annotation = $reader->getClassAnnotation(
             $classMetadata->getReflectionClass(),
@@ -222,7 +222,7 @@ class TranslatableClassMetadata
         }
     }
 
-    protected function parseTranslationsEntity(Reader $reader, $class)
+    protected function parseTranslationsEntity(Reader $reader, string $class): void
     {
         $this->translationClass = new ReflectionClass($class);
 
@@ -238,7 +238,7 @@ class TranslatableClassMetadata
         }
     }
 
-    public function preFlush($entity, EntityManager $entityManager)
+    public function preFlush($entity, EntityManager $entityManager): void
     {
         foreach ($this->translatedProperties as $property) {
             $proxy = $property->getValue($entity);
@@ -252,7 +252,7 @@ class TranslatableClassMetadata
         }
     }
 
-    public function injectProxies($entity, DefaultLocaleProvider $defaultLocaleProvider)
+    public function injectProxies($entity, DefaultLocaleProvider $defaultLocaleProvider): void
     {
         foreach ($this->translatedProperties as $fieldname => $property) {
             $proxy = $this->createProxy($entity, $fieldname, $defaultLocaleProvider);
@@ -265,7 +265,7 @@ class TranslatableClassMetadata
      * For a given entity, find all @Translatable fields that contain new (not yet persisted)
      * Translatable objects and replace those with PersistentTranslatable.
      */
-    public function manageTranslations(object $entity, DefaultLocaleProvider $defaultLocaleProvider)
+    public function manageTranslations(object $entity, DefaultLocaleProvider $defaultLocaleProvider): void
     {
         foreach ($this->translatedProperties as $fieldname => $property) {
             $translatableValue = $property->getValue($entity);
@@ -283,7 +283,7 @@ class TranslatableClassMetadata
         return $this->translationsCollectionProperty->getValue($entity);
     }
 
-    protected function createProxy($entity, $fieldname, DefaultLocaleProvider $defaultLocaleProvider): PersistentTranslatable
+    protected function createProxy($entity, string $fieldname, DefaultLocaleProvider $defaultLocaleProvider): PersistentTranslatable
     {
         return new PersistentTranslatable(
             $entity,
