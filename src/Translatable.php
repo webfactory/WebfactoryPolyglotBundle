@@ -53,10 +53,9 @@ class Translatable implements TranslatableInterface
     protected $translations = [];
 
     /**
-     * @param string|null                       $value
      * @param string|DefaultLocaleProvider|null $defaultLocale
      */
-    public function __construct($value = null, $defaultLocale = null)
+    public function __construct(string $value = null, $defaultLocale = null)
     {
         if (null !== $defaultLocale && !\is_string($defaultLocale) && !$defaultLocale instanceof DefaultLocaleProvider) {
             throw new InvalidArgumentException('When provided, the $defaultLocale argument must either be a string or an instance of DefaultLocaleProvider');

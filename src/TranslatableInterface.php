@@ -26,7 +26,6 @@ interface TranslatableInterface
     /**
      * Overwrites the translation for the given locale.
      *
-     * @param string      $value
      * @param string|null $locale The target locale or null for the current locale.
      *
      * @return void
