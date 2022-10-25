@@ -128,7 +128,7 @@ class Translatable implements TranslatableInterface
     public function copy(TranslatableInterface $p)
     {
         foreach ($this->translations as $locale => $value) {
-            $p->setTranslation($value, ('' == $locale ? null : $locale));
+            $p->setTranslation($value, '' == $locale ? null : $locale);
         }
     }
 
