@@ -19,7 +19,7 @@ use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionProperty;
 use RuntimeException;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Annotation;
+use Webfactory\Bundle\PolyglotBundle\Annotation;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 

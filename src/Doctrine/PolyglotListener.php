@@ -21,7 +21,7 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 class PolyglotListener
 {
-    const CACHE_SALT = '$WebfactoryPolyglot';
+    public const CACHE_SALT = '$WebfactoryPolyglot';
 
     protected $reader;
     protected $translatedClasses = [];
