@@ -11,14 +11,9 @@ use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 
 abstract class BaseFunctionalTest extends TestCase
 {
-    /** @var ORMInfrastructure */
-    protected $infrastructure;
-
-    /** @var EntityManagerInterface */
-    protected $entityManager;
-
-    /** @var DefaultLocaleProvider */
-    protected $defaultLocaleProvider;
+    protected ORMInfrastructure $infrastructure;
+    protected EntityManagerInterface $entityManager;
+    protected DefaultLocaleProvider $defaultLocaleProvider;
 
     protected function setupOrmInfrastructure(array $classes): void
     {

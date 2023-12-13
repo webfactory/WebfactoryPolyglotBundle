@@ -6,7 +6,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
-use Webfactory\Bundle\PolyglotBundle\Tests\Functional\BaseFunctionalTest;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
@@ -24,7 +23,7 @@ class UndeclaredBaseClassTest extends BaseFunctionalTest
         parent::setUp();
         $this->setupOrmInfrastructure([
             UndeclaredBaseClassTest_EntityClass::class,
-            UndeclaredBaseClassTest_BaseClassTranslation::class
+            UndeclaredBaseClassTest_BaseClassTranslation::class,
         ]);
     }
 
@@ -42,10 +41,50 @@ class UndeclaredBaseClassTest extends BaseFunctionalTest
         self::assertSame('Basistext', $loaded->getText()->translate('de_DE'));
         self::assertSame('base text', $loaded->getText()->translate('en_GB'));
     }
+
+    public function testAddTranslation(): void
+    {
+        $entityManager = $this->infrastructure->getEntityManager();
+        $entity = new UndeclaredBaseClassTest_EntityClass();
+        $entity->setText(new Translatable('base text'));
+        $this->infrastructure->import($entity);
+
+        $loaded = $entityManager->find(UndeclaredBaseClassTest_EntityClass::class, $entity->getId());
+        $loaded->getText()->setTranslation('Basistext', 'de_DE');
+        $entityManager->flush();
+
+        $entityManager->clear();
+        $reloaded = $entityManager->find(UndeclaredBaseClassTest_EntityClass::class, $entity->getId());
+
+        self::assertSame('base text', $reloaded->getText()->translate('en_GB'));
+        self::assertSame('Basistext', $reloaded->getText()->translate('de_DE'));
+    }
+
+    public function testUpdateTranslations(): void
+    {
+        $entityManager = $this->infrastructure->getEntityManager();
+
+        $entity = new UndeclaredBaseClassTest_EntityClass();
+        $t1 = new Translatable('base text');
+        $t1->setTranslation('Basistext', 'de_DE');
+        $entity->setText($t1);
+        $this->infrastructure->import($entity);
+
+        $loaded = $entityManager->find(UndeclaredBaseClassTest_EntityClass::class, $entity->getId());
+        $loaded->getText()->setTranslation('new base text');
+        $loaded->getText()->setTranslation('neuer Basistext', 'de_DE');
+        $entityManager->flush();
+
+        $entityManager->clear();
+        $reloaded = $entityManager->find(UndeclaredBaseClassTest_EntityClass::class, $entity->getId());
+
+        self::assertSame('new base text', $reloaded->getText()->translate('en_GB'));
+        self::assertSame('neuer Basistext', $reloaded->getText()->translate('de_DE'));
+    }
 }
 
 /**
- * Fields in this class cannot be "private" - otherwise, they'd not be picked up by the
+ * Fields in this class cannot be "private" - otherwise, they would not be picked up by the
  * Doctrine mapping drivers when processing the entity sub-class (UndeclaredBaseClassTest_EntityClass).
  */
 class UndeclaredBaseClassTest_BaseClass
@@ -58,7 +97,7 @@ class UndeclaredBaseClassTest_BaseClass
     protected int $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="UndeclaredBaseClassTest_BaseClassTranslation", mappedBy="entity", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="UndeclaredBaseClassTest_BaseClassTranslation", mappedBy="entity")
      * @Polyglot\TranslationCollection
      */
     protected Collection $translations;

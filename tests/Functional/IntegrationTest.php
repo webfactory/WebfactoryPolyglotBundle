@@ -6,6 +6,8 @@ use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
+use Webfactory\Doctrine\ORMTestInfrastructure\Query;
+use function count;
 
 class IntegrationTest extends BaseFunctionalTest
 {
@@ -15,7 +17,7 @@ class IntegrationTest extends BaseFunctionalTest
         $this->setupOrmInfrastructure([TestEntity::class, TestEntityTranslation::class]);
     }
 
-    public function testPersistingEntityWithPlainStringInTranslatableField()
+    public function testPersistingEntityWithPlainStringInTranslatableField(): void
     {
         $entity = new TestEntity('text');
         $this->infrastructure->import($entity);
@@ -24,7 +26,7 @@ class IntegrationTest extends BaseFunctionalTest
         self::assertEquals('text', $entity->getText());
     }
 
-    public function testPersistingEntityWithTranslatableInstanceInTranslatableField()
+    public function testPersistingEntityWithTranslatableInstanceInTranslatableField(): void
     {
         $entity = new TestEntity(new Translatable('text'));
         $this->infrastructure->import($entity);
@@ -33,7 +35,7 @@ class IntegrationTest extends BaseFunctionalTest
         self::assertEquals('text', $entity->getText());
     }
 
-    public function testGettingTranslationsFromManagedEntity()
+    public function testGettingTranslationsFromManagedEntity(): void
     {
         // TranslatableTest::testReturnsMainValueAndTranslations checks this for the
         // plain Translatable instance. This test makes sure we can tuck the entity
@@ -43,7 +45,7 @@ class IntegrationTest extends BaseFunctionalTest
         self::assertEquals('text de_DE', $entity->getText()->translate('de_DE'));
     }
 
-    public function testOnceEntityHasBeenFetchedFromDbTheDefaultLocaleCanBeSwitched()
+    public function testOnceEntityHasBeenFetchedFromDbTheDefaultLocaleCanBeSwitched(): void
     {
         // When fetched from the DB, all Translatable fields are linked up with the DefaultLocaleProvider.
         // As long as the entity is unmanaged, this can only work when the DefaultLocaleProvider is passed
@@ -56,7 +58,7 @@ class IntegrationTest extends BaseFunctionalTest
         self::assertEquals('text de_DE', (string) $entity->getText());
     }
 
-    public function testTranslationsAreImplicitlyPersistedForNewEntitiy()
+    public function testTranslationsAreImplicitlyPersistedForNewEntitiy(): void
     {
         $newEntity = $this->createTestEntity();
 
@@ -66,7 +68,7 @@ class IntegrationTest extends BaseFunctionalTest
         self::assertEquals('text de_DE', $newEntity->getText()->translate('de_DE')); // translation is available, must have been persisted in the DB
     }
 
-    public function testNewTranslationsAreImplicitlyPersistedForManagedEntitiy()
+    public function testNewTranslationsAreImplicitlyPersistedForManagedEntitiy(): void
     {
         $managedEntity = $this->createAndFetchTestEntity();
         $managedEntity->getText()->setTranslation('text xx_XX', 'xx_XX');
@@ -78,11 +80,10 @@ class IntegrationTest extends BaseFunctionalTest
         self::assertEquals('text xx_XX', $managedEntity->getText()->translate('xx_XX')); // Translation still there, must come from DB
     }
 
-    public function testEntityConsideredCleanWhenNoTranslationWasChanged()
+    public function testEntityConsideredCleanWhenNoTranslationWasChanged(): void
     {
         $entity = $this->createAndFetchTestEntity();
-
-        $queryCount = \count($this->getQueries());
+        $queryCount = count($this->getQueries());
 
         /*
            Nothing was changed here, so the flush() should not need to write anything
@@ -93,15 +94,29 @@ class IntegrationTest extends BaseFunctionalTest
         $this->infrastructure->getEntityManager()->flush();
 
         $queries = $this->getQueries();
-        self::assertEquals($queryCount, \count($queries));
+        self::assertCount($queryCount, $queries);
+        self::assertInstanceOf(TranslatableInterface::class, $entity->getText());
+    }
 
+    public function testEntityConsideredCleanWhenTranslationUpdateWasNoRealChange(): void
+    {
+        $entity = $this->createAndFetchTestEntity();
+        $queryCount = count($this->getQueries());
+
+        // Effectively, this changes nothing:
+        $entity->getText()->setTranslation('some change', 'en_GB');
+        $entity->getText()->setTranslation('text en_GB', 'en_GB');
+        $this->infrastructure->getEntityManager()->flush();
+
+        $queries = $this->getQueries();
+        self::assertCount($queryCount, $queries);
         self::assertInstanceOf(TranslatableInterface::class, $entity->getText());
     }
 
     /**
      * @return TestEntity
      */
-    private function createAndFetchTestEntity()
+    private function createAndFetchTestEntity(): TestEntity
     {
         $entity = $this->createTestEntity();
         $this->infrastructure->import($entity);
@@ -110,14 +125,14 @@ class IntegrationTest extends BaseFunctionalTest
     }
 
     /**
-     * @return \Webfactory\Doctrine\ORMTestInfrastructure\Query[]
+     * @return Query[]
      */
-    private function getQueries()
+    private function getQueries(): array
     {
         return $this->infrastructure->getQueries();
     }
 
-    private function createTestEntity()
+    private function createTestEntity(): TestEntity
     {
         $translatable = new Translatable('text en_GB', 'en_GB');
         $translatable->setTranslation('text de_DE', 'de_DE');

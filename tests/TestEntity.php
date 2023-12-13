@@ -43,7 +43,7 @@ class TestEntity
     protected $text = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="TestEntityTranslation", mappedBy="entity", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="TestEntityTranslation", mappedBy="entity")
      * @Polyglot\TranslationCollection
      */
     protected $translations;

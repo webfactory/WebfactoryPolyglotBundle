@@ -21,140 +21,102 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
- * Eine TranslationProxy-Implementierung für eine Entität, die
- * bereits unter Verwaltung des EntityManagers steht.
+ * This class implements `TranslatableInterface` for entities that are managed by
+ * the entity manager. PolyglotListener will replace `Translatable` instances with
+ * instances of this class as soon as a new entity is passed to EntityManager::persist().
  */
 class PersistentTranslatable implements TranslatableInterface
 {
     /**
-     * Cache für die Übersetzungen, indiziert nach Entity-Klasse, Entity-OID und Locale. Ist static, damit ihn sich verschiedene Proxies (für die gleiche Entität, aber unterschiedliche Felder) teilen können.
+     * Cache to speed up accessing translated values, indexed by entity class, entity OID and locale.
+     * This is static so that it can be shared by multiple PersistentTranslatable instances that
+     * operate for the same entity instance, but different fields.
      *
      * @var array<string, array<string, array<string, object|null>>>
      */
-    protected static $_translations = [];
-
-    /** @var string */
-    private $class;
-
-    private UnitOfWork $unitOfWork;
+    private static $_translations = [];
 
     /**
-     * Die Entität, in der sich dieser Proxy befindet (für die er Übersetzungen verwaltet).
-     *
-     * @var object
+     * Object ID for $this->>entity
      */
-    protected $entity;
+    private string $oid;
+
+    private mixed $primaryValue;
+
+    private bool $hasOriginalEntityData;
+    private mixed $originalEntityData;
 
     /**
-     * Der einzigartige Hash für die verwaltete Entität.
-     *
-     * @var string
-     */
-    protected $oid;
-
-    /**
-     * @var string Sprache, die in der Entität direkt abgelegt ist ("originärer" Content)
-     */
-    protected $primaryLocale;
-
-    /**
-     * @var mixed Der Wert in der primary locale (der Wert in der Entität, den der Proxy ersetzt hat)
-     */
-    protected $primaryValue = null;
-
-    /**
-     * Provider, über den der Proxy die Locale erhält, in der Werte zurückgeben soll, wenn keine andere Locale explizit gewünscht wird.
-     *
-     * @var DefaultLocaleProvider
-     */
-    protected $defaultLocaleProvider;
-
-    /**
-     * ReflectionProperty für die Eigenschaft der Translation-Klasse, die den übersetzten Wert hält.
-     *
-     * @var ReflectionProperty
-     */
-    protected $translatedProperty;
-
-    /**
-     * ReflectionProperty für die Eigenschaft der Haupt-Klasse, in der die Übersetzungen als Doctrine Collection abgelegt sind.
-     *
-     * @var ReflectionProperty
-     */
-    protected $translationCollection;
-
-    /**
-     * ReflectionClass für die Klasse, die die Übersetzungen aufnimmt.
-     *
-     * @var ReflectionClass
-     */
-    protected $translationClass;
-
-    /**
-     * Das Feld in der Übersetzungs-Klasse, in dem die Locale einer Übersetzung abgelegt ist.
-     *
-     * @var ReflectionProperty
-     */
-    protected $localeField;
-
-    /**
-     * Das Feld in der Übersetzungs-Klasse, in Many-to-one-Beziehung zur Entität abgelegt ist.
-     *
-     * @var ReflectionProperty
-     */
-    protected $translationMapping;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * Sammelt neu hinzugefügte Übersetzungen, damit wir sie explizit speichern können, wenn ein
-     * Objekt im ORM abgelegt wird.
-     */
-    private $addedTranslations = [];
-
-    /**
-     * @param LoggerInterface $logger
+     * @param UnitOfWork            $unitOfWork            The UoW managing the entity that contains this PersistentTranslatable
+     * @param string                $class                 The class of the entity containing this PersistentTranslatable instance
+     * @param object                $entity                The entity containing this PersistentTranslatable instance
+     * @param string                $primaryLocale         The locale for which the translated value will be persisted in the "main" entity
+     * @param DefaultLocaleProvider $defaultLocaleProvider DefaultLocaleProvider that provides the locale to use when no explicit locale is passed to e. g. translate()
+     * @param ReflectionProperty    $translatedProperty    ReflectionProperty pointing to the field in the translations class that holds the translated value to use
+     * @param ReflectionProperty    $translationCollection ReflectionProperty pointing to the collection in the main class that holds translation instances
+     * @param ReflectionClass       $translationClass      ReflectionClass for the class holding translated values
+     * @param ReflectionProperty    $localeField           ReflectionProperty pointing to the field in the translations class that holds a translation's locale
+     * @param ReflectionProperty    $translationMapping    ReflectionProperty pointing to the field in the translations class that refers back to the main entity (the owning side of the one-to-many translations collection).
+     * @param LoggerInterface|null  $logger
      */
     public function __construct(
-        UnitOfWork $unitOfWork,
-        string $class,
-        object $entity,
-        ?string $primaryLocale,
-        DefaultLocaleProvider $defaultLocaleProvider,
-        ReflectionProperty $translatedProperty,
-        ReflectionProperty $translationCollection,
-        ReflectionClass $translationClass,
-        ReflectionProperty $localeField,
-        ReflectionProperty $translationMapping,
-        LoggerInterface $logger = null
+        private readonly UnitOfWork $unitOfWork,
+        private readonly string $class,
+        private readonly object $entity,
+        private readonly string $primaryLocale,
+        private readonly DefaultLocaleProvider $defaultLocaleProvider,
+        private readonly ReflectionProperty $translatedProperty,
+        private readonly ReflectionProperty $translationCollection,
+        private readonly ReflectionClass $translationClass,
+        private readonly ReflectionProperty $localeField,
+        private readonly ReflectionProperty $translationMapping,
+        LoggerInterface $logger = null,
     ) {
-        $this->class = $class;
-        $this->unitOfWork = $unitOfWork;
-        $this->entity = $entity;
         $this->oid = spl_object_id($entity);
-        $this->primaryLocale = $primaryLocale;
-        $this->defaultLocaleProvider = $defaultLocaleProvider;
-        $this->translatedProperty = $translatedProperty;
-        $this->translationCollection = $translationCollection;
-        $this->translationClass = $translationClass;
-        $this->localeField = $localeField;
-        $this->translationMapping = $translationMapping;
-        $this->logger = (null == $logger) ? new NullLogger() : $logger;
+        $this->logger = $logger ?? new NullLogger();
+
+        $data = $this->unitOfWork->getOriginalEntityData($entity);
+
+        if ($data) {
+            $fieldName = $this->translatedProperty->getName();
+            $this->hasOriginalEntityData = true;
+            $this->originalEntityData = $data[$fieldName];
+
+            // Set $this as the "original entity data", so Doctrine ORM
+            // change detection will not treat this new value as a relevant change
+            $this->unitOfWork->setOriginalEntityProperty($this->oid, $fieldName, $this);
+        } else {
+            $this->hasOriginalEntityData = false;
+        }
     }
 
-    public function setPrimaryValue($value)
+    public function setPrimaryValue(mixed $value): void
     {
         $this->primaryValue = $value;
 
-        if ($this->unitOfWork->getOriginalEntityData($this->entity)) {
+        if (!$this->hasOriginalEntityData) {
+            return;
+        }
+
+        $fieldName = $this->translatedProperty->getName();
+
+        if ($value !== $this->originalEntityData) {
             // Reset original entity data for the property where this PersistentTranslatable instance
-            // is being used, to make the entity show up in ORM changesets on flush.
-            $this->unitOfWork->setOriginalEntityProperty($this->oid, $this->translatedProperty->getName(), null);
+            // is being used. This way, on changeset computation in the ORM, the original data will mismatch
+            // the current value (which is $this object!). This will make $this->>entity show up in the list
+            // of entity updates in the UoW.
+            $this->unitOfWork->setOriginalEntityProperty($this->oid, $fieldName, $this->originalEntityData);
+        } else {
+            $this->unitOfWork->setOriginalEntityProperty($this->oid, $fieldName, $this);
         }
     }
+
+    /** @internal */
+//    public function updateEntityChangeset(): void
+//    {
+//        $changeSet =& $this->unitOfWork->getEntityChangeSet($this->entity);
+//        $changeSet[$this->translatedProperty->getName()][1] = $this->primaryValue;
+//    }
 
     public function getPrimaryValue()
     {
@@ -191,7 +153,7 @@ class PersistentTranslatable implements TranslatableInterface
         $this->translationCollection->getValue($this->entity)->add($entity);
 
         self::$_translations[$this->class][$this->oid][$locale] = $entity;
-        $this->addedTranslations[] = $entity;
+        $this->unitOfWork->persist($entity);
 
         return $entity;
     }
@@ -274,22 +236,9 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * Clears the list of newly added translation entities, returning the old value.
-     *
-     * @return object[] The list of new entites holding translations (exact class depends on the entity containing this proxy), before being reset.
-     */
-    public function getAndResetNewTranslations()
-    {
-        $newTranslations = $this->addedTranslations;
-        $this->addedTranslations = [];
-
-        return $newTranslations;
-    }
-
-    /**
      * @return string
      */
-    protected function getDefaultLocale()
+    protected function getDefaultLocale(): string
     {
         return $this->defaultLocaleProvider->getDefaultLocale();
     }
@@ -299,7 +248,7 @@ class PersistentTranslatable implements TranslatableInterface
      *
      * @return bool
      */
-    protected function isTranslationCached($locale)
+    protected function isTranslationCached($locale): bool
     {
         return isset(self::$_translations[$this->class][$this->oid][$locale]);
     }
@@ -311,7 +260,7 @@ class PersistentTranslatable implements TranslatableInterface
      *
      * @param string $locale
      */
-    protected function cacheTranslation($locale)
+    protected function cacheTranslation($locale): void
     {
         /* @var $translationsInAllLanguages \Doctrine\Common\Collections\Selectable */
         $translationsInAllLanguages = $this->translationCollection->getValue($this->entity);
@@ -328,7 +277,7 @@ class PersistentTranslatable implements TranslatableInterface
      *
      * @return Criteria
      */
-    protected function createLocaleCriteria($locale)
+    protected function createLocaleCriteria($locale): Criteria
     {
         return Criteria::create()
             ->where(
@@ -349,7 +298,7 @@ class PersistentTranslatable implements TranslatableInterface
     /**
      * @return string
      */
-    private function stringifyException(Exception $e)
+    private function stringifyException(Exception $e): string
     {
         $exceptionAsString = '';
         while (null !== $e) {

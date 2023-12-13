@@ -55,7 +55,7 @@ class PolyglotListener implements EventSubscriber
 
     public function getSubscribedEvents(): array
     {
-        return [/*'postFlush',*/ 'prePersist', /*'preFlush',*/ 'onFlush', 'postLoad'];
+        return [/*'postFlush',*/ 'prePersist', /*'preFlush',*/ /*'onFlush',*/ 'postLoad'];
     }
 
     public function postLoad(LifecycleEventArgs $event)
@@ -82,46 +82,43 @@ class PolyglotListener implements EventSubscriber
         }
     }
 
-    public function onFlush(OnFlushEventArgs $event): void
-    {
-        $objectManager = $event->getObjectManager();
-        $uow = $objectManager->getUnitOfWork();
+//    public function onFlush(OnFlushEventArgs $event): void
+//    {
+//        $objectManager = $event->getObjectManager();
+//        $uow = $objectManager->getUnitOfWork();
+//
+//        foreach ($uow->getScheduledEntityUpdates() as $entity) {
+//            foreach ($this->getTranslationMetadatas($entity, $objectManager) as $tm) {
+//                $tm->onFlush($entity, $objectManager);
+//            }
+//        }
+//    }
 
-        $scheduledEntityInsertions = $uow->getScheduledEntityInsertions();
-        $scheduledEntityUpdates = $uow->getScheduledEntityUpdates();
+//    public function preFlush(PreFlushEventArgs $event)
+//    {
+//        return;
+//        $objectManager = $event->getObjectManager();
+//
+//        // Called before changes are flushed out to the database - even before the change sets are computed
+//        foreach ($this->entitiesWithTranslations as $object) {
+//            foreach ($this->getTranslationMetadatas($object, $objectManager) as $tm) {
+//                $tm->preFlush($object, $objectManager);
+//            }
+//        }
+//    }
 
-        foreach (array_merge($scheduledEntityInsertions, $scheduledEntityUpdates) as $entity) {
-            foreach ($this->getTranslationMetadatas($entity, $objectManager) as $tm) {
-                $tm->onFlush($entity, $objectManager);
-            }
-        }
-    }
-
-    public function preFlush(PreFlushEventArgs $event)
-    {
-        return;
-        $objectManager = $event->getObjectManager();
-
-        // Called before changes are flushed out to the database - even before the change sets are computed
-        foreach ($this->entitiesWithTranslations as $object) {
-            foreach ($this->getTranslationMetadatas($object, $objectManager) as $tm) {
-                $tm->preFlush($object, $objectManager);
-            }
-        }
-    }
-
-    public function postFlush(PostFlushEventArgs $event)
-    {
-        return;
-        // The postFlush event occurs at the end of a flush operation.
-        $objectManager = $event->getObjectManager();
-
-        foreach ($this->entitiesWithTranslations as $object) {
-            foreach ($this->getTranslationMetadatas($object, $objectManager) as $tm) {
-                $tm->injectProxies($object, $this->defaultLocaleProvider);
-            }
-        }
-    }
+//    public function postFlush(PostFlushEventArgs $event)
+//    {
+//        return;
+//        // The postFlush event occurs at the end of a flush operation.
+//        $objectManager = $event->getObjectManager();
+//
+//        foreach ($this->entitiesWithTranslations as $object) {
+//            foreach ($this->getTranslationMetadatas($object, $objectManager) as $tm) {
+//                $tm->injectProxies($object, $this->defaultLocaleProvider);
+//            }
+//        }
+//    }
 
     /**
      * @return list<TranslatableClassMetadata>

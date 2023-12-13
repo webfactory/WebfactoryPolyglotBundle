@@ -3,11 +3,16 @@
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
+/**
+ * This tests translations for different fields in an inheritance hierarchy. For every
+ * entity class in the hierarchy, a dedicated translations class has to be used.
+ */
 class EntityInheritanceTest extends BaseFunctionalTest
 {
     protected function setUp(): void
@@ -34,7 +39,7 @@ class EntityInheritanceTest extends BaseFunctionalTest
 
         $this->infrastructure->import($entity);
 
-        $loaded = $this->infrastructure->getEntityManager()->find(EntityInheritance_ChildEntityClass::class, $entity->id);
+        $loaded = $this->infrastructure->getEntityManager()->find(EntityInheritance_ChildEntityClass::class, $entity->getId());
 
         self::assertSame('Basistext', $loaded->getText()->translate('de_DE'));
         self::assertSame('Extratext', $loaded->getExtraText()->translate('de_DE'));
@@ -50,13 +55,13 @@ class EntityInheritanceTest extends BaseFunctionalTest
         $entity->setExtra(new Translatable('extra text'));
         $this->infrastructure->import($entity);
 
-        $loaded = $entityManager->find(EntityInheritance_ChildEntityClass::class, $entity->id);
+        $loaded = $entityManager->find(EntityInheritance_ChildEntityClass::class, $entity->getId());
         $loaded->getText()->setTranslation('Basistext', 'de_DE');
         $loaded->getExtraText()->setTranslation('Extratext', 'de_DE');
         $entityManager->flush();
 
         $entityManager->clear();
-        $reloaded = $entityManager->find(EntityInheritance_ChildEntityClass::class, $entity->id);
+        $reloaded = $entityManager->find(EntityInheritance_ChildEntityClass::class, $entity->getId());
 
         self::assertSame('Basistext', $reloaded->getText()->translate('de_DE'));
         self::assertSame('Extratext', $reloaded->getExtraText()->translate('de_DE'));
@@ -79,17 +84,15 @@ class EntityInheritanceTest extends BaseFunctionalTest
 
         $this->infrastructure->import($entity);
 
-        $loaded = $entityManager->find(EntityInheritance_ChildEntityClass::class, $entity->id);
-        $oed = $entityManager->getUnitOfWork()->getOriginalEntityData($loaded);
+        $loaded = $entityManager->find(EntityInheritance_ChildEntityClass::class, $entity->getId());
         $loaded->getText()->setTranslation('new base text');
         $loaded->getText()->setTranslation('neuer Basistext', 'de_DE');
         $loaded->getExtraText()->setTranslation('new extra text');
         $loaded->getExtraText()->setTranslation('neuer Extratext', 'de_DE');
-        $oed = $entityManager->getUnitOfWork()->getOriginalEntityData($loaded);
         $entityManager->flush();
 
         $entityManager->clear();
-        $reloaded = $entityManager->find(EntityInheritance_ChildEntityClass::class, $entity->id);
+        $reloaded = $entityManager->find(EntityInheritance_ChildEntityClass::class, $entity->getId());
 
         self::assertSame('neuer Basistext', $reloaded->getText()->translate('de_DE'));
         self::assertSame('neuer Extratext', $reloaded->getExtraText()->translate('de_DE'));
@@ -112,35 +115,38 @@ class EntityInheritance_BaseEntityClass
      * @ORM\Id
      * @ORM\GeneratedValue()
      */
-    public int $id;
+    private int $id;
 
-    public string $discriminator;
+    private string $discriminator;
 
     /**
-     * @ORM\OneToMany(targetEntity="EntityInheritance_BaseEntityClassTranslation", mappedBy="entity", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="EntityInheritance_BaseEntityClassTranslation", mappedBy="entity")
      * @Polyglot\TranslationCollection
      */
-    public $translations;
+    private Collection $translations;
 
     /**
      * @ORM\Column(type="string")
      * @Polyglot\Translatable
-     *
-     * @var TranslatableInterface|string|null
      */
-    public $text = null;
+    private TranslatableInterface|string|null $text = null;
 
     public function __construct()
     {
         $this->translations = new ArrayCollection();
     }
 
-    public function setText($text)
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setText(TranslatableInterface $text): void
     {
         $this->text = $text;
     }
 
-    public function getText()
+    public function getText(): TranslatableInterface
     {
         return $this->text;
     }
@@ -156,29 +162,23 @@ class EntityInheritance_BaseEntityClassTranslation
      * @ORM\GeneratedValue
      * @ORM\Column
      */
-    public int $id;
+    private int $id;
 
     /**
      * @ORM\Column
      * @Polyglot\Locale
      */
-    public string $locale;
+    private string $locale;
 
     /**
      * @ORM\ManyToOne(targetEntity="EntityInheritance_BaseEntityClass", inversedBy="translations")
      */
-    public $entity;
+    private EntityInheritance_BaseEntityClass $entity;
 
     /**
-     * Contains the translation.
-     *
-     * Must be protected to be usable when this class is used as base for a mock.
-     *
-     * @ORM\Column(type="string")
-     *
-     * @var string
+     * @ORM\Column()
      */
-    public $text;
+    private string $text;
 }
 
 /**
@@ -189,16 +189,14 @@ class EntityInheritance_ChildEntityClass extends EntityInheritance_BaseEntityCla
     /**
      * @ORM\Column(type="string")
      * @Polyglot\Translatable
-     *
-     * @var TranslatableInterface|string|null
      */
-    public $extraText = null;
+    private TranslatableInterface|string|null $extraText = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="EntityInheritance_ChildEntityClassTranslation", mappedBy="entity", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="EntityInheritance_ChildEntityClassTranslation", mappedBy="entity")
      * @Polyglot\TranslationCollection
      */
-    public $extraTranslations;
+    private Collection $extraTranslations;
 
     public function __construct()
     {
@@ -206,12 +204,12 @@ class EntityInheritance_ChildEntityClass extends EntityInheritance_BaseEntityCla
         $this->extraTranslations = new ArrayCollection();
     }
 
-    public function setExtra($extraText)
+    public function setExtra(TranslatableInterface $extraText): void
     {
         $this->extraText = $extraText;
     }
 
-    public function getExtraText()
+    public function getExtraText(): TranslatableInterface
     {
         return $this->extraText;
     }
@@ -227,27 +225,21 @@ class EntityInheritance_ChildEntityClassTranslation
      * @ORM\GeneratedValue
      * @ORM\Column
      */
-    public int $id;
+    private int $id;
 
     /**
      * @ORM\Column
      * @Polyglot\Locale
      */
-    public string $locale;
+    private string $locale;
 
     /**
      * @ORM\ManyToOne(targetEntity="EntityInheritance_ChildEntityClass", inversedBy="extraTranslations")
      */
-    public $entity;
+    private EntityInheritance_ChildEntityClass $entity;
 
     /**
-     * Contains the translation.
-     *
-     * Must be protected to be usable when this class is used as base for a mock.
-     *
-     * @ORM\Column(type="string")
-     *
-     * @var string
+     * @ORM\Column()
      */
-    public $extraText;
+    private string $extraText;
 }

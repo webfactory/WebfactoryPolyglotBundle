@@ -280,22 +280,25 @@ class TranslatableClassMetadata
 
     public function onFlush($entity, EntityManager $entityManager): void
     {
-        $uow = $entityManager->getUnitOfWork();
+        return;
+//        $uow = $entityManager->getUnitOfWork();
 
-        foreach ($this->translatedProperties as $fieldName => $property) {
+        foreach ($this->translatedProperties as $property) {
             $value = $property->getValue($entity);
 
             if (!$value instanceof PersistentTranslatable) {
                 continue;
             }
 
+            $value->updateEntityChangeset();
+
 //            foreach ($value->getAndResetNewTranslations() as $translationEntity) {
 //                $entityManager->persist($translationEntity);
 //                $uow->computeChangeSet($entityManager->getClassMetadata($this->translationClass->getName()), $translationEntity);
 //            }
 
-            $changeSet =& $uow->getEntityChangeSet($entity);
-            $changeSet[$fieldName][1] = $value->getPrimaryValue();
+//            $changeSet =& $uow->getEntityChangeSet($entity);
+//            $changeSet[$fieldName][1] = $value->getPrimaryValue();
         }
     }
 
@@ -329,11 +332,24 @@ class TranslatableClassMetadata
     public function injectPersistentTranslatables(object $entity, EntityManager $entityManager, DefaultLocaleProvider $defaultLocaleProvider): void
     {
         $uow = $entityManager->getUnitOfWork();
-        $oid = spl_object_id($entity);
+//        $oid = spl_object_id($entity);
 
         foreach ($this->translatedProperties as $fieldName => $property) {
+            $persistentTranslatable = new PersistentTranslatable(
+                $uow,
+                $this->class,
+                $entity,
+                $this->primaryLocale,
+                $defaultLocaleProvider,
+                $this->translationFieldMapping[$fieldName],
+                $this->translationsCollectionProperty,
+                $this->translationClass,
+                $this->translationLocaleProperty,
+                $this->translationMappingProperty,
+                $this->logger
+            );
+
             $value = $property->getValue($entity);
-            $persistentTranslatable = $this->createPersistentTranslatable($entityManager, $entity, $fieldName, $defaultLocaleProvider);
 
             if ($value instanceof Translatable) {
                 $value->copy($persistentTranslatable);
@@ -347,33 +363,33 @@ class TranslatableClassMetadata
 
             $property->setValue($entity, $persistentTranslatable);
 
-            if ($uow->getOriginalEntityData($entity)) {
-                // Set $persistentTranslatable as the "original entity data", so Doctrine ORM
-                // change detection will not treat this new value as a relevant change
-                $uow->setOriginalEntityProperty($oid, $fieldName, $persistentTranslatable);
-            }
+//            if ($uow->getOriginalEntityData($entity)) {
+//                // Set $persistentTranslatable as the "original entity data", so Doctrine ORM
+//                // change detection will not treat this new value as a relevant change
+//                $uow->setOriginalEntityProperty($oid, $fieldName, $persistentTranslatable);
+//            }
         }
     }
 
-    public function getTranslations($entity): Collection
-    {
-        return $this->translationsCollectionProperty->getValue($entity);
-    }
+//    public function getTranslations($entity): Collection
+//    {
+//        return $this->translationsCollectionProperty->getValue($entity);
+//    }
 
-    protected function createPersistentTranslatable(EntityManagerInterface $entityManager, $entity, $fieldname, DefaultLocaleProvider $defaultLocaleProvider): PersistentTranslatable
-    {
-        return new PersistentTranslatable(
-            $entityManager->getUnitOfWork(),
-            $this->class,
-            $entity,
-            $this->primaryLocale,
-            $defaultLocaleProvider,
-            $this->translationFieldMapping[$fieldname],
-            $this->translationsCollectionProperty,
-            $this->translationClass,
-            $this->translationLocaleProperty,
-            $this->translationMappingProperty,
-            $this->logger
-        );
-    }
+//    protected function createPersistentTranslatable(EntityManagerInterface $entityManager, $entity, $fieldname, DefaultLocaleProvider $defaultLocaleProvider): PersistentTranslatable
+//    {
+//        return new PersistentTranslatable(
+//            $entityManager->getUnitOfWork(),
+//            $this->class,
+//            $entity,
+//            $this->primaryLocale,
+//            $defaultLocaleProvider,
+//            $this->translationFieldMapping[$fieldname],
+//            $this->translationsCollectionProperty,
+//            $this->translationClass,
+//            $this->translationLocaleProperty,
+//            $this->translationMappingProperty,
+//            $this->logger
+//        );
+//    }
 }
