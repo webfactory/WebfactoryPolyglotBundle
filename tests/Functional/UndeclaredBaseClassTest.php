@@ -1,0 +1,128 @@
+<?php
+
+namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Tests\Functional\BaseFunctionalTest;
+use Webfactory\Bundle\PolyglotBundle\Translatable;
+use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
+
+/**
+ * This test covers a risky pattern where a base class that is neither an entity nor a mapped superclass
+ * contains mapped fields, and an entity subclass inherits those.
+ *
+ * This is not officially supported by Doctrine ORM, but something I've seen quite a few times
+ * in practice.
+ */
+class UndeclaredBaseClassTest extends BaseFunctionalTest
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->setupOrmInfrastructure([
+            UndeclaredBaseClassTest_EntityClass::class,
+            UndeclaredBaseClassTest_BaseClassTranslation::class
+        ]);
+    }
+
+    public function testPersistAndReloadEntity(): void
+    {
+        $entity = new UndeclaredBaseClassTest_EntityClass();
+        $t1 = new Translatable('base text');
+        $t1->setTranslation('Basistext', 'de_DE');
+        $entity->setText($t1);
+
+        $this->infrastructure->import($entity);
+
+        $loaded = $this->infrastructure->getEntityManager()->find(UndeclaredBaseClassTest_EntityClass::class, $entity->getId());
+
+        self::assertSame('Basistext', $loaded->getText()->translate('de_DE'));
+        self::assertSame('base text', $loaded->getText()->translate('en_GB'));
+    }
+}
+
+/**
+ * Fields in this class cannot be "private" - otherwise, they'd not be picked up by the
+ * Doctrine mapping drivers when processing the entity sub-class (UndeclaredBaseClassTest_EntityClass).
+ */
+class UndeclaredBaseClassTest_BaseClass
+{
+    /**
+     * @ORM\Column
+     * @ORM\Id
+     * @ORM\GeneratedValue()
+     */
+    protected int $id;
+
+    /**
+     * @ORM\OneToMany(targetEntity="UndeclaredBaseClassTest_BaseClassTranslation", mappedBy="entity", cascade={"persist"})
+     * @Polyglot\TranslationCollection
+     */
+    protected Collection $translations;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Polyglot\Translatable
+     */
+    protected string|TranslatableInterface|null $text = null;
+
+    public function __construct()
+    {
+        $this->translations = new ArrayCollection();
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setText(TranslatableInterface $text): void
+    {
+        $this->text = $text;
+    }
+
+    public function getText(): ?TranslatableInterface
+    {
+        return $this->text;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class UndeclaredBaseClassTest_BaseClassTranslation
+{
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column
+     */
+    private int $id;
+
+    /**
+     * @ORM\Column
+     * @Polyglot\Locale
+     */
+    private string $locale;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="UndeclaredBaseClassTest_EntityClass", inversedBy="translations")
+     */
+    private UndeclaredBaseClassTest_EntityClass $entity;
+
+    /**
+     * @ORM\Column
+     */
+    private string $text;
+}
+
+/**
+ * @ORM\Entity
+ * @Polyglot\Locale(primary="en_GB")
+ */
+class UndeclaredBaseClassTest_EntityClass extends UndeclaredBaseClassTest_BaseClass
+{
+}

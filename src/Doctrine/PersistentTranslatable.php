@@ -10,6 +10,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\UnitOfWork;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -26,11 +27,16 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 class PersistentTranslatable implements TranslatableInterface
 {
     /**
-     * Cache für die Übersetzungen, indiziert nach Entity-OID und Locale. Ist static, damit ihn sich verschiedene Proxies (für die gleiche Entität, aber unterschiedliche Felder) teilen können.
+     * Cache für die Übersetzungen, indiziert nach Entity-Klasse, Entity-OID und Locale. Ist static, damit ihn sich verschiedene Proxies (für die gleiche Entität, aber unterschiedliche Felder) teilen können.
      *
-     * @var array<string, array<string, object|null>>
+     * @var array<string, array<string, array<string, object|null>>>
      */
     protected static $_translations = [];
+
+    /** @var string */
+    private $class;
+
+    private UnitOfWork $unitOfWork;
 
     /**
      * Die Entität, in der sich dieser Proxy befindet (für die er Übersetzungen verwaltet).
@@ -113,6 +119,8 @@ class PersistentTranslatable implements TranslatableInterface
      * @param LoggerInterface $logger
      */
     public function __construct(
+        UnitOfWork $unitOfWork,
+        string $class,
         object $entity,
         ?string $primaryLocale,
         DefaultLocaleProvider $defaultLocaleProvider,
@@ -123,8 +131,10 @@ class PersistentTranslatable implements TranslatableInterface
         ReflectionProperty $translationMapping,
         LoggerInterface $logger = null
     ) {
+        $this->class = $class;
+        $this->unitOfWork = $unitOfWork;
         $this->entity = $entity;
-        $this->oid = spl_object_hash($entity);
+        $this->oid = spl_object_id($entity);
         $this->primaryLocale = $primaryLocale;
         $this->defaultLocaleProvider = $defaultLocaleProvider;
         $this->translatedProperty = $translatedProperty;
@@ -138,6 +148,12 @@ class PersistentTranslatable implements TranslatableInterface
     public function setPrimaryValue($value)
     {
         $this->primaryValue = $value;
+
+        if ($this->unitOfWork->getOriginalEntityData($this->entity)) {
+            // Reset original entity data for the property where this PersistentTranslatable instance
+            // is being used, to make the entity show up in ORM changesets on flush.
+            $this->unitOfWork->setOriginalEntityProperty($this->oid, $this->translatedProperty->getName(), null);
+        }
     }
 
     public function getPrimaryValue()
@@ -174,7 +190,7 @@ class PersistentTranslatable implements TranslatableInterface
         $this->translationMapping->setValue($entity, $this->entity);
         $this->translationCollection->getValue($this->entity)->add($entity);
 
-        self::$_translations[$this->oid][$locale] = $entity;
+        self::$_translations[$this->class][$this->oid][$locale] = $entity;
         $this->addedTranslations[] = $entity;
 
         return $entity;
@@ -188,7 +204,7 @@ class PersistentTranslatable implements TranslatableInterface
     {
         $locale = $locale ?: $this->getDefaultLocale();
         if ($locale == $this->primaryLocale) {
-            $this->primaryValue = $value;
+            $this->setPrimaryValue($value);
         } else {
             $entity = $this->getTranslationEntity($locale);
             if (!$entity) {
@@ -285,7 +301,7 @@ class PersistentTranslatable implements TranslatableInterface
      */
     protected function isTranslationCached($locale)
     {
-        return isset(self::$_translations[$this->oid][$locale]);
+        return isset(self::$_translations[$this->class][$this->oid][$locale]);
     }
 
     /**
@@ -304,7 +320,7 @@ class PersistentTranslatable implements TranslatableInterface
 
         $translationInLocale = ($translationsFilteredByLocale->count() > 0) ? $translationsFilteredByLocale->first() : null;
 
-        self::$_translations[$this->oid][$locale] = $translationInLocale;
+        self::$_translations[$this->class][$this->oid][$locale] = $translationInLocale;
     }
 
     /**
@@ -327,7 +343,7 @@ class PersistentTranslatable implements TranslatableInterface
      */
     protected function getCachedTranslation($locale)
     {
-        return self::$_translations[$this->oid][$locale];
+        return self::$_translations[$this->class][$this->oid][$locale];
     }
 
     /**

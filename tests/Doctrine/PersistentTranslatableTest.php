@@ -2,6 +2,8 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\UnitOfWork;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -12,6 +14,7 @@ use Symfony\Component\ErrorHandler\BufferingLogger;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
+use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
 
 class PersistentTranslatableTest extends TestCase
 {
@@ -26,7 +29,7 @@ class PersistentTranslatableTest extends TestCase
 
         $translation = (string) $proxy;
 
-        $this->assertEquals('bar', $translation);
+        self::assertEquals('bar', $translation);
     }
 
     public function testToStringReturnsStringIfExceptionOccurredAndNoLoggerIsAvailable()
@@ -59,7 +62,7 @@ class PersistentTranslatableTest extends TestCase
 
         $proxy->__toString();
 
-        $this->assertGreaterThan(0, \count($logger->cleanLogs()), 'Expected at least one log message');
+        self::assertGreaterThan(0, \count($logger->cleanLogs()), 'Expected at least one log message');
     }
 
     public function testLoggedMessageContainsInformationAboutTranslatedProperty()
@@ -75,7 +78,7 @@ class PersistentTranslatableTest extends TestCase
         $logs = $logger->cleanLogs();
         $logEntry = current($logs);
         self::assertIsArray($logEntry);
-        $this->assertArrayHasKey(1, $logEntry, 'Missing log message.');
+        self::assertArrayHasKey(1, $logEntry, 'Missing log message.');
         $logMessage = $logEntry[1];
         self::assertStringContainsString('TestEntity', $logMessage, 'Missing entity class name.');
         self::assertStringContainsString('text', $logMessage, 'Missing translated property.');
@@ -95,7 +98,7 @@ class PersistentTranslatableTest extends TestCase
         $logs = $logger->cleanLogs();
         $logEntry = current($logs);
         self::assertIsArray($logEntry);
-        $this->assertArrayHasKey(1, $logEntry, 'Missing log message.');
+        self::assertArrayHasKey(1, $logEntry, 'Missing log message.');
         $logMessage = $logEntry[1];
         self::assertStringContainsString('Cannot find translations', $logMessage, 'Original exception not contained.');
     }
@@ -108,7 +111,7 @@ class PersistentTranslatableTest extends TestCase
         $proxy->setTranslation('bar', 'de');
         $proxy->setTranslation('bar in en', 'en');
 
-        $this->assertTrue($proxy->isTranslatedInto('en'));
+        self::assertTrue($proxy->isTranslatedInto('en'));
     }
 
     /** @test */
@@ -119,7 +122,7 @@ class PersistentTranslatableTest extends TestCase
         $proxy->setTranslation('bar', 'de');
         $proxy->setTranslation('bar in en', 'en');
 
-        $this->assertTrue($proxy->isTranslatedInto('de'));
+        self::assertTrue($proxy->isTranslatedInto('de'));
     }
 
     /** @test */
@@ -131,7 +134,7 @@ class PersistentTranslatableTest extends TestCase
         $proxy->setTranslation('', 'en');
 
         $isTranslatedInto = $proxy->isTranslatedInto('en');
-        $this->assertFalse($isTranslatedInto);
+        self::assertFalse($isTranslatedInto);
     }
 
     /** @test */
@@ -142,7 +145,7 @@ class PersistentTranslatableTest extends TestCase
         $proxy->setTranslation('bar', 'de');
         $proxy->setTranslation('bar in en', 'en');
 
-        $this->assertFalse($proxy->isTranslatedInto('fr'));
+        self::assertFalse($proxy->isTranslatedInto('fr'));
     }
 
     /**
@@ -154,20 +157,21 @@ class PersistentTranslatableTest extends TestCase
         $localeProvider->setDefaultLocale('de');
 
         // We need a translation class without required constructor parameters.
-        $translationClass = 'Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation';
-        $proxy = new PersistentTranslatable(
+        $translationClass = TestEntityTranslation::class;
+
+        return new PersistentTranslatable(
+            $this->createMock(UnitOfWork::class),
+            TestEntity::class,
             $entity,
             'en',
             $localeProvider,
-            $this->makeAccessible(new ReflectionProperty($translationClass, 'text')),
-            $this->makeAccessible(new ReflectionProperty($entity, 'translations')),
+            self::accessibleProperty($translationClass, 'text'),
+            self::accessibleProperty(TestEntity::class, 'translations'),
             new ReflectionClass($translationClass),
-            $this->makeAccessible(new ReflectionProperty($translationClass, 'locale')),
-            $this->makeAccessible(new ReflectionProperty($translationClass, 'entity')),
+            self::accessibleProperty($translationClass, 'locale'),
+            self::accessibleProperty($translationClass, 'entity'),
             $logger
         );
-
-        return $proxy;
     }
 
     private function breakEntity(TestEntity $entity)
@@ -181,11 +185,9 @@ class PersistentTranslatableTest extends TestCase
         $property->setValue($entity, $brokenCollection);
     }
 
-    /**
-     * @return ReflectionProperty
-     */
-    private function makeAccessible(ReflectionProperty $property)
+    private static function accessibleProperty(string $class, string $property): ReflectionProperty
     {
+        $property = new ReflectionProperty($class, $property);
         $property->setAccessible(true);
 
         return $property;
