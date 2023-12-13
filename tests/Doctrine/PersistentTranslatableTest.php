@@ -2,7 +2,6 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\UnitOfWork;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -170,6 +169,7 @@ class PersistentTranslatableTest extends TestCase
             new ReflectionClass($translationClass),
             self::accessibleProperty($translationClass, 'locale'),
             self::accessibleProperty($translationClass, 'entity'),
+            self::accessibleProperty(TestEntity::class, 'text'),
             $logger
         );
     }

@@ -82,12 +82,7 @@ class Translatable implements TranslatableInterface
         $this->defaultLocale = $locale;
     }
 
-    /**
-     * @param string|null $locale
-     *
-     * @return string|null
-     */
-    public function translate($locale = null)
+    public function translate(string $locale = null): mixed
     {
         $locale = $locale ?: $this->getDefaultLocale();
 
@@ -98,18 +93,14 @@ class Translatable implements TranslatableInterface
         }
     }
 
-    /**
-     * @param string      $value
-     * @param string|null $locale
-     */
-    public function setTranslation($value, $locale = null)
+    public function setTranslation(mixed $value, string $locale = null): void
     {
         $locale = $locale ?: $this->getDefaultLocale();
 
         $this->translations[$locale] = $value;
     }
 
-    public function isTranslatedInto($locale)
+    public function isTranslatedInto(string $locale): bool
     {
         return isset($this->translations[$locale]) && !empty($this->translations[$locale]);
     }

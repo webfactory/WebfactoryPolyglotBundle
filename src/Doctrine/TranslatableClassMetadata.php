@@ -331,12 +331,9 @@ class TranslatableClassMetadata
      */
     public function injectPersistentTranslatables(object $entity, EntityManager $entityManager, DefaultLocaleProvider $defaultLocaleProvider): void
     {
-        $uow = $entityManager->getUnitOfWork();
-//        $oid = spl_object_id($entity);
-
         foreach ($this->translatedProperties as $fieldName => $property) {
-            $persistentTranslatable = new PersistentTranslatable(
-                $uow,
+            new PersistentTranslatable(
+                $entityManager->getUnitOfWork(),
                 $this->class,
                 $entity,
                 $this->primaryLocale,
@@ -346,28 +343,10 @@ class TranslatableClassMetadata
                 $this->translationClass,
                 $this->translationLocaleProperty,
                 $this->translationMappingProperty,
+                $property,
                 $this->logger
             );
-
-            $value = $property->getValue($entity);
-
-            if ($value instanceof Translatable) {
-                $value->copy($persistentTranslatable);
-            } else {
-                $persistentTranslatable->setPrimaryValue($value);
-            }
-
-//            foreach ($persistentTranslatable->getAndResetNewTranslations() as $newTranslation) {
-//                $entityManager->persist($newTranslation);
-//            }
-
-            $property->setValue($entity, $persistentTranslatable);
-
-//            if ($uow->getOriginalEntityData($entity)) {
-//                // Set $persistentTranslatable as the "original entity data", so Doctrine ORM
-//                // change detection will not treat this new value as a relevant change
-//                $uow->setOriginalEntityProperty($oid, $fieldName, $persistentTranslatable);
-//            }
+            #$property->setValue($entity, $persistentTranslatable);
         }
     }
 

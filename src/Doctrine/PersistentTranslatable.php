@@ -16,8 +16,10 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
 use ReflectionProperty;
+use Throwable;
 use Webfactory\Bundle\PolyglotBundle\Exception\TranslationException;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
+use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
@@ -34,7 +36,7 @@ class PersistentTranslatable implements TranslatableInterface
      *
      * @var array<string, array<string, array<string, object|null>>>
      */
-    private static $_translations = [];
+    private static array $_translations = [];
 
     /**
      * Object ID for $this->>entity
@@ -46,17 +48,20 @@ class PersistentTranslatable implements TranslatableInterface
     private bool $hasOriginalEntityData;
     private mixed $originalEntityData;
 
+    private LoggerInterface $logger;
+
     /**
      * @param UnitOfWork            $unitOfWork            The UoW managing the entity that contains this PersistentTranslatable
      * @param string                $class                 The class of the entity containing this PersistentTranslatable instance
      * @param object                $entity                The entity containing this PersistentTranslatable instance
      * @param string                $primaryLocale         The locale for which the translated value will be persisted in the "main" entity
      * @param DefaultLocaleProvider $defaultLocaleProvider DefaultLocaleProvider that provides the locale to use when no explicit locale is passed to e. g. translate()
-     * @param ReflectionProperty    $translatedProperty    ReflectionProperty pointing to the field in the translations class that holds the translated value to use
+     * @param ReflectionProperty    $translationProperty   ReflectionProperty pointing to the field in the translations class that holds the translated value to use
      * @param ReflectionProperty    $translationCollection ReflectionProperty pointing to the collection in the main class that holds translation instances
      * @param ReflectionClass       $translationClass      ReflectionClass for the class holding translated values
      * @param ReflectionProperty    $localeField           ReflectionProperty pointing to the field in the translations class that holds a translation's locale
      * @param ReflectionProperty    $translationMapping    ReflectionProperty pointing to the field in the translations class that refers back to the main entity (the owning side of the one-to-many translations collection).
+     * @param ReflectionProperty    $translationProperty   ReflectionProperty pointing to the field in the main entity where this PersistentTranslatable instance will be used
      * @param LoggerInterface|null  $logger
      */
     public function __construct(
@@ -65,11 +70,12 @@ class PersistentTranslatable implements TranslatableInterface
         private readonly object $entity,
         private readonly string $primaryLocale,
         private readonly DefaultLocaleProvider $defaultLocaleProvider,
-        private readonly ReflectionProperty $translatedProperty,
+        private readonly ReflectionProperty $translationProperty,
         private readonly ReflectionProperty $translationCollection,
         private readonly ReflectionClass $translationClass,
         private readonly ReflectionProperty $localeField,
         private readonly ReflectionProperty $translationMapping,
+        private readonly ReflectionProperty $translatedProperty,
         LoggerInterface $logger = null,
     ) {
         $this->oid = spl_object_id($entity);
@@ -88,6 +94,16 @@ class PersistentTranslatable implements TranslatableInterface
         } else {
             $this->hasOriginalEntityData = false;
         }
+
+        $currentValue = $this->translatedProperty->getValue($this->entity);
+
+        if ($currentValue instanceof Translatable) {
+            $currentValue->copy($this);
+        } else {
+            $this->primaryValue = $currentValue;
+        }
+
+        $this->translatedProperty->setValue($this->entity, $this);
     }
 
     public function setPrimaryValue(mixed $value): void
@@ -111,18 +127,6 @@ class PersistentTranslatable implements TranslatableInterface
         }
     }
 
-    /** @internal */
-//    public function updateEntityChangeset(): void
-//    {
-//        $changeSet =& $this->unitOfWork->getEntityChangeSet($this->entity);
-//        $changeSet[$this->translatedProperty->getName()][1] = $this->primaryValue;
-//    }
-
-    public function getPrimaryValue()
-    {
-        return $this->primaryValue;
-    }
-
     /**
      * @param string $locale
      *
@@ -137,12 +141,7 @@ class PersistentTranslatable implements TranslatableInterface
         return $this->getCachedTranslation($locale);
     }
 
-    /**
-     * @param string $locale
-     *
-     * @return object
-     */
-    protected function createTranslationEntity($locale)
+    private function createTranslationEntity(string $locale): object
     {
         $className = $this->translationClass->name;
         $entity = new $className();
@@ -158,11 +157,7 @@ class PersistentTranslatable implements TranslatableInterface
         return $entity;
     }
 
-    /**
-     * @param string      $value
-     * @param string|null $locale
-     */
-    public function setTranslation($value, $locale = null)
+    public function setTranslation(mixed $value, string $locale = null): void
     {
         $locale = $locale ?: $this->getDefaultLocale();
         if ($locale == $this->primaryLocale) {
@@ -172,27 +167,23 @@ class PersistentTranslatable implements TranslatableInterface
             if (!$entity) {
                 $entity = $this->createTranslationEntity($locale);
             }
-            $this->translatedProperty->setValue($entity, $value);
+            $this->translationProperty->setValue($entity, $value);
         }
     }
 
     /**
-     * @param string|null $locale
-     *
-     * @return mixed|string
-     *
      * @throws TranslationException
      */
-    public function translate($locale = null)
+    public function translate(string $locale = null): mixed
     {
         $locale = $locale ?: $this->getDefaultLocale();
         try {
-            if ($locale == $this->primaryLocale) {
+            if ($locale === $this->primaryLocale) {
                 return $this->primaryValue;
             }
 
             if ($entity = $this->getTranslationEntity($locale)) {
-                $translated = $this->translatedProperty->getValue($entity);
+                $translated = $this->translationProperty->getValue($entity);
                 if (null !== $translated) {
                     return $translated;
                 }
@@ -203,14 +194,14 @@ class PersistentTranslatable implements TranslatableInterface
             $message = sprintf(
                 'Cannot translate property %s::%s into locale %s',
                 \get_class($this->entity),
-                $this->translatedProperty->getName(),
+                $this->translationProperty->getName(),
                 $locale
             );
             throw new TranslationException($message, $e);
         }
     }
 
-    public function isTranslatedInto($locale)
+    public function isTranslatedInto(string $locale): bool
     {
         if ($locale === $this->primaryLocale) {
             return !empty($this->primaryValue);
@@ -218,7 +209,7 @@ class PersistentTranslatable implements TranslatableInterface
 
         $entity = $this->getTranslationEntity($locale);
 
-        return $entity && null !== $this->translatedProperty->getValue($entity);
+        return $entity && null !== $this->translationProperty->getValue($entity);
     }
 
     /**
@@ -228,7 +219,7 @@ class PersistentTranslatable implements TranslatableInterface
     {
         try {
             return (string) $this->translate();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->logger->error($this->stringifyException($e));
 
             return '';
@@ -298,7 +289,7 @@ class PersistentTranslatable implements TranslatableInterface
     /**
      * @return string
      */
-    private function stringifyException(Exception $e): string
+    private function stringifyException(Throwable $e): string
     {
         $exceptionAsString = '';
         while (null !== $e) {
