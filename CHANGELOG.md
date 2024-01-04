@@ -2,6 +2,10 @@
 
 To get the diff for a specific change, go to https://github.com/webfactory/polyglot-bundle/commit/XXX where XXX is the change hash. To get the diff between two versions, go to https://github.com/webfactory/polyglot-bundle/compare/{oldversion}...{newversion}.
 
+## Version 3.0.0 [unreleased]
+
+* Dropped support for PHP versions below 8.1, and for Symfony versions before 5.4.
+
 ## Version 2.0.0
 
 * Introduced method `isTranslatedInto($locale)` to the `TranslatableInterface`. The bundled implementations are enhanced accordingly, but if you have a custom implementation of TranslatableInterface, you'll need to update it. 
