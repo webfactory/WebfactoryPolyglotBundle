@@ -19,13 +19,16 @@ class BaseTranslation
 {
     /**
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(type="integer")
      */
     protected $id;
 
     /**
      * @ORM\Column
+     *
      * @Polyglot\Locale
      */
     protected $locale;

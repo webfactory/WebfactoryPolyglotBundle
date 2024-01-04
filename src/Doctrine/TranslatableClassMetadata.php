@@ -80,7 +80,7 @@ class TranslatableClassMetadata
     /**
      * @var LoggerInterface|null
      */
-    protected $logger = null;
+    protected $logger;
 
     public static function parseFromClassMetadata(ClassMetadataInfo $cm, Reader $reader): ?self
     {
@@ -151,15 +151,15 @@ class TranslatableClassMetadata
     protected function assertAnnotationsAreComplete()
     {
         if (null === $this->translationClass) {
-            throw new RuntimeException('The annotation with the translation class name is missing or incorrect, e.g. '.'@ORM\OneToMany(targetEntity="TestEntityTranslation", ...)');
+            throw new RuntimeException('The annotation with the translation class name is missing or incorrect, e.g. @ORM\OneToMany(targetEntity="TestEntityTranslation", ...)');
         }
 
         if (null === $this->translationLocaleProperty) {
-            throw new RuntimeException('The @Polyglot\Locale annotation at the language property of the translation class is missing or '.'incorrect');
+            throw new RuntimeException('The @Polyglot\Locale annotation at the language property of the translation class is missing or incorrect');
         }
 
         if (null === $this->translationMappingProperty) {
-            throw new RuntimeException('The attribute referenced in the mappedBy-Attribute of the @ORM\OneToMany(..., mappedBy="...") is '.'missing or incorrect');
+            throw new RuntimeException('The attribute referenced in the mappedBy-Attribute of the @ORM\OneToMany(..., mappedBy="...") is missing or incorrect');
         }
 
         if (0 === \count($this->translatedProperties)) {

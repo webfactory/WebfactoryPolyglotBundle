@@ -98,7 +98,7 @@ class PolyglotListener
         $entity = $event->getEntity();
         $em = $event->getEntityManager();
 
-        $className = \get_class($entity);
+        $className = $entity::class;
 
         return $this->getTranslationMetadata($className, $em);
     }

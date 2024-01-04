@@ -18,13 +18,16 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
  * Doctrine entity that is used for testing.
  *
  * @ORM\Entity()
+ *
  * @Polyglot\Locale(primary="en_GB")
  */
 class TestEntity
 {
     /**
      * @ORM\Id
+     *
      * @ORM\Column(type="integer", name="id")
+     *
      * @ORM\GeneratedValue
      *
      * @var int|null
@@ -36,14 +39,16 @@ class TestEntity
      * Doctrine PolyglotListener.
      *
      * @ORM\Column(type="string")
+     *
      * @Polyglot\Translatable
      *
      * @var TranslatableInterface|string|null
      */
-    protected $text = null;
+    protected $text;
 
     /**
      * @ORM\OneToMany(targetEntity="TestEntityTranslation", mappedBy="entity")
+     *
      * @Polyglot\TranslationCollection
      */
     protected $translations;
