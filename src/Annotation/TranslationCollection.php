@@ -11,6 +11,8 @@ namespace Webfactory\Bundle\PolyglotBundle\Annotation;
 
 /**
  * @Annotation
+ *
+ * @final
  */
 class TranslationCollection
 {

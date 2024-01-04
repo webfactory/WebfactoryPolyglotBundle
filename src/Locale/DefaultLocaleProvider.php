@@ -9,6 +9,9 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Locale;
 
+/**
+ * @final
+ */
 class DefaultLocaleProvider
 {
     private $defaultLocale;
