@@ -13,7 +13,6 @@ use Doctrine\Common\Annotations\Annotation;
 
 /**
  * @Annotation
- *
  * @Target({"CLASS","PROPERTY"})
  */
 class Locale extends Annotation

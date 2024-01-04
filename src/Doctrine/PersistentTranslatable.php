@@ -54,7 +54,7 @@ class PersistentTranslatable implements TranslatableInterface
     /**
      * @var mixed Der Wert in der primary locale (der Wert in der Entität, den der Proxy ersetzt hat)
      */
-    protected $primaryValue = null;
+    protected $primaryValue;
 
     /**
      * Provider, über den der Proxy die Locale erhält, in der Werte zurückgeben soll, wenn keine andere Locale explizit gewünscht wird.
@@ -109,9 +109,6 @@ class PersistentTranslatable implements TranslatableInterface
      */
     private $addedTranslations = [];
 
-    /**
-     * @param LoggerInterface $logger
-     */
     public function __construct(
         object $entity,
         ?string $primaryLocale,
@@ -308,8 +305,6 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * @param $locale
-     *
      * @return Criteria
      */
     protected function createLocaleCriteria($locale)
@@ -342,7 +337,7 @@ class PersistentTranslatable implements TranslatableInterface
             }
             $exceptionAsString .= sprintf(
                 "Exception '%s' with message '%s' in %s:%d\n%s",
-                \get_class($e),
+                $e::class,
                 $e->getMessage(),
                 $e->getFile(),
                 $e->getLine(),
