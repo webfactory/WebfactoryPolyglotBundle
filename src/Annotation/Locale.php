@@ -20,13 +20,19 @@ use Doctrine\Common\Annotations\Annotation;
  */
 class Locale extends Annotation
 {
+    /**
+     * @var string
+     */
     protected $primary;
 
-    public function setPrimary($value)
+    public function setPrimary(string $value)
     {
         $this->primary = $value;
     }
 
+    /**
+     * @return string
+     */
     public function getPrimary()
     {
         return $this->primary;

@@ -240,7 +240,7 @@ class TranslatableClassMetadata
         }
     }
 
-    public function preFlush($entity, EntityManager $entityManager)
+    public function preFlush(object $entity, EntityManager $entityManager)
     {
         foreach ($this->translatedProperties as $property) {
             $proxy = $property->getValue($entity);
@@ -254,7 +254,7 @@ class TranslatableClassMetadata
         }
     }
 
-    public function injectProxies($entity, DefaultLocaleProvider $defaultLocaleProvider)
+    public function injectProxies(object $entity, DefaultLocaleProvider $defaultLocaleProvider)
     {
         foreach ($this->translatedProperties as $fieldname => $property) {
             $proxy = $this->createProxy($entity, $fieldname, $defaultLocaleProvider);
@@ -280,7 +280,7 @@ class TranslatableClassMetadata
         }
     }
 
-    public function getTranslations($entity): Collection
+    public function getTranslations(object $entity): Collection
     {
         return $this->translationsCollectionProperty->getValue($entity);
     }

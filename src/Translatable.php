@@ -55,7 +55,7 @@ class Translatable implements TranslatableInterface
     protected $translations = [];
 
     /**
-     * @param string|null                       $value
+     * @param mixed|null                        $value
      * @param string|DefaultLocaleProvider|null $defaultLocale
      */
     public function __construct($value = null, $defaultLocale = null)
@@ -68,10 +68,7 @@ class Translatable implements TranslatableInterface
         $this->setTranslation($value);
     }
 
-    /**
-     * @param string $locale
-     */
-    public function setDefaultLocale($locale)
+    public function setDefaultLocale(string $locale)
     {
         $oldLocale = $this->getDefaultLocale();
         $this->defaultLocale = $locale;
@@ -84,12 +81,7 @@ class Translatable implements TranslatableInterface
         $this->defaultLocale = $locale;
     }
 
-    /**
-     * @param string|null $locale
-     *
-     * @return string|null
-     */
-    public function translate($locale = null)
+    public function translate(string $locale = null)
     {
         $locale = $locale ?: $this->getDefaultLocale();
 
@@ -100,25 +92,18 @@ class Translatable implements TranslatableInterface
         }
     }
 
-    /**
-     * @param string      $value
-     * @param string|null $locale
-     */
-    public function setTranslation($value, $locale = null)
+    public function setTranslation($value, string $locale = null)
     {
         $locale = $locale ?: $this->getDefaultLocale();
 
         $this->translations[$locale] = $value;
     }
 
-    public function isTranslatedInto($locale)
+    public function isTranslatedInto(string $locale)
     {
         return isset($this->translations[$locale]) && !empty($this->translations[$locale]);
     }
 
-    /**
-     * @return string
-     */
     public function __toString()
     {
         return (string) $this->translate();

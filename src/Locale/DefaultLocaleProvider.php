@@ -16,12 +16,12 @@ class DefaultLocaleProvider
 {
     private $defaultLocale;
 
-    public function __construct($locale = 'en_GB')
+    public function __construct(string $locale = 'en_GB')
     {
         $this->defaultLocale = $locale;
     }
 
-    public function setDefaultLocale($locale)
+    public function setDefaultLocale(string $locale)
     {
         $this->defaultLocale = $locale;
     }
