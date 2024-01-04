@@ -19,6 +19,8 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
  * Taken from Christophe COEVOET's Doctrine Extensions Bundle.
  *
  * @author Christophe COEVOET
+ *
+ * @final
  */
 class LocaleListener implements EventSubscriberInterface
 {

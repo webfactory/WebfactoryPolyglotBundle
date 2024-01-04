@@ -37,6 +37,8 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
  *     protected $aField;
  *     public function __construct() {...
  *       $aField = new Translatable();
+ *
+ * @final
  */
 class Translatable implements TranslatableInterface
 {

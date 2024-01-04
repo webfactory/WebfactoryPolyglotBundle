@@ -22,6 +22,8 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 /**
  * Eine TranslationProxy-Implementierung für eine Entität, die
  * bereits unter Verwaltung des EntityManagers steht.
+ *
+ * @final
  */
 class PersistentTranslatable implements TranslatableInterface
 {
