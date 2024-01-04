@@ -23,34 +23,22 @@ class PolyglotListener implements EventSubscriber
 {
     public const CACHE_SALT = '$WebfactoryPolyglot';
 
-    protected $reader;
-
     private $translatableClassMetadatasByClass = [];
 
     protected $translatedClasses = [];
 
-    protected $defaultLocaleProvider;
 
     // private \WeakMap $entitiesWithTranslations;
-
-    /**
-     * @var LoggerInterface|null
-     */
-    protected $logger;
 
     /**
      * PolyglotListener constructor.
      */
     public function __construct(
-        Reader $annotationReader,
-        DefaultLocaleProvider $defaultLocaleProvider,
-        LoggerInterface $logger = null
+        private readonly Reader $annotationReader,
+        private readonly DefaultLocaleProvider $defaultLocaleProvider,
+        private readonly LoggerInterface $logger = null,
     ) {
         $this->reader = $annotationReader;
-        $this->defaultLocaleProvider = $defaultLocaleProvider;
-        $this->logger = $logger;
-
-        // $this->entitiesWithTranslations = new \WeakMap();
     }
 
     public function getSubscribedEvents(): array

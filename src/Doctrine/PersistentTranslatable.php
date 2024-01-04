@@ -10,6 +10,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\UnitOfWork;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -21,6 +22,8 @@ use Webfactory\Bundle\PolyglotBundle\Exception\TranslationException;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
+use function get_class;
+use const PHP_EOL;
 
 /**
  * This class implements `TranslatableInterface` for entities that are managed by
@@ -39,7 +42,7 @@ class PersistentTranslatable implements TranslatableInterface
     private static array $_translations = [];
 
     /**
-     * Object ID for $this->>entity
+     * Object ID for $this->entity
      */
     private string $oid;
 
@@ -61,8 +64,7 @@ class PersistentTranslatable implements TranslatableInterface
      * @param ReflectionClass       $translationClass      ReflectionClass for the class holding translated values
      * @param ReflectionProperty    $localeField           ReflectionProperty pointing to the field in the translations class that holds a translation's locale
      * @param ReflectionProperty    $translationMapping    ReflectionProperty pointing to the field in the translations class that refers back to the main entity (the owning side of the one-to-many translations collection).
-     * @param ReflectionProperty    $translationProperty   ReflectionProperty pointing to the field in the main entity where this PersistentTranslatable instance will be used
-     * @param LoggerInterface|null  $logger
+     * @param ReflectionProperty    $translatedProperty   ReflectionProperty pointing to the field in the main entity where this PersistentTranslatable instance will be used
      */
     public function __construct(
         private readonly UnitOfWork $unitOfWork,
@@ -127,14 +129,9 @@ class PersistentTranslatable implements TranslatableInterface
         }
     }
 
-    /**
-     * @param string $locale
-     *
-     * @return object|null
-     */
-    protected function getTranslationEntity($locale)
+    private function getTranslationEntity(string $locale): ?object
     {
-        if (false === $this->isTranslationCached($locale)) {
+        if (!$this->isTranslationCached($locale)) {
             $this->cacheTranslation($locale);
         }
 
@@ -160,7 +157,7 @@ class PersistentTranslatable implements TranslatableInterface
     public function setTranslation(mixed $value, string $locale = null): void
     {
         $locale = $locale ?: $this->getDefaultLocale();
-        if ($locale == $this->primaryLocale) {
+        if ($locale === $this->primaryLocale) {
             $this->setPrimaryValue($value);
         } else {
             $entity = $this->getTranslationEntity($locale);
@@ -193,7 +190,7 @@ class PersistentTranslatable implements TranslatableInterface
         } catch (Exception $e) {
             $message = sprintf(
                 'Cannot translate property %s::%s into locale %s',
-                \get_class($this->entity),
+                get_class($this->entity),
                 $this->translationProperty->getName(),
                 $locale
             );
@@ -234,26 +231,19 @@ class PersistentTranslatable implements TranslatableInterface
         return $this->defaultLocaleProvider->getDefaultLocale();
     }
 
-    /**
-     * @param string $locale
-     *
-     * @return bool
-     */
-    protected function isTranslationCached($locale): bool
+    private function isTranslationCached(string $locale): bool
     {
         return isset(self::$_translations[$this->class][$this->oid][$locale]);
     }
 
     /**
      * The collection filtering API will issue a SQL query every time if the collection is not in memory; that is, it
-     * does not manage "partially initialized" collections. For this reason we cache the lookup results on our own
-     * (in-memory per-request) in a static member variable so they can be shared among all TranslationProxies.
-     *
-     * @param string $locale
+     * does not manage "partially initialized" collections. For this reason, we cache the lookup results on our own
+     * (in-memory per-request) in a static member variable, so they can be shared among all TranslationProxies.
      */
-    protected function cacheTranslation($locale): void
+    private function cacheTranslation(string $locale): void
     {
-        /* @var $translationsInAllLanguages \Doctrine\Common\Collections\Selectable */
+        /** @var $translationsInAllLanguages Selectable */
         $translationsInAllLanguages = $this->translationCollection->getValue($this->entity);
         $criteria = $this->createLocaleCriteria($locale);
         $translationsFilteredByLocale = $translationsInAllLanguages->matching($criteria);
@@ -276,29 +266,21 @@ class PersistentTranslatable implements TranslatableInterface
             );
     }
 
-    /**
-     * @param string $locale
-     *
-     * @return object|null
-     */
-    protected function getCachedTranslation($locale)
+    private function getCachedTranslation(string $locale): ?object
     {
         return self::$_translations[$this->class][$this->oid][$locale];
     }
 
-    /**
-     * @return string
-     */
     private function stringifyException(Throwable $e): string
     {
         $exceptionAsString = '';
         while (null !== $e) {
             if (!empty($exceptionAsString)) {
-                $exceptionAsString .= \PHP_EOL.'Previous exception: '.\PHP_EOL;
+                $exceptionAsString .= PHP_EOL.'Previous exception: '.PHP_EOL;
             }
             $exceptionAsString .= sprintf(
                 "Exception '%s' with message '%s' in %s:%d\n%s",
-                \get_class($e),
+                get_class($e),
                 $e->getMessage(),
                 $e->getFile(),
                 $e->getLine(),
