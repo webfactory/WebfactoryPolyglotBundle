@@ -14,10 +14,8 @@ use Doctrine\Common\Annotations\Annotation;
 /**
  * @Annotation
  * @Target({"CLASS","PROPERTY"})
- *
- * @final
  */
-class Locale extends Annotation
+final class Locale extends Annotation
 {
     /**
      * @var string
