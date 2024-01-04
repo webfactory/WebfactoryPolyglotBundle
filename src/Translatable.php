@@ -34,7 +34,7 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
  *
  *  class MyClass { ...
  *     // @ Polyglot\Translatable
- *     protected $aField;
+ *     private $aField;
  *     public function __construct() {...
  *       $aField = new Translatable();
  */
@@ -43,14 +43,14 @@ final class Translatable implements TranslatableInterface
     /**
      * @var string
      */
-    protected $defaultLocale;
+    private $defaultLocale;
 
     /**
      * Maps locales to translations.
      *
      * @var array<string, string>
      */
-    protected $translations = [];
+    private $translations = [];
 
     /**
      * @param mixed|null                        $value

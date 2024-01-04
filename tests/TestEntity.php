@@ -44,14 +44,14 @@ class TestEntity
      *
      * @var TranslatableInterface|string|null
      */
-    protected $text;
+    private $text;
 
     /**
      * @ORM\OneToMany(targetEntity="TestEntityTranslation", mappedBy="entity")
      *
      * @Polyglot\TranslationCollection
      */
-    protected $translations;
+    private $translations;
 
     public function __construct($text)
     {

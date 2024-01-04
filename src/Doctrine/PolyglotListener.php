@@ -23,10 +23,10 @@ final class PolyglotListener
 {
     public const CACHE_SALT = '$WebfactoryPolyglot';
 
-    protected $reader;
-    protected $translatedClasses = [];
-    protected $_proxiesStripped = [];
-    protected $defaultLocaleProvider;
+    private $reader;
+    private $translatedClasses = [];
+    private $_proxiesStripped = [];
+    private $defaultLocaleProvider;
 
     /** @var SplObjectStorage */
     private $entitiesWithTranslations;
@@ -34,7 +34,7 @@ final class PolyglotListener
     /**
      * @var LoggerInterface|null
      */
-    protected $logger;
+    private $logger;
 
     /**
      * PolyglotListener constructor.
@@ -93,7 +93,7 @@ final class PolyglotListener
         }
     }
 
-    protected function getTranslationMetadataForLifecycleEvent(LifecycleEventArgs $event)
+    private function getTranslationMetadataForLifecycleEvent(LifecycleEventArgs $event)
     {
         $entity = $event->getEntity();
         $em = $event->getEntityManager();
@@ -103,7 +103,7 @@ final class PolyglotListener
         return $this->getTranslationMetadata($className, $em);
     }
 
-    protected function getTranslationMetadata($className, EntityManager $em)
+    private function getTranslationMetadata($className, EntityManager $em)
     {
         // In memory cache
         if (isset($this->translatedClasses[$className])) {
