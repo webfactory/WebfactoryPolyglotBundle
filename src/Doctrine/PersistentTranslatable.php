@@ -132,9 +132,6 @@ final class PersistentTranslatable implements TranslatableInterface
         $this->logger = (null == $logger) ? new NullLogger() : $logger;
     }
 
-    /**
-     * @param mixed $value
-     */
     public function setPrimaryValue($value)
     {
         $this->primaryValue = $value;

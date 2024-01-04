@@ -26,7 +26,6 @@ interface TranslatableInterface
     /**
      * Overwrites the translation for the given locale.
      *
-     * @param mixed       $value
      * @param string|null $locale The target locale or null for the current locale.
      */
     public function setTranslation($value, string $locale = null);
