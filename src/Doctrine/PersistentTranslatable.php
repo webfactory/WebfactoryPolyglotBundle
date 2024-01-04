@@ -22,6 +22,8 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 /**
  * Eine TranslationProxy-Implementierung für eine Entität, die
  * bereits unter Verwaltung des EntityManagers steht.
+ *
+ * @final
  */
 class PersistentTranslatable implements TranslatableInterface
 {
@@ -132,11 +134,17 @@ class PersistentTranslatable implements TranslatableInterface
         $this->logger = (null == $logger) ? new NullLogger() : $logger;
     }
 
+    /**
+     * @param mixed $value
+     */
     public function setPrimaryValue($value)
     {
         $this->primaryValue = $value;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getPrimaryValue()
     {
         return $this->primaryValue;
@@ -177,11 +185,7 @@ class PersistentTranslatable implements TranslatableInterface
         return $entity;
     }
 
-    /**
-     * @param string      $value
-     * @param string|null $locale
-     */
-    public function setTranslation($value, $locale = null)
+    public function setTranslation($value, string $locale = null)
     {
         $locale = $locale ?: $this->getDefaultLocale();
         if ($locale == $this->primaryLocale) {
@@ -196,13 +200,9 @@ class PersistentTranslatable implements TranslatableInterface
     }
 
     /**
-     * @param string|null $locale
-     *
-     * @return mixed|string
-     *
      * @throws TranslationException
      */
-    public function translate($locale = null)
+    public function translate(string $locale = null)
     {
         $locale = $locale ?: $this->getDefaultLocale();
         try {
@@ -229,7 +229,7 @@ class PersistentTranslatable implements TranslatableInterface
         }
     }
 
-    public function isTranslatedInto($locale)
+    public function isTranslatedInto(string $locale)
     {
         if ($locale === $this->primaryLocale) {
             return !empty($this->primaryValue);

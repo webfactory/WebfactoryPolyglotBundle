@@ -19,6 +19,9 @@ use Psr\Log\LoggerInterface;
 use SplObjectStorage;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
+/**
+ * @final
+ */
 class PolyglotListener
 {
     public const CACHE_SALT = '$WebfactoryPolyglot';
