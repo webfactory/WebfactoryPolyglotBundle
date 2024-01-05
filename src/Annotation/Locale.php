@@ -9,28 +9,23 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Annotation;
 
-use Doctrine\Common\Annotations\Annotation;
+use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 
 /**
  * @Annotation
+ * @NamedArgumentConstructor
  * @Target({"CLASS","PROPERTY"})
  */
-final class Locale extends Annotation
+final class Locale
 {
-    /**
-     * @var string
-     */
-    protected $primary;
+    private ?string $primary;
 
-    public function setPrimary(string $value)
+    public function __construct(string $primary = null)
     {
-        $this->primary = $value;
+        $this->primary = $primary;
     }
 
-    /**
-     * @return string
-     */
-    public function getPrimary()
+    public function getPrimary(): ?string
     {
         return $this->primary;
     }

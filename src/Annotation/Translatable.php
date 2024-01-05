@@ -9,27 +9,22 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Annotation;
 
-use Doctrine\Common\Annotations\Annotation;
+use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 
 /**
  * @Annotation
+ * @NamedArgumentConstructor
  */
-final class Translatable extends Annotation
+final class Translatable
 {
-    /**
-     * @var string
-     */
-    protected $translationFieldname;
+    private ?string $translationFieldname;
 
-    public function setTranslationFieldname(string $value)
+    public function __construct(string $translationFieldname = null)
     {
-        $this->translationFieldname = $value;
+        $this->translationFieldname = $translationFieldname;
     }
 
-    /**
-     * @return string
-     */
-    public function getTranslationFieldname()
+    public function getTranslationFieldname(): ?string
     {
         return $this->translationFieldname;
     }

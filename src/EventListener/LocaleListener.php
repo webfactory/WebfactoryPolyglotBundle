@@ -22,11 +22,9 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
  */
 final class LocaleListener implements EventSubscriberInterface
 {
-    private $defaultLocaleProvider;
-
-    public function __construct(DefaultLocaleProvider $defaultLocaleProvider)
-    {
-        $this->defaultLocaleProvider = $defaultLocaleProvider;
+    public function __construct(
+        private readonly DefaultLocaleProvider $defaultLocaleProvider,
+    ) {
     }
 
     /**
@@ -34,7 +32,7 @@ final class LocaleListener implements EventSubscriberInterface
      *
      * This method should be attached to the kernel.request event.
      */
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         $this->defaultLocaleProvider->setDefaultLocale($event->getRequest()->getLocale());
     }

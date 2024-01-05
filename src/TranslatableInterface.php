@@ -19,30 +19,26 @@ interface TranslatableInterface
      *
      * @param string|null $locale The target locale or null for the current locale.
      *
-     * @return mixed|null The translation or null if not available.
+     * @return mixed The translation or null if not available.
      */
-    public function translate(string $locale = null);
+    public function translate(string $locale = null): mixed;
 
     /**
      * Overwrites the translation for the given locale.
      *
      * @param string|null $locale The target locale or null for the current locale.
      */
-    public function setTranslation($value, string $locale = null);
+    public function setTranslation(mixed $value, string $locale = null);
 
     /**
      * Returns wether the text is translated into the target locale.
      *
      * @param string $locale The target locale.
-     *
-     * @return bool
      */
-    public function isTranslatedInto(string $locale);
+    public function isTranslatedInto(string $locale): bool;
 
     /**
      * Returns the translation for the current locale.
-     *
-     * @return string
      */
-    public function __toString();
+    public function __toString(): string;
 }

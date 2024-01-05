@@ -3,7 +3,6 @@
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableClassMetadata;
@@ -16,12 +15,12 @@ class TranslatableClassMetadataTest extends TestCase
     /**
      * @test
      */
-    public function can_be_serialized_and_retrieved()
+    public function can_be_serialized_and_retrieved(): void
     {
         $metadata = $this->createMetadata();
 
-        $unserialized = unserialize(serialize($metadata->prepareSleepInstance()));
-        $unserialized->wakeupReflection(new RuntimeReflectionService());
+        $serialize = serialize($metadata->sleep());
+        $unserialized = TranslatableClassMetadata::wakeup(unserialize($serialize));
 
         $this->assertEquals($metadata, $unserialized);
     }

@@ -16,6 +16,7 @@ use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use SplObjectStorage;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
@@ -23,22 +24,20 @@ final class PolyglotListener
 {
     public const CACHE_SALT = '$WebfactoryPolyglot';
 
-    private $reader;
-    private $translatedClasses = [];
-    private $_proxiesStripped = [];
-    private $defaultLocaleProvider;
-
-    /** @var SplObjectStorage */
-    private $entitiesWithTranslations;
+    private Reader $reader;
 
     /**
-     * @var LoggerInterface|null
+     * @var array<class-string, TranslatableClassMetadata>
      */
-    private $logger;
+    private array $translatedClasses = [];
 
-    /**
-     * PolyglotListener constructor.
-     */
+    private array $_proxiesStripped = [];
+    private DefaultLocaleProvider $defaultLocaleProvider;
+
+    private SplObjectStorage $entitiesWithTranslations;
+
+    private LoggerInterface $logger;
+
     public function __construct(
         Reader $annotationReader,
         DefaultLocaleProvider $defaultLocaleProvider,
@@ -46,12 +45,12 @@ final class PolyglotListener
     ) {
         $this->reader = $annotationReader;
         $this->defaultLocaleProvider = $defaultLocaleProvider;
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
 
         $this->entitiesWithTranslations = new SplObjectStorage();
     }
 
-    public function postLoad(LifecycleEventArgs $event)
+    public function postLoad(LifecycleEventArgs $event): void
     {
         // Called when the entity has been hydrated
         $entity = $event->getEntity();
@@ -62,7 +61,7 @@ final class PolyglotListener
         }
     }
 
-    public function prePersist(LifecycleEventArgs $event)
+    public function prePersist(LifecycleEventArgs $event): void
     {
         // Called before a new entity is persisted for the first time
         $entity = $event->getEntity();
@@ -73,7 +72,7 @@ final class PolyglotListener
         }
     }
 
-    public function preFlush(PreFlushEventArgs $event)
+    public function preFlush(PreFlushEventArgs $event): void
     {
         $entityManager = $event->getEntityManager();
         // Called before changes are flushed out to the database - even before the change sets are computed
@@ -84,7 +83,7 @@ final class PolyglotListener
         }
     }
 
-    public function postFlush(PostFlushEventArgs $event)
+    public function postFlush(PostFlushEventArgs $event): void
     {
         // The postFlush event occurs at the end of a flush operation.
         foreach ($this->entitiesWithTranslations as $entity) {
@@ -93,7 +92,7 @@ final class PolyglotListener
         }
     }
 
-    private function getTranslationMetadataForLifecycleEvent(LifecycleEventArgs $event)
+    private function getTranslationMetadataForLifecycleEvent(LifecycleEventArgs $event): ?TranslatableClassMetadata
     {
         $entity = $event->getEntity();
         $em = $event->getEntityManager();
@@ -103,7 +102,7 @@ final class PolyglotListener
         return $this->getTranslationMetadata($className, $em);
     }
 
-    private function getTranslationMetadata($className, EntityManager $em)
+    private function getTranslationMetadata($className, EntityManager $em): ?TranslatableClassMetadata
     {
         // In memory cache
         if (isset($this->translatedClasses[$className])) {
@@ -111,20 +110,21 @@ final class PolyglotListener
         }
 
         $metadataFactory = $em->getMetadataFactory();
-        $reflectionService = $metadataFactory->getReflectionService();
         $cacheDriver = $em->getConfiguration()->getMetadataCacheImpl();
 
-        // Cache driver available and in cache
         if ($cacheDriver) {
-            if (($cached = $cacheDriver->fetch($className.self::CACHE_SALT)) !== false) {
-                $this->translatedClasses[$className] = $cached;
-                if ($cached) { // evtl. ist im Cache gespeichert, das die Klasse *nicht* übersetzt ist
-                    /* @var $cached TranslatableClassMetadata */
-                    $cached->wakeupReflection($reflectionService);
-                    $cached->setLogger($this->logger);
-                }
+            if (($data = $cacheDriver->fetch($className.self::CACHE_SALT)) !== false) {
+                if ($data === null) {
+                    $this->translatedClasses[$className] = null;
 
-                return $cached;
+                    return null;
+                } else {
+                    $wakeup = TranslatableClassMetadata::wakeup($data);
+                    $wakeup->setLogger($this->logger);
+                    $this->translatedClasses[$className] = $wakeup;
+
+                    return $wakeup;
+                }
             }
         }
 
@@ -138,9 +138,7 @@ final class PolyglotListener
         }
 
         // Save if cache driver available
-        if ($cacheDriver) {
-            $cacheDriver->save($className.self::CACHE_SALT, $meta ? $meta->prepareSleepInstance() : null);
-        }
+        $cacheDriver?->save($className.self::CACHE_SALT, $meta?->sleep());
 
         return $meta;
     }

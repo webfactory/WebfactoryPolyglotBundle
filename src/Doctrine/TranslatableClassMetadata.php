@@ -35,56 +35,47 @@ final class TranslatableClassMetadata
      * Ein Mapping von Feldnamen in der Hauptklasse auf die Felder in der
      * Übersetzungs-Klasse, in denen die jeweilige Übersetzung liegt.
      *
-     * @var ReflectionProperty[]
+     * @var array<string, ReflectionProperty>
      */
-    private $translationFieldMapping = [];
+    private array $translationFieldMapping = [];
 
     /**
      * Die Eigenschaften der Haupt-Klasse, die übersetzbar sind; indiziert nach Feldnamen.
      *
-     * @var ReflectionProperty[]
+     * @var array<string, ReflectionProperty>
      */
-    private $translatedProperties = [];
+    private array $translatedProperties = [];
 
     /**
      * Die Eigenschaft der Haupt-Klasse, die die Collection der Übersetzungen hält.
-     *
-     * @var ReflectionProperty
      */
-    private $translationsCollectionProperty;
+    private ?ReflectionProperty $translationsCollectionProperty = null;
 
     /**
      * Die Eigenschaft der Übersetzungs-Klasse, die als many-to-one auf die Haupt-Klasse verweist.
-     *
-     * @var ReflectionProperty
      */
-    private $translationMappingProperty;
+    private ?ReflectionProperty $translationMappingProperty = null;
 
     /**
      * Die Eigenschaft in der Übersetzungs-Klasse, die die Sprache einer Übersetzungsinstanz enhtält.
-     *
-     * @var ReflectionProperty
      */
-    private $translationLocaleProperty;
+    private ?ReflectionProperty $translationLocaleProperty = null;
 
     /**
      * @var ReflectionClass Die Übersetzungs-Klasse.
      */
-    private $translationClass;
+    private ?ReflectionClass $translationClass = null;
 
     /**
      * @var string Die Locale der Werte in der Haupt-Klasse.
      */
-    private $primaryLocale;
+    private ?string $primaryLocale = null;
 
-    /**
-     * @var LoggerInterface|null
-     */
-    private $logger;
+    private ?LoggerInterface $logger = null;
 
     public static function parseFromClassMetadata(ClassMetadataInfo $cm, Reader $reader): ?self
     {
-        $tm = new static();
+        $tm = new self();
         $tm->findPrimaryLocale($reader, $cm);
         $tm->findTranslationsCollection($reader, $cm);
         $tm->findTranslatedProperties($reader, $cm);
@@ -102,45 +93,49 @@ final class TranslatableClassMetadata
         $this->logger = $logger;
     }
 
-    public function prepareSleepInstance(): self
+    public function sleep(): SerializedTranslatableClassMetadata
     {
-        $sleep = clone $this;
-        $sleep->logger = null;
+        $sleep = new SerializedTranslatableClassMetadata();
+        $sleep->primaryLocale = $this->primaryLocale;
         $sleep->translationClass = $this->translationClass->name;
 
-        foreach ($sleep->translationFieldMapping as $fieldname => $property) {
+        foreach ($this->translationFieldMapping as $fieldname => $property) {
             $sleep->translationFieldMapping[$fieldname] = [$property->class, $property->name];
         }
 
-        foreach ($sleep->translatedProperties as $fieldname => $property) {
+        foreach ($this->translatedProperties as $fieldname => $property) {
             $sleep->translatedProperties[$fieldname] = [$property->class, $property->name];
         }
 
-        $sleep->translationLocaleProperty = [$sleep->translationLocaleProperty->class, $sleep->translationLocaleProperty->name];
-        $sleep->translationsCollectionProperty = [$sleep->translationsCollectionProperty->class, $sleep->translationsCollectionProperty->name];
-        $sleep->translationMappingProperty = [$sleep->translationMappingProperty->class, $sleep->translationMappingProperty->name];
+        $sleep->translationLocaleProperty = [$this->translationLocaleProperty->class, $this->translationLocaleProperty->name];
+        $sleep->translationsCollectionProperty = [$this->translationsCollectionProperty->class, $this->translationsCollectionProperty->name];
+        $sleep->translationMappingProperty = [$this->translationMappingProperty->class, $this->translationMappingProperty->name];
 
         return $sleep;
     }
 
-    public function wakeupReflection(ReflectionService $reflectionService)
+    public static function wakeup(SerializedTranslatableClassMetadata $data): self
     {
-        $this->translationClass = $reflectionService->getClass($this->translationClass);
+        $self = new self();
+        $self->primaryLocale = $data->primaryLocale;
+        $self->translationClass = new ReflectionClass($data->translationClass);
 
-        foreach ($this->translationFieldMapping as $fieldname => $property) {
-            $this->translationFieldMapping[$fieldname] = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $property);
+        foreach ($data->translationFieldMapping as $fieldname => $property) {
+            $self->translationFieldMapping[$fieldname] = new ReflectionProperty(...$property);
         }
 
-        foreach ($this->translatedProperties as $fieldname => $property) {
-            $this->translatedProperties[$fieldname] = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $property);
+        foreach ($data->translatedProperties as $fieldname => $property) {
+            $self->translatedProperties[$fieldname] = new ReflectionProperty(...$property);
         }
 
-        $this->translationsCollectionProperty = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationsCollectionProperty);
-        $this->translationMappingProperty = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationMappingProperty);
-        $this->translationLocaleProperty = \call_user_func_array([$reflectionService, 'getAccessibleProperty'], $this->translationLocaleProperty);
+        $self->translationsCollectionProperty = new ReflectionProperty(...$data->translationsCollectionProperty);
+        $self->translationMappingProperty = new ReflectionProperty(...$data->translationMappingProperty);
+        $self->translationLocaleProperty = new ReflectionProperty(...$data->translationLocaleProperty);
+
+        return $self;
     }
 
-    private function assertNoAnnotationsArePresent()
+    private function assertNoAnnotationsArePresent(): bool
     {
         return null === $this->translationClass
             && null === $this->translationLocaleProperty
@@ -148,7 +143,7 @@ final class TranslatableClassMetadata
             && 0 === \count($this->translatedProperties);
     }
 
-    private function assertAnnotationsAreComplete()
+    private function assertAnnotationsAreComplete(): void
     {
         if (null === $this->translationClass) {
             throw new RuntimeException('The annotation with the translation class name is missing or incorrect, e.g. @ORM\OneToMany(targetEntity="TestEntityTranslation", ...)');
@@ -167,7 +162,7 @@ final class TranslatableClassMetadata
         }
     }
 
-    private function findTranslatedProperties(Reader $reader, ClassMetadata $classMetadata)
+    private function findTranslatedProperties(Reader $reader, ClassMetadata $classMetadata): void
     {
         if ($this->translationClass) {
             foreach ($classMetadata->getReflectionClass()->getProperties() as $property) {
@@ -190,7 +185,7 @@ final class TranslatableClassMetadata
         }
     }
 
-    private function findTranslationsCollection(Reader $reader, ClassMetadataInfo $classMetadata)
+    private function findTranslationsCollection(Reader $reader, ClassMetadataInfo $classMetadata): void
     {
         foreach ($classMetadata->getReflectionClass()->getProperties() as $property) {
             $annotation = $reader->getPropertyAnnotation(
@@ -198,20 +193,18 @@ final class TranslatableClassMetadata
                 Annotation\TranslationCollection::class
             );
             if (null !== $annotation) {
-                $property->setAccessible(true);
                 $this->translationsCollectionProperty = $property;
                 $am = $classMetadata->getAssociationMapping($property->getName());
                 $this->parseTranslationsEntity($reader, $am['targetEntity']);
 
                 $translationMappingProperty = $this->translationClass->getProperty($am['mappedBy']);
-                $translationMappingProperty->setAccessible(true);
                 $this->translationMappingProperty = $translationMappingProperty;
                 break;
             }
         }
     }
 
-    private function findPrimaryLocale(Reader $reader, ClassMetadata $classMetadata)
+    private function findPrimaryLocale(Reader $reader, ClassMetadata $classMetadata): void
     {
         $annotation = $reader->getClassAnnotation(
             $classMetadata->getReflectionClass(),
@@ -222,7 +215,7 @@ final class TranslatableClassMetadata
         }
     }
 
-    private function parseTranslationsEntity(Reader $reader, $class)
+    private function parseTranslationsEntity(Reader $reader, $class): void
     {
         $this->translationClass = new ReflectionClass($class);
 
@@ -238,7 +231,7 @@ final class TranslatableClassMetadata
         }
     }
 
-    public function preFlush(object $entity, EntityManager $entityManager)
+    public function preFlush(object $entity, EntityManager $entityManager): void
     {
         foreach ($this->translatedProperties as $property) {
             $proxy = $property->getValue($entity);
@@ -252,7 +245,7 @@ final class TranslatableClassMetadata
         }
     }
 
-    public function injectProxies(object $entity, DefaultLocaleProvider $defaultLocaleProvider)
+    public function injectProxies(object $entity, DefaultLocaleProvider $defaultLocaleProvider): void
     {
         foreach ($this->translatedProperties as $fieldname => $property) {
             $proxy = $this->createProxy($entity, $fieldname, $defaultLocaleProvider);
@@ -265,7 +258,7 @@ final class TranslatableClassMetadata
      * For a given entity, find all @Translatable fields that contain new (not yet persisted)
      * Translatable objects and replace those with PersistentTranslatable.
      */
-    public function manageTranslations(object $entity, DefaultLocaleProvider $defaultLocaleProvider)
+    public function manageTranslations(object $entity, DefaultLocaleProvider $defaultLocaleProvider): void
     {
         foreach ($this->translatedProperties as $fieldname => $property) {
             $translatableValue = $property->getValue($entity);
