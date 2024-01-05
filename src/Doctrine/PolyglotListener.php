@@ -114,7 +114,7 @@ final class PolyglotListener
 
         if ($cacheDriver) {
             if (($data = $cacheDriver->fetch($className.self::CACHE_SALT)) !== false) {
-                if ($data === null) {
+                if (null === $data) {
                     $this->translatedClasses[$className] = null;
 
                     return null;

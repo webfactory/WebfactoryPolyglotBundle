@@ -43,12 +43,12 @@ final class PersistentTranslatable implements TranslatableInterface
     private string $oid;
 
     /**
-     * Sprache, die in der Entität direkt abgelegt ist ("originärer" Content)
+     * Sprache, die in der Entität direkt abgelegt ist ("originärer" Content).
      */
     private ?string $primaryLocale;
 
     /**
-     * Der Wert in der primary locale (der Wert in der Entität, den der Proxy ersetzt hat)
+     * Der Wert in der primary locale (der Wert in der Entität, den der Proxy ersetzt hat).
      */
     private mixed $primaryValue;
 

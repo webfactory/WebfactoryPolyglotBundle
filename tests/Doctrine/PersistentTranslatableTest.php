@@ -145,9 +145,6 @@ class PersistentTranslatableTest extends TestCase
         $this->assertFalse($proxy->isTranslatedInto('fr'));
     }
 
-    /**
-     * @return PersistentTranslatable
-     */
     private function createProxy(TestEntity $entity, LoggerInterface $logger = null): PersistentTranslatable
     {
         $localeProvider = new DefaultLocaleProvider();

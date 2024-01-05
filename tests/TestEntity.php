@@ -26,7 +26,9 @@ class TestEntity
 {
     /**
      * @ORM\Id
+     *
      * @ORM\Column(type="integer")
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private ?int $id = null;
