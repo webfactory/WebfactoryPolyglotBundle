@@ -26,7 +26,7 @@ class PersistentTranslatableTest extends TestCase
 
         $translation = (string) $proxy;
 
-        $this->assertEquals('bar', $translation);
+        self::assertEquals('bar', $translation);
     }
 
     public function testToStringReturnsStringIfExceptionOccurredAndNoLoggerIsAvailable(): void
@@ -59,7 +59,7 @@ class PersistentTranslatableTest extends TestCase
 
         $proxy->__toString();
 
-        $this->assertGreaterThan(0, \count($logger->cleanLogs()), 'Expected at least one log message');
+        self::assertGreaterThan(0, \count($logger->cleanLogs()), 'Expected at least one log message');
     }
 
     public function testLoggedMessageContainsInformationAboutTranslatedProperty(): void
@@ -75,7 +75,7 @@ class PersistentTranslatableTest extends TestCase
         $logs = $logger->cleanLogs();
         $logEntry = current($logs);
         self::assertIsArray($logEntry);
-        $this->assertArrayHasKey(1, $logEntry, 'Missing log message.');
+        self::assertArrayHasKey(1, $logEntry, 'Missing log message.');
         $logMessage = $logEntry[1];
         self::assertStringContainsString('TestEntity', $logMessage, 'Missing entity class name.');
         self::assertStringContainsString('text', $logMessage, 'Missing translated property.');
@@ -95,7 +95,7 @@ class PersistentTranslatableTest extends TestCase
         $logs = $logger->cleanLogs();
         $logEntry = current($logs);
         self::assertIsArray($logEntry);
-        $this->assertArrayHasKey(1, $logEntry, 'Missing log message.');
+        self::assertArrayHasKey(1, $logEntry, 'Missing log message.');
         $logMessage = $logEntry[1];
         self::assertStringContainsString('Cannot find translations', $logMessage, 'Original exception not contained.');
     }
@@ -108,7 +108,7 @@ class PersistentTranslatableTest extends TestCase
         $proxy->setTranslation('bar', 'de');
         $proxy->setTranslation('bar in en', 'en');
 
-        $this->assertTrue($proxy->isTranslatedInto('en'));
+        self::assertTrue($proxy->isTranslatedInto('en'));
     }
 
     /** @test */
@@ -119,7 +119,7 @@ class PersistentTranslatableTest extends TestCase
         $proxy->setTranslation('bar', 'de');
         $proxy->setTranslation('bar in en', 'en');
 
-        $this->assertTrue($proxy->isTranslatedInto('de'));
+        self::assertTrue($proxy->isTranslatedInto('de'));
     }
 
     /** @test */
@@ -131,7 +131,7 @@ class PersistentTranslatableTest extends TestCase
         $proxy->setTranslation('', 'en');
 
         $isTranslatedInto = $proxy->isTranslatedInto('en');
-        $this->assertFalse($isTranslatedInto);
+        self::assertFalse($isTranslatedInto);
     }
 
     /** @test */
@@ -142,7 +142,7 @@ class PersistentTranslatableTest extends TestCase
         $proxy->setTranslation('bar', 'de');
         $proxy->setTranslation('bar in en', 'en');
 
-        $this->assertFalse($proxy->isTranslatedInto('fr'));
+        self::assertFalse($proxy->isTranslatedInto('fr'));
     }
 
     private function createProxy(TestEntity $entity, LoggerInterface $logger = null): PersistentTranslatable
