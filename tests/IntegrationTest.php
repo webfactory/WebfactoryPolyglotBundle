@@ -39,7 +39,7 @@ class IntegrationTest extends TestCase
         $this->infrastructure->import($entity);
 
         $entity = $this->clearAndRefetch($entity);
-        $this->assertEquals('text', $entity->getText());
+        self::assertEquals('text', $entity->getText());
     }
 
     public function testPersistingEntityWithTranslatableInstanceInTranslatableField(): void
@@ -48,7 +48,7 @@ class IntegrationTest extends TestCase
         $this->infrastructure->import($entity);
 
         $entity = $this->clearAndRefetch($entity);
-        $this->assertEquals('text', $entity->getText());
+        self::assertEquals('text', $entity->getText());
     }
 
     public function testGettingTranslationsFromManagedEntity(): void
@@ -57,8 +57,8 @@ class IntegrationTest extends TestCase
         // plain Translatable instance. This test makes sure we can tuck the entity
         // into the DB, refetch it and things still work
         $entity = $this->createAndFetchTestEntity();
-        $this->assertEquals('text en_GB', $entity->getText()->translate('en_GB'));
-        $this->assertEquals('text de_DE', $entity->getText()->translate('de_DE'));
+        self::assertEquals('text en_GB', $entity->getText()->translate('en_GB'));
+        self::assertEquals('text de_DE', $entity->getText()->translate('de_DE'));
     }
 
     public function testOnceEntityHasBeenFetchedFromDbTheDefaultLocaleCanBeSwitched(): void
@@ -68,10 +68,10 @@ class IntegrationTest extends TestCase
         // in - see TranslatableTest::testDefaultLocaleProviderCanProvideDefaultLocale
 
         $entity = $this->createAndFetchTestEntity();
-        $this->assertEquals('text en_GB', (string) $entity->getText());
+        self::assertEquals('text en_GB', (string) $entity->getText());
 
         $this->defaultLocaleProvider->setDefaultLocale('de_DE');
-        $this->assertEquals('text de_DE', (string) $entity->getText());
+        self::assertEquals('text de_DE', (string) $entity->getText());
     }
 
     public function testTranslationsAreImplicitlyPersistedForNewEntitiy(): void
@@ -81,7 +81,7 @@ class IntegrationTest extends TestCase
         $this->infrastructure->import($newEntity); // just import the "main" entity, which has no 'cascade="..."' configuration
 
         $newEntity = $this->clearAndRefetch($newEntity);
-        $this->assertEquals('text de_DE', $newEntity->getText()->translate('de_DE')); // translation is available, must have been persisted in the DB
+        self::assertEquals('text de_DE', $newEntity->getText()->translate('de_DE')); // translation is available, must have been persisted in the DB
     }
 
     public function testNewTranslationsAreImplicitlyPersistedForManagedEntitiy(): void
@@ -92,7 +92,7 @@ class IntegrationTest extends TestCase
         $this->entityManager->flush();
 
         $managedEntity = $this->clearAndRefetch($managedEntity);
-        $this->assertEquals('text xx_XX', $managedEntity->getText()->translate('xx_XX')); // Translation still there, must come from DB
+        self::assertEquals('text xx_XX', $managedEntity->getText()->translate('xx_XX')); // Translation still there, must come from DB
     }
 
     public function testEntityConsideredCleanWhenNoTranslationWasChanged(): void
@@ -110,9 +110,9 @@ class IntegrationTest extends TestCase
         $this->infrastructure->getEntityManager()->flush();
 
         $queries = $this->getQueries();
-        $this->assertEquals($queryCount, \count($queries));
+        self::assertEquals($queryCount, \count($queries));
 
-        $this->assertInstanceOf(TranslatableInterface::class, $entity->getText());
+        self::assertInstanceOf(TranslatableInterface::class, $entity->getText());
     }
 
     private function createAndFetchTestEntity(): TestEntity

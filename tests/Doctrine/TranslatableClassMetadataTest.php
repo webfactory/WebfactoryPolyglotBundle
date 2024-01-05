@@ -22,7 +22,7 @@ class TranslatableClassMetadataTest extends TestCase
         $serialize = serialize($metadata->sleep());
         $unserialized = TranslatableClassMetadata::wakeup(unserialize($serialize));
 
-        $this->assertEquals($metadata, $unserialized);
+        self::assertEquals($metadata, $unserialized);
     }
 
     private function createMetadata(LoggerInterface $logger = null): TranslatableClassMetadata
