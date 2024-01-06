@@ -2,6 +2,7 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
+use Doctrine\ORM\UnitOfWork;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -12,10 +13,11 @@ use Symfony\Component\ErrorHandler\BufferingLogger;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
+use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
 
 class PersistentTranslatableTest extends TestCase
 {
-    public function testToStringReturnsTranslatedMessage(): void
+    public function testToStringReturnsTranslatedMessage()
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -29,7 +31,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertEquals('bar', $translation);
     }
 
-    public function testToStringReturnsStringIfExceptionOccurredAndNoLoggerIsAvailable(): void
+    public function testToStringReturnsStringIfExceptionOccurredAndNoLoggerIsAvailable()
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -39,7 +41,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertIsString($translation);
     }
 
-    public function testToStringReturnsStringIfExceptionOccurredAndLoggerIsAvailable(): void
+    public function testToStringReturnsStringIfExceptionOccurredAndLoggerIsAvailable()
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity, new NullLogger());
@@ -49,7 +51,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertIsString($translation);
     }
 
-    public function testToStringLogsExceptionIfLoggerIsAvailable(): void
+    public function testToStringLogsExceptionIfLoggerIsAvailable()
     {
         $entity = new TestEntity('foo');
 
@@ -62,7 +64,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertGreaterThan(0, \count($logger->cleanLogs()), 'Expected at least one log message');
     }
 
-    public function testLoggedMessageContainsInformationAboutTranslatedProperty(): void
+    public function testLoggedMessageContainsInformationAboutTranslatedProperty()
     {
         $entity = new TestEntity('foo');
 
@@ -82,7 +84,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertStringContainsString('de', $logMessage, 'Missing locale.');
     }
 
-    public function testLoggedMessageContainsOriginalException(): void
+    public function testLoggedMessageContainsOriginalException()
     {
         $entity = new TestEntity('foo');
 
@@ -101,7 +103,7 @@ class PersistentTranslatableTest extends TestCase
     }
 
     /** @test */
-    public function isTranslatedInto_returns_true_for_primary_translation_if_set(): void
+    public function isTranslatedInto_returns_true_for_primary_translation_if_set()
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -112,7 +114,7 @@ class PersistentTranslatableTest extends TestCase
     }
 
     /** @test */
-    public function isTranslatedInto_returns_true_for_translation_if_set(): void
+    public function isTranslatedInto_returns_true_for_translation_if_set()
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -123,7 +125,7 @@ class PersistentTranslatableTest extends TestCase
     }
 
     /** @test */
-    public function isTranslatedInto_returns_false_if_primary_translation_is_empty(): void
+    public function isTranslatedInto_returns_false_if_primary_translation_is_empty()
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -135,7 +137,7 @@ class PersistentTranslatableTest extends TestCase
     }
 
     /** @test */
-    public function isTranslatedInto_returns_false_if_translation_is_not_set(): void
+    public function isTranslatedInto_returns_false_if_translation_is_not_set()
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -145,14 +147,20 @@ class PersistentTranslatableTest extends TestCase
         self::assertFalse($proxy->isTranslatedInto('fr'));
     }
 
-    private function createProxy(TestEntity $entity, LoggerInterface $logger = null): PersistentTranslatable
+    /**
+     * @return PersistentTranslatable
+     */
+    private function createProxy(TestEntity $entity, LoggerInterface $logger = null)
     {
         $localeProvider = new DefaultLocaleProvider();
         $localeProvider->setDefaultLocale('de');
 
         // We need a translation class without required constructor parameters.
-        $translationClass = 'Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation';
-        $proxy = new PersistentTranslatable(
+        $translationClass = TestEntityTranslation::class;
+
+        return new PersistentTranslatable(
+            $this->createMock(UnitOfWork::class),
+            TestEntity::class,
             $entity,
             'en',
             $localeProvider,
@@ -161,19 +169,27 @@ class PersistentTranslatableTest extends TestCase
             new ReflectionClass($translationClass),
             new ReflectionProperty($translationClass, 'locale'),
             new ReflectionProperty($translationClass, 'entity'),
+            self::accessibleProperty(TestEntity::class, 'text'),
             $logger
         );
-
-        return $proxy;
     }
 
-    private function breakEntity(TestEntity $entity): void
+    private function breakEntity(TestEntity $entity)
     {
         $brokenCollection = $this->getMockBuilder('Doctrine\Common\Collections\ArrayCollection')->getMock();
         $brokenCollection->expects($this->any())
             ->method('matching')
             ->will($this->throwException(new RuntimeException('Cannot find translations')));
         $property = new ReflectionProperty($entity, 'translations');
+        $property->setAccessible(true);
         $property->setValue($entity, $brokenCollection);
+    }
+
+    private static function accessibleProperty(string $class, string $property): ReflectionProperty
+    {
+        $property = new ReflectionProperty($class, $property);
+        $property->setAccessible(true);
+
+        return $property;
     }
 }

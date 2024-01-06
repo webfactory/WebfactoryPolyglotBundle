@@ -11,6 +11,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 final class SerializedTranslatableClassMetadata
 {
+    public string $class;
     public string $translationClass;
 
     /**
