@@ -93,7 +93,7 @@ final class TranslatableClassMetadata
         $tm->findTranslationsCollection($cm, $reader, $classMetadataFactory);
         $tm->findTranslatedProperties($cm, $reader, $classMetadataFactory);
 
-        if ($tm->assertNoAnnotationsArePresent()) {
+        if ($tm->isClassWithoutTranslations()) {
             return null;
         }
         $tm->assertAnnotationsAreComplete($class);
@@ -149,19 +149,18 @@ final class TranslatableClassMetadata
         return $self;
     }
 
-    private function assertNoAnnotationsArePresent(): bool
+    private function isClassWithoutTranslations(): bool
     {
         return null === $this->translationClass
             && null === $this->translationLocaleProperty
             && null === $this->translationMappingProperty
-            && 0 === \count($this->translatedProperties)
-            && null === $this->primaryLocale;
+            && 0 === \count($this->translatedProperties);
     }
 
     private function assertAnnotationsAreComplete(string $class): void
     {
         if (null === $this->translationClass) {
-            throw new RuntimeException('The annotation with the translation class name is missing or incorrect, e.g. @ORM\OneToMany(targetEntity="TestEntityTranslation", ...)');
+            throw new RuntimeException(sprintf('Unable to find the translations for %s. There should be a one-to-may collection holding the translation entities, and it should be marked with %s.', $class, Annotation\TranslationCollection::class));
         }
 
         if (null === $this->translationLocaleProperty) {
@@ -177,7 +176,7 @@ final class TranslatableClassMetadata
         }
 
         if (null === $this->primaryLocale) {
-            throw new RuntimeException('A primary locale has to be set at the class level for '.$class);
+            throw new RuntimeException(sprintf('Class %s uses translations, so it needs to provide the primary locale with the %s annotation at the class level. This can either be at the class itself, or in one of its parent classes.', $class, Annotation\Locale::class));
         }
     }
 
