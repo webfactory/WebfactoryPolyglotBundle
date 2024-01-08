@@ -14,9 +14,6 @@ Its main advantages over similar bundles are:
 [We](https://www.webfactory.de/) use it to create multilingual navigation menus and links like "view this article in
 German", where the linked URL has a locale specific slug.
 
-If you're fine with the [known limitations](#known-limitations), read on!
-
-
 ## Installation
 
 Just like any other Symfony bundle, and no additional configuration is required (wheeho!).
@@ -247,13 +244,6 @@ locale further down the line.
     if ($text === 'someValue') { ... } // Strict type check prevents calling the __toString() method
 ```
 
-## Known Limitations
-
-It's not very comfortable to persist entities and their translations. One might think: it's just Doctrine, the
-translation entity is the owning side of a cascade={"persist"}-association, so I'll just persist the translation. But
-no - we seem to have broken Doctrine's lifecycle management here. As a workaround, you can persist both the main entity
-and it's translation entities. See the tests for further details.
-
 ## Planned Features / Wish List
 
 For now, each entity has one fixed primary locale. We have encountered cases in which some records were only available
@@ -266,3 +256,5 @@ This Bundle was written by webfactory GmbH, Bonn, Germany. We're a software deve
 
 - <https://www.webfactory.de>
 - <https://twitter.com/webfactory>
+
+Copyright 2012-2024 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
