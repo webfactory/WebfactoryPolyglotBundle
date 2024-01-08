@@ -1,36 +1,19 @@
 <?php
 
-namespace Webfactory\Bundle\PolyglotBundle\Tests;
+namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\TestCase;
-use Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener;
-use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
+use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
+use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
-use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
+use Webfactory\Doctrine\ORMTestInfrastructure\Query;
 
-class IntegrationTest extends TestCase
+class IntegrationTest extends FunctionalTestBase
 {
-    private ORMInfrastructure $infrastructure;
-
-    private EntityManagerInterface $entityManager;
-
-    private DefaultLocaleProvider $defaultLocaleProvider;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->infrastructure = ORMInfrastructure::createOnlyFor([TestEntity::class, TestEntityTranslation::class]);
-        $this->entityManager = $this->infrastructure->getEntityManager();
-        $this->defaultLocaleProvider = new DefaultLocaleProvider('en_GB');
-
-        $listener = new PolyglotListener(new AnnotationReader(), $this->defaultLocaleProvider);
-        $this->entityManager->getEventManager()->addEventListener(
-            ['postFlush', 'prePersist', 'preFlush', 'postLoad'],
-            $listener
-        );
+        $this->setupOrmInfrastructure([TestEntity::class, TestEntityTranslation::class]);
     }
 
     public function testPersistingEntityWithPlainStringInTranslatableField(): void
@@ -38,7 +21,7 @@ class IntegrationTest extends TestCase
         $entity = new TestEntity('text');
         $this->infrastructure->import($entity);
 
-        $entity = $this->clearAndRefetch($entity);
+        $entity = $this->fetch($entity);
         self::assertEquals('text', $entity->getText());
     }
 
@@ -47,7 +30,7 @@ class IntegrationTest extends TestCase
         $entity = new TestEntity(new Translatable('text'));
         $this->infrastructure->import($entity);
 
-        $entity = $this->clearAndRefetch($entity);
+        $entity = $this->fetch($entity);
         self::assertEquals('text', $entity->getText());
     }
 
@@ -80,7 +63,7 @@ class IntegrationTest extends TestCase
 
         $this->infrastructure->import($newEntity); // just import the "main" entity, which has no 'cascade="..."' configuration
 
-        $newEntity = $this->clearAndRefetch($newEntity);
+        $newEntity = $this->fetch($newEntity);
         self::assertEquals('text de_DE', $newEntity->getText()->translate('de_DE')); // translation is available, must have been persisted in the DB
     }
 
@@ -90,15 +73,15 @@ class IntegrationTest extends TestCase
         $managedEntity->getText()->setTranslation('text xx_XX', 'xx_XX');
 
         $this->entityManager->flush();
+        $this->entityManager->clear();
 
-        $managedEntity = $this->clearAndRefetch($managedEntity);
+        $managedEntity = $this->fetch($managedEntity);
         self::assertEquals('text xx_XX', $managedEntity->getText()->translate('xx_XX')); // Translation still there, must come from DB
     }
 
     public function testEntityConsideredCleanWhenNoTranslationWasChanged(): void
     {
         $entity = $this->createAndFetchTestEntity();
-
         $queryCount = \count($this->getQueries());
 
         /*
@@ -107,26 +90,39 @@ class IntegrationTest extends TestCase
            injected proxies before Doctrine performs the change detection. Afterwards,
            all proxies should be put back in place.
          */
+        $this->entityManager->flush();
+
+        $queries = $this->getQueries();
+        self::assertCount($queryCount, $queries);
+        self::assertInstanceOf(TranslatableInterface::class, $entity->getText());
+    }
+
+    public function testEntityConsideredCleanWhenTranslationUpdateWasNoRealChange(): void
+    {
+        $entity = $this->createAndFetchTestEntity();
+        $queryCount = \count($this->getQueries());
+
+        // Effectively, this changes nothing:
+        $entity->getText()->setTranslation('some change', 'en_GB');
+        $entity->getText()->setTranslation('text en_GB', 'en_GB');
         $this->infrastructure->getEntityManager()->flush();
 
         $queries = $this->getQueries();
-        self::assertEquals($queryCount, \count($queries));
-
+        self::assertCount($queryCount, $queries);
         self::assertInstanceOf(TranslatableInterface::class, $entity->getText());
     }
 
     private function createAndFetchTestEntity(): TestEntity
     {
         $entity = $this->createTestEntity();
-        $this->infrastructure->import([$entity]);
-        $this->entityManager->clear(); // work around https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/23
+        $this->infrastructure->import($entity);
 
-        /** @var TestEntity $persistedEntity */
-        $persistedEntity = $this->entityManager->find(TestEntity::class, $entity->getId());
-
-        return $persistedEntity;
+        return $this->fetch($entity);
     }
 
+    /**
+     * @return Query[]
+     */
     private function getQueries(): array
     {
         return $this->infrastructure->getQueries();
@@ -141,11 +137,8 @@ class IntegrationTest extends TestCase
         return new TestEntity($translatable);
     }
 
-    private function clearAndRefetch(TestEntity $entity): TestEntity
+    private function fetch(TestEntity $entity)
     {
-        $id = $entity->getId();
-        $this->entityManager->clear(); // forget about all entities
-
-        return $this->entityManager->find(TestEntity::class, $id); // Clean state, fetch entity from DB again
+        return $this->entityManager->find(TestEntity::class, $entity->getId()); // Clean state, fetch entity from DB again
     }
 }

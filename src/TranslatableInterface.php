@@ -28,7 +28,7 @@ interface TranslatableInterface
      *
      * @param string|null $locale The target locale or null for the current locale.
      */
-    public function setTranslation(mixed $value, string $locale = null);
+    public function setTranslation(mixed $value, string $locale = null): void;
 
     /**
      * Returns wether the text is translated into the target locale.

@@ -3,40 +3,20 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-    <parameters>
-        <parameter key="webfactory.polyglot.doctrine_listener.class">Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener</parameter>
-        <parameter key="webfactory.polyglot.symfony_locale_listener.class">Webfactory\Bundle\PolyglotBundle\EventListener\LocaleListener</parameter>
-        <parameter key="webfactory.polyglot.default_locale_provider.class">Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider</parameter>
-    </parameters>
-
     <services>
-        <service
-                id="webfactory.polyglot.doctrine_listener"
-                class="%webfactory.polyglot.doctrine_listener.class%">
-            <argument type="service" id="annotation_reader"/>
-            <argument type="service" id="webfactory.polyglot.default_locale_provider"/>
-            <argument type="service" id="logger" on-invalid="null"/>
+        <defaults autowire="true" autoconfigure="true" />
 
-            <tag name="doctrine.event_listener" priority="-100" event="postFlush"/>
-            <tag name="doctrine.event_listener" priority="-100" event="prePersist"/>
-            <tag name="doctrine.event_listener" priority="-100" event="preFlush"/>
-            <tag name="doctrine.event_listener" priority="-100" event="postLoad"/>
-
+        <service id="Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener">
+            <tag name="doctrine.event_subscriber" priority="-100" />
             <tag name="monolog.logger" channel="webfactory_polyglot_bundle"/>
         </service>
 
-        <service id="webfactory.polyglot.symfony_locale_listener"
-                 class="%webfactory.polyglot.symfony_locale_listener.class%">
-            <argument type="service" id="webfactory.polyglot.default_locale_provider" />
-            <tag name="kernel.event_subscriber" />
-        </service>
+        <service id="Webfactory\Bundle\PolyglotBundle\EventListener\LocaleListener" />
 
-        <service id="webfactory.polyglot.default_locale_provider"
-                 class="%webfactory.polyglot.default_locale_provider.class%">
+        <service id="Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider">
             <call method="setDefaultLocale">
                 <argument>%webfactory.polyglot.default_locale%</argument>
             </call>
         </service>
-
     </services>
 </container>
