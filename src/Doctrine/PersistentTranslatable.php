@@ -49,16 +49,6 @@ final class PersistentTranslatable implements TranslatableInterface
      */
     private mixed $primaryValue;
 
-    /**
-     * Whether original entity data was loaded by the ORM.
-     */
-    private bool $hasOriginalEntityData;
-
-    /**
-     * The original field value loaded by the ORM.
-     */
-    private mixed $originalEntityData;
-
     private LoggerInterface $logger;
 
     /**
@@ -91,20 +81,6 @@ final class PersistentTranslatable implements TranslatableInterface
         $this->oid = spl_object_id($entity);
         $this->logger = $logger ?? new NullLogger();
 
-        $data = $this->unitOfWork->getOriginalEntityData($entity);
-
-        if ($data) {
-            $fieldName = $this->translatedProperty->getName();
-            $this->hasOriginalEntityData = true;
-            $this->originalEntityData = $data[$fieldName];
-
-            // Set $this as the "original entity data", so Doctrine ORM
-            // change detection will not treat this new value as a relevant change
-            $this->unitOfWork->setOriginalEntityProperty($this->oid, $fieldName, $this);
-        } else {
-            $this->hasOriginalEntityData = false;
-        }
-
         $currentValue = $this->translatedProperty->getValue($this->entity);
 
         if ($currentValue instanceof Translatable) {
@@ -112,29 +88,27 @@ final class PersistentTranslatable implements TranslatableInterface
         } else {
             $this->primaryValue = $currentValue;
         }
-
-        $this->translatedProperty->setValue($this->entity, $this);
     }
 
     public function setPrimaryValue(mixed $value): void
     {
         $this->primaryValue = $value;
+    }
 
-        if (!$this->hasOriginalEntityData) {
-            return;
-        }
+    /**
+     * @psalm-internal Webfactory\Bundle\PolyglotBundle
+     */
+    public function eject(): void
+    {
+        $this->translatedProperty->setValue($this->entity, $this->primaryValue);
+    }
 
-        $fieldName = $this->translatedProperty->getName();
-
-        if ($value !== $this->originalEntityData) {
-            // Reset original entity data for the property where this PersistentTranslatable instance
-            // is being used. This way, on changeset computation in the ORM, the original data will mismatch
-            // the current value (which is $this object!). This will make $this->entity show up in the list
-            // of entity updates in the UoW.
-            $this->unitOfWork->setOriginalEntityProperty($this->oid, $fieldName, $this->originalEntityData);
-        } else {
-            $this->unitOfWork->setOriginalEntityProperty($this->oid, $fieldName, $this);
-        }
+    /**
+     * @psalm-internal Webfactory\Bundle\PolyglotBundle
+     */
+    public function inject(): void
+    {
+        $this->translatedProperty->setValue($this->entity, $this);
     }
 
     private function getTranslationEntity(string $locale): ?object

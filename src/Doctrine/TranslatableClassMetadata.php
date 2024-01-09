@@ -10,7 +10,6 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\Common\Annotations\Reader;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
@@ -271,10 +270,10 @@ final class TranslatableClassMetadata
      * For a given entity, find all @Translatable fields that contain new (not yet persisted)
      * Translatable objects and replace those with PersistentTranslatable.
      */
-    public function injectPersistentTranslatables(object $entity, EntityManager $entityManager, DefaultLocaleProvider $defaultLocaleProvider): void
+    public function injectNewPersistentTranslatables(object $entity, EntityManager $entityManager, DefaultLocaleProvider $defaultLocaleProvider): void
     {
         foreach ($this->translatedProperties as $fieldName => $property) {
-            new PersistentTranslatable(
+            $persistentTranslatable = new PersistentTranslatable(
                 $entityManager->getUnitOfWork(),
                 $this->class,
                 $entity,
@@ -288,6 +287,24 @@ final class TranslatableClassMetadata
                 $property,
                 $this->logger
             );
+            $persistentTranslatable->inject();
         }
+    }
+
+    /**
+     * @return list<PersistentTranslatable>
+     */
+    public function ejectPersistentTranslatables(object $entity): array
+    {
+        $ejectedTranslatables = [];
+
+        foreach ($this->translatedProperties as $property) {
+            $persistentTranslatable = $property->getValue($entity);
+            \assert($persistentTranslatable instanceof PersistentTranslatable);
+            $persistentTranslatable->eject();
+            $ejectedTranslatables[] = $persistentTranslatable;
+        }
+
+        return $ejectedTranslatables;
     }
 }

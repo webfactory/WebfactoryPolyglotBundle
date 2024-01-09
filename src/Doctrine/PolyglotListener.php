@@ -12,9 +12,12 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Event\PostFlushEventArgs;
+use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use WeakReference;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 final class PolyglotListener implements EventSubscriber
@@ -36,6 +39,16 @@ final class PolyglotListener implements EventSubscriber
      */
     private array $translatedClasses = [];
 
+    /**
+     * @var array<WeakReference>
+     */
+    private array $entitiesWithTranslatables = [];
+
+    /**
+     * @var list<PersistentTranslatable>
+     */
+    private array $ejectedTranslatables = [];
+
     public function __construct(
         private readonly Reader $annotationReader,
         private readonly DefaultLocaleProvider $defaultLocaleProvider,
@@ -48,29 +61,60 @@ final class PolyglotListener implements EventSubscriber
         return [
             'prePersist',
             'postLoad',
+            'preFlush',
+            'postFlush',
         ];
     }
 
     public function postLoad(LifecycleEventArgs $event): void
     {
         // Called when the entity has been hydrated
-        $objectManager = $event->getObjectManager();
-        $object = $event->getObject();
-
-        foreach ($this->getTranslationMetadatas($object, $objectManager) as $tm) {
-            $tm->injectPersistentTranslatables($object, $objectManager, $this->defaultLocaleProvider);
-        }
+        $this->injectPersistentTranslatables($event->getObjectManager(), $event->getObject());
     }
 
     public function prePersist(LifecycleEventArgs $event): void
     {
-        // Called before a new entity is persisted for the first time
-        $objectManager = $event->getObjectManager();
-        $object = $event->getObject();
+        // Called when a new entity is passed to persist() for the first time
+        $this->injectPersistentTranslatables($event->getObjectManager(), $event->getObject());
+    }
 
-        foreach ($this->getTranslationMetadatas($object, $objectManager) as $tm) {
-            $tm->injectPersistentTranslatables($object, $objectManager, $this->defaultLocaleProvider);
+    private function injectPersistentTranslatables(EntityManager $entityManager, object $object): void
+    {
+        $hasTranslatables = false;
+
+        foreach ($this->getTranslationMetadatas($object, $entityManager) as $tm) {
+            $tm->injectNewPersistentTranslatables($object, $entityManager, $this->defaultLocaleProvider);
+            $hasTranslatables = true;
         }
+
+        if ($hasTranslatables) {
+            $this->entitiesWithTranslatables[] = WeakReference::create($object);
+        }
+    }
+
+    public function preFlush(PreFlushEventArgs $event): void
+    {
+        $em = $event->getEntityManager();
+
+        foreach ($this->entitiesWithTranslatables as $key => $weakRef) {
+            $object = $weakRef->get();
+            if (null === $object) {
+                unset($this->entitiesWithTranslatables[$key]);
+                continue;
+            }
+
+            foreach ($this->getTranslationMetadatas($object, $em) as $tm) {
+                $this->ejectedTranslatables = array_merge($this->ejectedTranslatables, $tm->ejectPersistentTranslatables($object));
+            }
+        }
+    }
+
+    public function postFlush(PostFlushEventArgs $event): void
+    {
+        foreach ($this->ejectedTranslatables as $persistentTranslatable) {
+            $persistentTranslatable->inject();
+        }
+        $this->ejectedTranslatables = [];
     }
 
     /**
