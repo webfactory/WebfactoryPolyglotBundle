@@ -113,7 +113,7 @@ final class PersistentTranslatable implements TranslatableInterface
             $this->primaryValue = $currentValue;
         }
 
-        $this->translatedProperty->setValue($this->entity, $this);
+        $this->inject();
     }
 
     public function setPrimaryValue(mixed $value): void
@@ -135,6 +135,22 @@ final class PersistentTranslatable implements TranslatableInterface
         } else {
             $this->unitOfWork->setOriginalEntityProperty($this->oid, $fieldName, $this);
         }
+    }
+
+    /**
+     * @psalm-internal Webfactory\Bundle\PolyglotBundle
+     */
+    public function eject(): void
+    {
+        $this->translatedProperty->setValue($this->entity, $this->primaryValue);
+    }
+
+    /**
+     * @psalm-internal Webfactory\Bundle\PolyglotBundle
+     */
+    public function inject(): void
+    {
+        $this->translatedProperty->setValue($this->entity, $this);
     }
 
     private function getTranslationEntity(string $locale): ?object

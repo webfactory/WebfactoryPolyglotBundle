@@ -290,4 +290,20 @@ final class TranslatableClassMetadata
             );
         }
     }
+
+    public function replaceTranslatablesWithPrimaryValues(object $entity): array
+    {
+        $undo = [];
+
+        foreach ($this->translatedProperties as $property) {
+            $persistentTranslatable = $property->getValue($entity);
+            assert($persistentTranslatable instanceof PersistentTranslatable);
+            $persistentTranslatable->eject();
+            $undo[] = static function() use ($persistentTranslatable): void {
+                $persistentTranslatable->inject();
+            };
+        }
+
+        return $undo;
+    }
 }

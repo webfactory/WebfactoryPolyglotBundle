@@ -12,6 +12,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -48,6 +49,7 @@ final class PolyglotListener implements EventSubscriber
         return [
             'prePersist',
             'postLoad',
+            'onFlush',
         ];
     }
 
@@ -70,6 +72,23 @@ final class PolyglotListener implements EventSubscriber
 
         foreach ($this->getTranslationMetadatas($object, $objectManager) as $tm) {
             $tm->injectPersistentTranslatables($object, $objectManager, $this->defaultLocaleProvider);
+        }
+    }
+
+    public function onFlush(OnFlushEventArgs $eventArgs): void
+    {
+        $em = $eventArgs->getEntityManager();
+        $uow = $em->getUnitOfWork();
+
+        $restore = [];
+        foreach (array_merge($uow->getScheduledEntityInsertions(), $uow->getScheduledEntityUpdates()) as $entity) {
+            foreach ($this->getTranslationMetadatas($entity, $em) as $tm) {
+                $restore = array_merge($restore, $tm->replaceTranslatablesWithPrimaryValues($entity));
+            }
+            $uow->recomputeSingleEntityChangeSet($em->getClassMetadata(get_class($entity)), $entity);
+            foreach ($restore as $callback) {
+                $callback();
+            }
         }
     }
 
