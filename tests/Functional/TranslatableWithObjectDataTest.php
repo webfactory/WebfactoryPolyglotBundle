@@ -11,7 +11,9 @@ use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
- * This tests shows that the translatable properties can be anything, including objects
+ * This tests shows that the translatable properties can even be objects.
+ * Cave: Doctrine change tracking works only for changing objects to new
+ * instances. It does not compare changed values of objects in "object" type columns.
  */
 class TranslatableWithObjectDataTest extends FunctionalTestBase
 {
@@ -68,7 +70,7 @@ class TranslatableWithObjectDataTest extends FunctionalTestBase
     /**
      * @test
      */
-    public function flush_updates_keeps_entity_values_as_translatable(): void
+    public function flushing_updates_keeps_entity_values_as_translatable(): void
     {
         $entity = new TranslatableWithObjectDataTest_Entity();
         $entity->data->setTranslation(new TranslatableWithObjectDataTest_Object('text en_GB'));
@@ -76,6 +78,7 @@ class TranslatableWithObjectDataTest extends FunctionalTestBase
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
 
+        // Doctrine ORM change tracking for objects requires new object instances here
         $entity->data->setTranslation(new TranslatableWithObjectDataTest_Object('updated text en_GB'));
         $entity->data->setTranslation(new TranslatableWithObjectDataTest_Object('updated text de_DE'), 'de_DE');
         $this->entityManager->flush();
@@ -90,7 +93,7 @@ class TranslatableWithObjectDataTest extends FunctionalTestBase
     /**
      * @test
      */
-    public function flush_updates_and_reload_provides_translatables(): void
+    public function flushing_updates_and_reloading_provides_translatables(): void
     {
         $entity = new TranslatableWithObjectDataTest_Entity();
         $entity->data->setTranslation(new TranslatableWithObjectDataTest_Object('text en_GB'));
@@ -98,6 +101,7 @@ class TranslatableWithObjectDataTest extends FunctionalTestBase
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
 
+        // Doctrine ORM change tracking for objects requires new object instances here
         $entity->data->setTranslation(new TranslatableWithObjectDataTest_Object('updated text en_GB'));
         $entity->data->setTranslation(new TranslatableWithObjectDataTest_Object('updated text de_DE'), 'de_DE');
         $this->entityManager->flush();
