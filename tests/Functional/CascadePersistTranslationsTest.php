@@ -12,7 +12,7 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 /**
  * This test shows that `PersistentTranslatable` will take care of adding new
  * translation entities to the entity manager, so explicit `persist()` calls are not
- * necessary; and also, `casecade={"persist"}` isn't either.
+ * necessary; and also, `cascade={"persist"}` isn't either.
  */
 class CascadePersistTranslationsTest extends FunctionalTestBase
 {
@@ -34,6 +34,8 @@ class CascadePersistTranslationsTest extends FunctionalTestBase
         $entity->addTranslation('de_DE', 'text de_DE');
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
+
+        // note the absent call to $this->entityManager->persist() for the translation entity
 
         $result = $this->entityManager->getConnection()->executeQuery('SELECT * FROM CascadePersistTranslationsTest_Translation')->fetchAllAssociative();
 
