@@ -272,6 +272,7 @@ class Document
     /**
      * @ORM\Column(type="translatable") 
      * @Polyglot\Translatable
+     * @var TranslatableInterface<string>                       
      */
     private TranslatableInterface $text;
 
