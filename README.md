@@ -244,6 +244,45 @@ locale further down the line.
     if ($text === 'someValue') { ... } // Strict type check prevents calling the __toString() method
 ```
 
+## Type-safe `Translatable` fields
+
+Since PHP 7.4 added class property typing, language-level type checks have become more and more mainstream in PHP. But, as you might have noticed, the above exampes did not specify `TranslatableInterface` as a type-hint for fields containing translated values.
+
+The reason is that those fields serve a dual use: Right before the ORM flushes data, the fields will be switched to the value of the "primary" locale, so that the ORM can persist that data as usual.
+
+So, one option is to use union type support (added in PHP 8) and specify fields as `TranslatableInterface|<your underlying type>`. Still, this might require a lot of extra runtime type checks to keep static analysis tools happy.
+
+In order to get away with a pure `TranslatableInterface` type declaration for translatable fields, we need the Doctrine ORM to convert to this type already at the time when values are loaded from the database. At least when your underlying values are strings, this can be achieved with a custom Doctrine DBAL type registered by this bundle:
+
+```php
+<?php
+
+use Doctrine\ORM\Mapping as ORM;
+use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
+
+/**
+ * @ORM\Entity
+ * @Polyglot\Locale(primary="en_GB")
+ */
+class Document
+{
+    // ... fields and collections omitted for brevity
+
+    /**
+     * @ORM\Column(type="translatable") 
+     * @Polyglot\Translatable
+     */
+    private TranslatableInterface $text;
+
+    // ...
+}
+```
+
+The `translatable` column type behaves like the `string` column type, but allows you to type hint for `TranslatableInterface` only. If you want the database column to behave like a `text` type, you can use `@ORM\Column(type="translatable", options={"use_text_column": true})`.
+
+Note that it is not necessary to do this in the translations class (`DocumentTranslation` in the above examples), since that class represents the values of a single locale only and never contains `Translatable` instances.
+
 ## Planned Features / Wish List
 
 For now, each entity has one fixed primary locale. We have encountered cases in which some records were only available

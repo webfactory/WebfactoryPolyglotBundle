@@ -9,8 +9,14 @@
 
 namespace Webfactory\Bundle\PolyglotBundle;
 
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Webfactory\Bundle\PolyglotBundle\DependencyInjection\RegisterDoctrineTypePass;
 
 final class WebfactoryPolyglotBundle extends Bundle
 {
+    public function build(ContainerBuilder $container)
+    {
+        $container->addCompilerPass(new RegisterDoctrineTypePass());
+    }
 }

@@ -49,6 +49,14 @@ final class PersistentTranslatable implements TranslatableInterface
      */
     private mixed $primaryValue;
 
+    /**
+     * The UninitializedPersistentTranslatable object instance used when this PersistentTranslatable instance is removed (ejected) from
+     * an entity with managed translations. Needs to be kept as an object reference, so that multiple injection/ejection
+     * cycles will use the same object instance. This is necessary to prevent Doctrine ORM change detection from treating
+     * the value as changed every time.
+     */
+    private ?UninitializedPersistentTranslatable $valueForEjection = null;
+
     private LoggerInterface $logger;
 
     /**
@@ -83,7 +91,10 @@ final class PersistentTranslatable implements TranslatableInterface
 
         $currentValue = $this->translatedProperty->getValue($this->entity);
 
-        if ($currentValue instanceof Translatable) {
+        if ($currentValue instanceof UninitializedPersistentTranslatable) {
+            $this->primaryValue = $currentValue->getPrimaryValue();
+            $this->valueForEjection = $currentValue;
+        } else if ($currentValue instanceof Translatable) {
             $currentValue->copy($this);
         } else {
             $this->primaryValue = $currentValue;
@@ -100,7 +111,17 @@ final class PersistentTranslatable implements TranslatableInterface
      */
     public function eject(): void
     {
-        $this->translatedProperty->setValue($this->entity, $this->primaryValue);
+        $value = $this->primaryValue;
+
+        $type = $this->translatedProperty->getType();
+        if ($type instanceof \ReflectionNamedType && $type->getName() === TranslatableInterface::class && is_string($value)) {
+            if (!$this->valueForEjection || $this->valueForEjection->getPrimaryValue() !== $value) {
+                $this->valueForEjection = new UninitializedPersistentTranslatable($value);
+            }
+            $value = $this->valueForEjection;
+        }
+
+        $this->translatedProperty->setValue($this->entity, $value);
     }
 
     /**
