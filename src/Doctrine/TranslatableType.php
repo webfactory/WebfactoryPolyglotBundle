@@ -4,6 +4,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use RuntimeException;
 
 /**
  * Doctrine type to support mapping database string types (VARCHAR, TEXT etc.)
@@ -30,12 +31,12 @@ class TranslatableType extends Type
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
-        if (! $value instanceof UninitializedPersistentTranslatable) {
-            throw new \RuntimeException('Unexpected type');
+        if (!$value instanceof UninitializedPersistentTranslatable) {
+            throw new RuntimeException('Unexpected type');
         }
 
         return $value->getPrimaryValue();

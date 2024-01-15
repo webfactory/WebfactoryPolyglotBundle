@@ -2,7 +2,7 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
-use \LogicException;
+use LogicException;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**

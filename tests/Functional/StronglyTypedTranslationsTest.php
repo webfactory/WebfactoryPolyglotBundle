@@ -71,7 +71,7 @@ class StronglyTypedTranslationsTest extends FunctionalTestBase
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
 
-        $count = count($this->getQueries());
+        $count = \count($this->getQueries());
 
         $this->entityManager->flush();
 
@@ -90,7 +90,7 @@ class StronglyTypedTranslationsTest extends FunctionalTestBase
         $this->entityManager->clear();
 
         $this->entityManager->find(StronglyTypedTranslationsTest_Entity::class, $entity->id);
-        $count = count($this->getQueries());
+        $count = \count($this->getQueries());
         $this->entityManager->flush();
 
         self::assertCount($count, $this->getQueries());
@@ -106,7 +106,7 @@ class StronglyTypedTranslationsTest extends FunctionalTestBase
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
 
-        $count = count($this->getQueries());
+        $count = \count($this->getQueries());
 
         $entity->text->setTranslation('text en_GB', 'en_GB');
         $this->entityManager->flush();
@@ -126,7 +126,7 @@ class StronglyTypedTranslationsTest extends FunctionalTestBase
         $this->entityManager->clear();
 
         $reloaded = $this->entityManager->find(StronglyTypedTranslationsTest_Entity::class, $entity->id);
-        $count = count($this->getQueries());
+        $count = \count($this->getQueries());
 
         $reloaded->text->setTranslation('text en_GB', 'en_GB');
         $this->entityManager->flush();
@@ -180,7 +180,7 @@ class StronglyTypedTranslationsTest extends FunctionalTestBase
 
         $reloaded->text->setTranslation('changed text en_GB', 'en_GB');
         $this->entityManager->flush();
-        $count = count($this->getQueries());
+        $count = \count($this->getQueries());
 
         $this->entityManager->flush();
 

@@ -16,6 +16,7 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
+use ReflectionNamedType;
 use ReflectionProperty;
 use Throwable;
 use Webfactory\Bundle\PolyglotBundle\Exception\TranslationException;
@@ -94,7 +95,7 @@ final class PersistentTranslatable implements TranslatableInterface
         if ($currentValue instanceof UninitializedPersistentTranslatable) {
             $this->primaryValue = $currentValue->getPrimaryValue();
             $this->valueForEjection = $currentValue;
-        } else if ($currentValue instanceof Translatable) {
+        } elseif ($currentValue instanceof Translatable) {
             $currentValue->copy($this);
         } else {
             $this->primaryValue = $currentValue;
@@ -114,7 +115,7 @@ final class PersistentTranslatable implements TranslatableInterface
         $value = $this->primaryValue;
 
         $type = $this->translatedProperty->getType();
-        if ($type instanceof \ReflectionNamedType && $type->getName() === TranslatableInterface::class && is_string($value)) {
+        if ($type instanceof ReflectionNamedType && TranslatableInterface::class === $type->getName() && \is_string($value)) {
             if (!$this->valueForEjection || $this->valueForEjection->getPrimaryValue() !== $value) {
                 $this->valueForEjection = new UninitializedPersistentTranslatable($value);
             }
