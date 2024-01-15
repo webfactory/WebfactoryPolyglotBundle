@@ -28,8 +28,8 @@ interface TranslatableInterface
     /**
      * Overwrites the translation for the given locale.
      *
-     * @param Tunderlying_type $value The value to set for the particular locale
-     * @param string|null $locale The target locale or null for the current locale.
+     * @param Tunderlying_type $value  The value to set for the particular locale
+     * @param string|null      $locale The target locale or null for the current locale.
      */
     public function setTranslation(mixed $value, string $locale = null): void;
 
@@ -41,7 +41,7 @@ interface TranslatableInterface
     public function isTranslatedInto(string $locale): bool;
 
     /**
-     * Casts the underlying value for the current default locale into a string
+     * Casts the underlying value for the current default locale into a string.
      */
     public function __toString(): string;
 }
