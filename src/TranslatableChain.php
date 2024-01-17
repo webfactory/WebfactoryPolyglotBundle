@@ -20,14 +20,14 @@ final class TranslatableChain implements TranslatableInterface
     public static function firstNonEmpty(...$translatables): self
     {
         return new self(function ($value) {
-            return $value !== null && trim($value) !== '';
+            return null !== $value && '' !== trim($value);
         }, ...$translatables);
     }
 
     public static function firstTranslation(...$translatables): self
     {
         return new self(function ($value) {
-            return $value !== null;
+            return null !== $value;
         }, ...$translatables);
     }
 
@@ -71,4 +71,3 @@ final class TranslatableChain implements TranslatableInterface
         return $this->translate();
     }
 }
-

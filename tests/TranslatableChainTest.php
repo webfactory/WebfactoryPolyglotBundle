@@ -125,4 +125,3 @@ class TranslatableChainTest extends TestCase
         self::assertTrue($chain->isTranslatedInto('de'));
     }
 }
-
