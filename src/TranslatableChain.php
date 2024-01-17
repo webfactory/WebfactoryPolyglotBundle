@@ -6,7 +6,7 @@ namespace Webfactory\Bundle\PolyglotBundle;
  * Chain of multiple translatable objects.
  *
  * Goes through a list of `TranslatableInterface` instances and returns the first
- * non-empty translation found. Updates are passed to the primary translatable.
+ * (optionally, non-empty) translation found. Updates are passed to the primary translatable.
  */
 final class TranslatableChain implements TranslatableInterface
 {
