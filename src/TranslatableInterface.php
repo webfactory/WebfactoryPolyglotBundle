@@ -12,7 +12,7 @@ namespace Webfactory\Bundle\PolyglotBundle;
 /**
  * Represents a text with multiple translations.
  *
- * @template Tunderlying_type
+ * @template TTranslatedValue
  */
 interface TranslatableInterface
 {
@@ -21,14 +21,14 @@ interface TranslatableInterface
      *
      * @param string|null $locale The target locale or null for the current locale.
      *
-     * @return Tunderlying_type The translation or null if not available.
+     * @return TTranslatedValue The translation or null if not available.
      */
     public function translate(string $locale = null): mixed;
 
     /**
      * Overwrites the translation for the given locale.
      *
-     * @param Tunderlying_type $value  The value to set for the particular locale
+     * @param TTranslatedValue $value  The value to set for the particular locale
      * @param string|null      $locale The target locale or null for the current locale.
      */
     public function setTranslation(mixed $value, string $locale = null): void;
