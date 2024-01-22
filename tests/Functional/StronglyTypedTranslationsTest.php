@@ -214,7 +214,7 @@ class StronglyTypedTranslationsTest_Entity
     /**
      * @var TranslatableInterface<string>
      *
-     * @ORM\Column(type="translatable", options={"use_text_column": true})
+     * @ORM\Column(type="translatable_string", options={"use_text_column": true})
      *
      * @Polyglot\Translatable
      */

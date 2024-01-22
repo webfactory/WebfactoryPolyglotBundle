@@ -100,7 +100,12 @@ Now, we want to make the `text` field translatable.
 3. Add the collection to hold translation instances (more about that in the next section), 
    and annotate its field with `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection`. Also make sure it 
    is initialized with an empty Doctrine collection.
-4. Change the type hints for the translated fields in the main entity class from `string` to `TranslatableInterface`.
+4. Change the type hints for the translated fields in the main entity class from `string` to `TranslatableInterface`,
+   and use the special `translatable_string` Doctrine column type for it.
+
+The `translatable_string` column type behaves like the built-in `string` type, but allows for type hinting with 
+`TranslatableInterface`. If you want it to behave like the `text` type instead, add the `use_text_column` option
+like so: `@ORM\Column(type="translatable_string", options={"use_text_column": true})`.
 
 This will lead you to something like the following, with some code skipped for brevity:
 
@@ -129,7 +134,7 @@ class Document
 
     /**
      * @Polyglot\Translatable
-     * @ORM\Column(type="translatable")
+     * @ORM\Column(type="translatable_string")
      * @var TranslatableInterface<string>
      */
     private TranslatableInterface $text;
@@ -146,9 +151,6 @@ class Document
     }
 }
 ```
-
-If you want a field not to use the Doctrine `string` type but `text` instead, use
-`@ORM\Column(type="translatable", options={"use_text_column": true})`.
 
 ### Step 2) Create the Translation Entity
 

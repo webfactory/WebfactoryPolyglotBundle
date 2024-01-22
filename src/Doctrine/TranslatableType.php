@@ -13,7 +13,7 @@ use RuntimeException;
  */
 class TranslatableType extends Type
 {
-    public const TYPE = 'translatable';
+    public const TYPE = 'translatable_string';
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
