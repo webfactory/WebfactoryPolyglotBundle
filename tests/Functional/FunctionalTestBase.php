@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener;
-use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableType;
+use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableStringType;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 use Webfactory\Doctrine\ORMTestInfrastructure\Query;
@@ -20,8 +20,8 @@ abstract class FunctionalTestBase extends TestCase
 
     protected function setupOrmInfrastructure(array $classes): void
     {
-        if (!Type::hasType(TranslatableType::TYPE)) {
-            Type::addType(TranslatableType::TYPE, TranslatableType::class);
+        if (!Type::hasType(TranslatableStringType::TYPE)) {
+            Type::addType(TranslatableStringType::TYPE, TranslatableStringType::class);
         }
         $this->infrastructure = ORMInfrastructure::createOnlyFor($classes);
         $this->entityManager = $this->infrastructure->getEntityManager();

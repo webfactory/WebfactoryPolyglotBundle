@@ -11,7 +11,7 @@ use RuntimeException;
  * as the "primary" translation values into fields that declare {@see TranslatableInterface}
  * as their only type.
  */
-class TranslatableType extends Type
+class TranslatableStringType extends Type
 {
     public const TYPE = 'translatable_string';
 

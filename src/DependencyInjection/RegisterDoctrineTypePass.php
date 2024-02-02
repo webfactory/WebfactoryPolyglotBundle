@@ -5,7 +5,7 @@ namespace Webfactory\Bundle\PolyglotBundle\DependencyInjection;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableType;
+use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableStringType;
 
 final class RegisterDoctrineTypePass implements CompilerPassInterface
 {
@@ -16,7 +16,7 @@ final class RegisterDoctrineTypePass implements CompilerPassInterface
         }
 
         $types = $container->getParameter('doctrine.dbal.connection_factory.types');
-        $types[TranslatableType::TYPE] = ['class' => TranslatableType::class];
+        $types[TranslatableStringType::TYPE] = ['class' => TranslatableStringType::class];
 
         $container->setParameter('doctrine.dbal.connection_factory.types', $types);
     }
