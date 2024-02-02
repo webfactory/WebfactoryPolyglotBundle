@@ -16,7 +16,7 @@ final class RegisterDoctrineTypePass implements CompilerPassInterface
         }
 
         $types = $container->getParameter('doctrine.dbal.connection_factory.types');
-        $types[TranslatableStringType::TYPE] = ['class' => TranslatableStringType::class];
+        $types[TranslatableStringType::NAME] = ['class' => TranslatableStringType::class];
 
         $container->setParameter('doctrine.dbal.connection_factory.types', $types);
     }

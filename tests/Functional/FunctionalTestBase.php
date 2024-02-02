@@ -20,8 +20,8 @@ abstract class FunctionalTestBase extends TestCase
 
     protected function setupOrmInfrastructure(array $classes): void
     {
-        if (!Type::hasType(TranslatableStringType::TYPE)) {
-            Type::addType(TranslatableStringType::TYPE, TranslatableStringType::class);
+        if (!Type::hasType(TranslatableStringType::NAME)) {
+            Type::addType(TranslatableStringType::NAME, TranslatableStringType::class);
         }
         $this->infrastructure = ORMInfrastructure::createOnlyFor($classes);
         $this->entityManager = $this->infrastructure->getEntityManager();

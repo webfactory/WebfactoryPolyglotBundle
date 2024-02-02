@@ -13,7 +13,7 @@ use RuntimeException;
  */
 class TranslatableStringType extends Type
 {
-    public const TYPE = 'translatable_string';
+    public const NAME = 'translatable_string';
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
@@ -26,7 +26,7 @@ class TranslatableStringType extends Type
 
     public function getName(): string
     {
-        return self::TYPE;
+        return self::NAME;
     }
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
