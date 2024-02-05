@@ -6,7 +6,6 @@ use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
-use Webfactory\Doctrine\ORMTestInfrastructure\Query;
 
 class IntegrationTest extends FunctionalTestBase
 {
@@ -118,14 +117,6 @@ class IntegrationTest extends FunctionalTestBase
         $this->infrastructure->import($entity);
 
         return $this->fetch($entity);
-    }
-
-    /**
-     * @return Query[]
-     */
-    private function getQueries(): array
-    {
-        return $this->infrastructure->getQueries();
     }
 
     private function createTestEntity(): TestEntity

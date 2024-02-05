@@ -16,6 +16,7 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
+use ReflectionNamedType;
 use ReflectionProperty;
 use Throwable;
 use Webfactory\Bundle\PolyglotBundle\Exception\TranslationException;
@@ -48,6 +49,14 @@ final class PersistentTranslatable implements TranslatableInterface
      * The "primary" (untranslated) value for the property covered by this Translatable.
      */
     private mixed $primaryValue;
+
+    /**
+     * The UninitializedPersistentTranslatable object instance used when this PersistentTranslatable instance is removed (ejected) from
+     * an entity with managed translations. Needs to be kept as an object reference, so that multiple injection/ejection
+     * cycles will use the same object instance. This is necessary to prevent Doctrine ORM change detection from treating
+     * the value as changed every time.
+     */
+    private ?UninitializedPersistentTranslatable $valueForEjection = null;
 
     private LoggerInterface $logger;
 
@@ -83,7 +92,10 @@ final class PersistentTranslatable implements TranslatableInterface
 
         $currentValue = $this->translatedProperty->getValue($this->entity);
 
-        if ($currentValue instanceof Translatable) {
+        if ($currentValue instanceof UninitializedPersistentTranslatable) {
+            $this->primaryValue = $currentValue->getPrimaryValue();
+            $this->valueForEjection = $currentValue;
+        } elseif ($currentValue instanceof Translatable) {
             $currentValue->copy($this);
         } else {
             $this->primaryValue = $currentValue;
@@ -100,7 +112,17 @@ final class PersistentTranslatable implements TranslatableInterface
      */
     public function eject(): void
     {
-        $this->translatedProperty->setValue($this->entity, $this->primaryValue);
+        $value = $this->primaryValue;
+
+        $type = $this->translatedProperty->getType();
+        if ($type instanceof ReflectionNamedType && TranslatableInterface::class === $type->getName() && \is_string($value)) {
+            if (!$this->valueForEjection || $this->valueForEjection->getPrimaryValue() !== $value) {
+                $this->valueForEjection = new UninitializedPersistentTranslatable($value);
+            }
+            $value = $this->valueForEjection;
+        }
+
+        $this->translatedProperty->setValue($this->entity, $value);
     }
 
     /**

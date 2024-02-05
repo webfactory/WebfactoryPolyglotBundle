@@ -28,7 +28,7 @@ So, for one single _main_ entity instance, there are zero to many _translation e
  
 This approach reflects our experience that almost always the relevant content (field values) are maintained for a "primary" locale. This is the "authoritative" version of your content/data. Then, this content is translated for one or several "secondary" locales. The _translation entity class_ is concerned with holding this translated data only.
 
-Now, this bundle sets up a Doctrine event listener (`\Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener`) to
+Technically, this bundle sets up a Doctrine event handler (`\Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener`) to
 be notified whenever a Doctrine entity is hydrated, that is, re-created as a PHP object based on database values.
   
 This listener finds all fields in the entity that are marked as being locale-specific and replaces their value with
@@ -49,7 +49,7 @@ Yet, it is worth noting that you're now dealing with the value holders in places
 data or objects. They are *not* "almost" transparent proxies as those used by Doctrine because they do not
 provide the same interface as the original values. Only for strings, the difference is sufficiently small.
 
-The good news for Twig users is that as of Twig 1.33, `__toString()` support in Twig is good enough so that you need
+The good news for Twig users is that `__toString()` support in Twig is good enough so that you need
  not care about the distinction of strings and translation value holders. So, Twig constructs like `{{ someObject.field }}` or
  `{% if someObject.field is not empty %}...` will work the same regardless of your `getField()` method returns a string 
  value or the translation value holder.
@@ -74,48 +74,49 @@ class Document
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     * @var int
+     * @ORM\Column
      */
-    private $id;
+    private int $id;
 
     /**
-     * @ORM\Column(type="text")
-     * @var string
+     * @ORM\Column
      */
-    private $text;
+    private string $text;
 
-    /**
-     * @return string
-     */
-    public function getText()
+    public function getText(): string
     {
         return $this->text;
     }
 }
 ```
 
-And now we want to make the `text` translatable.
+Now, we want to make the `text` field translatable.
 
 ### Step 1) Update the Main Entity
 
 1. For the main entity class, add the `Webfactory\Bundle\PolyglotBundle\Annotation\Locale` annotation to indicate your
    primary locale. That's the locale you have used for your fields so far.
 2. Annotate all translatable fields with `Webfactory\Bundle\PolyglotBundle\Annotation\Translatable`.
-3. Add the association for the upcoming translation, and annotate it's field with
-   `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection`. Also make sure it's initialized with an empty
-   Doctrine collection.
-4. You may want to change your type hint for the translated fields from string to `string|TranslatableInterface`.
+3. Add the collection to hold translation instances (more about that in the next section), 
+   and annotate its field with `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection`. Also make sure it 
+   is initialized with an empty Doctrine collection.
+4. Change the type hints for the translated fields in the main entity class from `string` to `TranslatableInterface`,
+   and use the special `translatable_string` Doctrine column type for it.
+
+The `translatable_string` column type behaves like the built-in `string` type, but allows for type hinting with 
+`TranslatableInterface`. If you want it to behave like the `text` type instead, add the `use_text_column` option
+like so: `@ORM\Column(type="translatable_string", options={"use_text_column": true})`.
 
 This will lead you to something like the following, with some code skipped for brevity:
 
 ```php 
 <?php
 
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
-use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
  * ...
@@ -123,31 +124,28 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Document
 {
-    ...
+    // ...
 
     /**
-     * @ORM\OneToMany(targetEntity="DocumentTranslation", mappedBy="entity")
      * @Polyglot\TranslationCollection
-     * @var Collection
+     * @ORM\OneToMany(targetEntity="DocumentTranslation", mappedBy="entity")
      */
-    private $translations;
+    private Collection $translations;
 
     /**
      * @Polyglot\Translatable
-     * @var string|TranslatableInterface
+     * @ORM\Column(type="translatable_string")
+     * @var TranslatableInterface<string>
      */
-    private $text;
+    private TranslatableInterface $text;
 
     public function __construct(...)
     {
-        ...
+        // ...
         $this->translations = new ArrayCollection();
     }
 
-    /**
-     * @return string
-     */
-    public function getText()
+    public function getText(): string
     {
         return $this->text->translate();
     }
@@ -157,15 +155,14 @@ class Document
 ### Step 2) Create the Translation Entity
 
 1. Create a class for the translation entity. As for the name, we suggest suffixing your main entity's name with
-   "Translation". It has to contain all translated properties with regular Doctrine annotations
-   (e.g. `@ORM\Column(type="text")`).
-2. If you choose to name your back reference `entity` as we did in the example, you may want to extend
-   `\Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation` to save yourself the hassle of rewriting some meta data
-   and a getter. But extending this class is not necessary!
-3. To implement the one-to-many relationship, the translation entity needs to reference to the original entity. 
-   In our example, this is the `$entity` field.
+   `Translation`. It has to contain fields for all the fields in your main entity that are to be translated. Declare
+   these fields as regular Doctrine ORM column, using plain column types like `text` (e.g. `@ORM\Column(type="text")`).
+   You may want to extend `\Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation` to save yourself some boilerplate
+   code, but extending this class is not necessary.
+2. To implement the one-to-many relationship, the translation entity needs to reference to the original entity. 
+   In the following example, this is the `$entity` field.
 
-Your code should look like this:
+Your code should look similar to this:
 
 ```php
 <?php
@@ -181,19 +178,35 @@ use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
  *     }
  * )
  */
-class DocumentTranslation extends BaseTranslation
+class DocumentTranslation
 {
     /**
-     * @ORM\Column(type="text")
-     * @var string
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column
      */
-    private $text;
+    private int $id;
+
+    /**
+     * @Polyglot\Locale
+     * @ORM\Column
+     */
+    private string $locale;
 
     /**
      * @ORM\ManyToOne(targetEntity="Document", inversedBy="translations")
-     * @var Document
      */
-    private $entity;
+    private Document $entity;
+
+    public function getLocale(): string
+    {
+        return $this->locale;
+    }
+
+    /**
+     * @ORM\Column
+     */
+    private string $text;
 }
 ```
 
@@ -220,7 +233,7 @@ Of course, you could also change the method to something along the lines of
 class Document 
 { 
     ... 
-    public function getText($locale = null)
+    public function getText(string $locale = null): string
     {
         return $this->text->translate($locale);    
     }
@@ -230,7 +243,7 @@ class Document
 ... which should be backwards-compatible as well, but allows client code to access the values for locales of their 
 choice.
 
-Your last option would be to leave the getter unchanged, return the value holder object and have your client code deal 
+Your last option would be to leave the getter unchanged, return the value holder object and have your client code 
 deal with it. This is not a 100% backwards-compatible solution, but as stated above, chances are you might get away with
 it when changing string-typed fields only. The benefit of this approach would be that you can still choose the
 locale further down the line.
@@ -243,6 +256,43 @@ locale further down the line.
     if ($text) { ... }  // Never holds because the value holder is returned (even if it contains a "" translation value)
     if ($text === 'someValue') { ... } // Strict type check prevents calling the __toString() method
 ```
+
+## Translations for Doctrine column types other than `string`
+
+In fact, the fields that are used to hold translated values need not use the `translatable` Doctrine column type declaration
+and can be of other type than `string`. 
+
+In this case, you need to use a union type for your field type declaration as in the following example.
+
+```php
+<?php
+
+use Doctrine\ORM\Mapping as ORM;
+use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
+
+// ...
+class Document
+{
+    // ... fields and collections omitted for brevity
+
+    /**
+     * @ORM\Column(type=...your type) 
+     * @Polyglot\Translatable
+     */
+    private TranslatableInterface|<other type> $text;
+
+    // ...
+}
+```
+
+With this declaration, the field can serve a dual use: Right before the ORM flushes data, the field value will be switched to the 
+value of the "primary" locale, so that the ORM can persist that data as usual. Similarly, after the ORM has loaded the entity,
+it will replace the field value with the translation value holder (an instance of `TranslatableInterface`) that you can use
+to obtain the translated values as well.
+
+Note that it is not necessary to do this in the translations class (`DocumentTranslation` in the above examples), since that 
+class represents the values of a single locale only and never contains `TranslatableInterface` instances.
 
 ## Planned Features / Wish List
 
