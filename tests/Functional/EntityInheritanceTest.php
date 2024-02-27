@@ -109,9 +109,8 @@ class EntityInheritanceTest extends FunctionalTestBase
  * @ORM\DiscriminatorMap({"base"="EntityInheritance_BaseEntityClass", "child"="EntityInheritance_ChildEntityClass"})
  *
  * @ORM\DiscriminatorColumn(name="discriminator", type="string")
- *
  */
-#[Polyglot\Locale(primary: "en_GB")]
+#[Polyglot\Locale(primary: 'en_GB')]
 class EntityInheritance_BaseEntityClass
 {
     /**
