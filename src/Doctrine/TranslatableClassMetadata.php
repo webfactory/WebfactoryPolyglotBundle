@@ -239,7 +239,15 @@ final class TranslatableClassMetadata
     private function findPrimaryLocale(ClassMetadataInfo $cm, Reader $reader): void
     {
         foreach (array_merge([$cm->name], $cm->parentClasses) as $class) {
-            $annotation = $reader->getClassAnnotation(new ReflectionClass($class), Annotation\Locale::class);
+            $reflectionClass = new ReflectionClass($class);
+
+            foreach ($reflectionClass->getAttributes(Annotation\Locale::class) as $attribute) {
+                $this->primaryLocale = $attribute->newInstance()->getPrimary();
+
+                return;
+            }
+
+            $annotation = $reader->getClassAnnotation($reflectionClass, Annotation\Locale::class);
             if (null !== $annotation) {
                 $this->primaryLocale = $annotation->getPrimary();
 
@@ -252,6 +260,12 @@ final class TranslatableClassMetadata
     {
         foreach ($cm->fieldMappings as $fieldName => $mapping) {
             $reflectionProperty = $cm->getReflectionProperty($fieldName);
+
+            foreach ($reflectionProperty->getAttributes(Annotation\Locale::class) as $attribute) {
+                $this->translationLocaleProperty = $reflectionProperty;
+
+                return;
+            }
 
             $annotation = $reader->getPropertyAnnotation(
                 $reflectionProperty,

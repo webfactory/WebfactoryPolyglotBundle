@@ -110,8 +110,8 @@ class EntityInheritanceTest extends FunctionalTestBase
  *
  * @ORM\DiscriminatorColumn(name="discriminator", type="string")
  *
- * @Polyglot\Locale(primary="en_GB")
  */
+#[Polyglot\Locale(primary: "en_GB")]
 class EntityInheritance_BaseEntityClass
 {
     /**
@@ -176,9 +176,8 @@ class EntityInheritance_BaseEntityClassTranslation
 
     /**
      * @ORM\Column
-     *
-     * @Polyglot\Locale
      */
+    #[Polyglot\Locale]
     private string $locale;
 
     /**

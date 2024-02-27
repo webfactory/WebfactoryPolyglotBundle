@@ -9,6 +9,7 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Annotation;
 
+use Attribute;
 use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 
 /**
@@ -16,6 +17,7 @@ use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
  * @NamedArgumentConstructor
  * @Target({"CLASS","PROPERTY"})
  */
+#[Attribute(Attribute::TARGET_CLASS)]
 final class Locale
 {
     private ?string $primary;
