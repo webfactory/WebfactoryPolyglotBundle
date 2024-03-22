@@ -34,8 +34,7 @@ final class TranslatableChain implements TranslatableInterface
     private function __construct(
         private readonly Closure $comparator,
         TranslatableInterface ...$translatables,
-    )
-    {
+    ) {
         $this->translatables = $translatables;
     }
 
