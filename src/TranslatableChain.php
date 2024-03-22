@@ -2,6 +2,8 @@
 
 namespace Webfactory\Bundle\PolyglotBundle;
 
+use Closure;
+
 /**
  * Chain of multiple translatable objects.
  *
@@ -13,31 +15,31 @@ final class TranslatableChain implements TranslatableInterface
     /**
      * @var list<TranslatableInterface>
      */
-    private $translatables;
+    private array $translatables;
 
-    private $comparator;
-
-    public static function firstNonEmpty(...$translatables): self
+    public static function firstNonEmpty(TranslatableInterface ...$translatables): self
     {
         return new self(function ($value) {
             return null !== $value && '' !== trim($value);
         }, ...$translatables);
     }
 
-    public static function firstTranslation(...$translatables): self
+    public static function firstTranslation(TranslatableInterface ...$translatables): self
     {
         return new self(function ($value) {
             return null !== $value;
         }, ...$translatables);
     }
 
-    private function __construct($comparator, ...$translatables)
+    private function __construct(
+        private readonly Closure $comparator,
+        TranslatableInterface ...$translatables,
+    )
     {
-        $this->comparator = $comparator;
         $this->translatables = $translatables;
     }
 
-    public function translate(string $locale = null)
+    public function translate(string $locale = null): mixed
     {
         $c = $this->comparator;
         foreach ($this->translatables as $translation) {
@@ -50,12 +52,12 @@ final class TranslatableChain implements TranslatableInterface
         return null;
     }
 
-    public function setTranslation($value, string $locale = null): void
+    public function setTranslation(mixed $value, string $locale = null): void
     {
         $this->translatables[0]->setTranslation($value, $locale);
     }
 
-    public function isTranslatedInto($locale): bool
+    public function isTranslatedInto(string $locale): bool
     {
         foreach ($this->translatables as $translation) {
             if ($translation->isTranslatedInto($locale)) {

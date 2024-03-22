@@ -9,42 +9,42 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 class TranslatableTest extends TestCase
 {
-    public function testImplementsInterface()
+    public function testImplementsInterface(): void
     {
         $t = new Translatable();
-        $this->assertInstanceOf(TranslatableInterface::class, $t);
+        self::assertInstanceOf(TranslatableInterface::class, $t);
     }
 
-    public function testReturnsMainValueAndTranslations()
+    public function testReturnsMainValueAndTranslations(): void
     {
         $t = new Translatable('text locale_A', 'locale_A');
         $t->setTranslation('text locale_B', 'locale_B');
 
-        $this->assertEquals('text locale_A', $t->translate('locale_A'));
-        $this->assertEquals('text locale_B', $t->translate('locale_B'));
+        self::assertEquals('text locale_A', $t->translate('locale_A'));
+        self::assertEquals('text locale_B', $t->translate('locale_B'));
     }
 
-    public function testCanBeCreatedWithoutLocale()
+    public function testCanBeCreatedWithoutLocale(): void
     {
         $t = new Translatable('text locale_A');
-        $this->assertEquals('text locale_A', $t->translate());
+        self::assertEquals('text locale_A', $t->translate());
     }
 
-    public function testReturnsNullForUnknownLocale()
+    public function testReturnsNullForUnknownLocale(): void
     {
         $t = new Translatable('text locale_A', 'locale_A');
-        $this->assertNull($t->translate('unknown'));
+        self::assertNull($t->translate('unknown'));
     }
 
-    public function testDeferredSettingOfDefaultLocale()
+    public function testDeferredSettingOfDefaultLocale(): void
     {
         $t = new Translatable('some text');
         $t->setDefaultLocale('foo');
 
-        $this->assertEquals('some text', $t->translate('foo'));
+        self::assertEquals('some text', $t->translate('foo'));
     }
 
-    public function testCopyTranslations()
+    public function testCopyTranslations(): void
     {
         $t = new Translatable('text locale_A', 'locale_A');
         $t->setTranslation('text locale_B', 'locale_B');
@@ -54,62 +54,62 @@ class TranslatableTest extends TestCase
 
         $t->copy($other);
 
-        $this->assertEquals('text locale_A', $other->translate('locale_A'));
-        $this->assertEquals('text locale_B', $other->translate('locale_B'));
-        $this->assertEquals('text locale_C', $other->translate('locale_C'));
+        self::assertEquals('text locale_A', $other->translate('locale_A'));
+        self::assertEquals('text locale_B', $other->translate('locale_B'));
+        self::assertEquals('text locale_C', $other->translate('locale_C'));
     }
 
-    public function testReturnsDefaultValueWhenCastToString()
+    public function testReturnsDefaultValueWhenCastToString(): void
     {
         $t = new Translatable('text locale_A', 'locale_A');
-        $this->assertEquals('text locale_A', (string) $t);
+        self::assertEquals('text locale_A', (string) $t);
     }
 
-    public function testDefaultLocaleProviderCanProvideDefaultLocale()
+    public function testDefaultLocaleProviderCanProvideDefaultLocale(): void
     {
         $defaultLocaleProvider = new DefaultLocaleProvider('locale_A');
 
         $t = new Translatable('text locale_A', $defaultLocaleProvider);
         $t->setTranslation('text locale_B', 'locale_B');
 
-        $this->assertEquals('text locale_A', (string) $t);
-        $this->assertEquals('text locale_A', $t->translate());
+        self::assertEquals('text locale_A', (string) $t);
+        self::assertEquals('text locale_A', $t->translate());
 
         $defaultLocaleProvider->setDefaultLocale('locale_B');
-        $this->assertEquals('text locale_B', (string) $t);
-        $this->assertEquals('text locale_B', $t->translate());
+        self::assertEquals('text locale_B', (string) $t);
+        self::assertEquals('text locale_B', $t->translate());
     }
 
     /** @test */
-    public function isTranslatedInto_returns_true_for_primary_translation_if_set()
+    public function isTranslatedInto_returns_true_for_primary_translation_if_set(): void
     {
         $translatable = new Translatable('text locale_A', 'locale_A');
 
-        $this->assertTrue($translatable->isTranslatedInto('locale_A'));
+        self::assertTrue($translatable->isTranslatedInto('locale_A'));
     }
 
     /** @test */
-    public function isTranslatedInto_returns_true_for_translation_if_set()
+    public function isTranslatedInto_returns_true_for_translation_if_set(): void
     {
         $translatable = new Translatable('text locale_A', 'locale_A');
         $translatable->setTranslation('text locale_B', 'locale_B');
 
-        $this->assertTrue($translatable->isTranslatedInto('locale_B'));
+        self::assertTrue($translatable->isTranslatedInto('locale_B'));
     }
 
     /** @test */
-    public function isTranslatedInto_returns_false_if_primary_translation_is_empty()
+    public function isTranslatedInto_returns_false_if_primary_translation_is_empty(): void
     {
         $translatable = new Translatable('', 'locale_A');
 
-        $this->assertFalse($translatable->isTranslatedInto('locale_A'));
+        self::assertFalse($translatable->isTranslatedInto('locale_A'));
     }
 
     /** @test */
-    public function isTranslatedInto_returns_false_if_translation_is_not_set()
+    public function isTranslatedInto_returns_false_if_translation_is_not_set(): void
     {
         $translatable = new Translatable('', 'locale_A');
 
-        $this->assertFalse($translatable->isTranslatedInto('locale_B'));
+        self::assertFalse($translatable->isTranslatedInto('locale_B'));
     }
 }

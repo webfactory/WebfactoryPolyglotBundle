@@ -11,6 +11,8 @@ namespace Webfactory\Bundle\PolyglotBundle;
 
 /**
  * Represents a text with multiple translations.
+ *
+ * @template TTranslatedValue
  */
 interface TranslatableInterface
 {
@@ -19,31 +21,27 @@ interface TranslatableInterface
      *
      * @param string|null $locale The target locale or null for the current locale.
      *
-     * @return mixed|null The translation or null if not available.
+     * @return TTranslatedValue The translation or null if not available.
      */
-    public function translate(string $locale = null);
+    public function translate(string $locale = null): mixed;
 
     /**
      * Overwrites the translation for the given locale.
      *
-     * @param mixed       $value
-     * @param string|null $locale The target locale or null for the current locale.
+     * @param TTranslatedValue $value  The value to set for the particular locale
+     * @param string|null      $locale The target locale or null for the current locale.
      */
-    public function setTranslation($value, string $locale = null);
+    public function setTranslation(mixed $value, string $locale = null): void;
 
     /**
      * Returns wether the text is translated into the target locale.
      *
      * @param string $locale The target locale.
-     *
-     * @return bool
      */
-    public function isTranslatedInto(string $locale);
+    public function isTranslatedInto(string $locale): bool;
 
     /**
-     * Returns the translation for the current locale.
-     *
-     * @return string
+     * Casts the underlying value for the current default locale into a string.
      */
-    public function __toString();
+    public function __toString(): string;
 }

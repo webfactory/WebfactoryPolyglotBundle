@@ -10,6 +10,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\Tests;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
@@ -18,35 +19,36 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
  * Doctrine entity that is used for testing.
  *
  * @ORM\Entity()
+ *
  * @Polyglot\Locale(primary="en_GB")
  */
 class TestEntity
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="integer", name="id")
-     * @ORM\GeneratedValue
      *
-     * @var int|null
+     * @ORM\Column(type="integer")
+     *
+     * @ORM\GeneratedValue
      */
-    private $id;
+    private ?int $id = null;
 
     /**
      * Text in the primary locale. Can be set with a string and gets replaced with a TranslatableInterface by the
      * Doctrine PolyglotListener.
      *
      * @ORM\Column(type="string")
-     * @Polyglot\Translatable
      *
-     * @var TranslatableInterface|string|null
+     * @Polyglot\Translatable
      */
-    protected $text = null;
+    private TranslatableInterface|string|null $text;
 
     /**
      * @ORM\OneToMany(targetEntity="TestEntityTranslation", mappedBy="entity")
+     *
      * @Polyglot\TranslationCollection
      */
-    protected $translations;
+    private Collection $translations;
 
     public function __construct($text)
     {
@@ -54,18 +56,12 @@ class TestEntity
         $this->text = $text;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return TranslatableInterface|string|null
-     */
-    public function getText()
+    public function getText(): string|TranslatableInterface|null
     {
         return $this->text;
     }

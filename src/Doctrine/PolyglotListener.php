@@ -10,103 +10,135 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\Common\Annotations\Reader;
+use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Psr\Log\LoggerInterface;
-use SplObjectStorage;
+use Psr\Log\NullLogger;
+use WeakReference;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
-/**
- * @final
- */
-class PolyglotListener
+final class PolyglotListener implements EventSubscriber
 {
-    public const CACHE_SALT = '$WebfactoryPolyglot';
-
-    protected $reader;
-    protected $translatedClasses = [];
-    protected $_proxiesStripped = [];
-    protected $defaultLocaleProvider;
-
-    /** @var SplObjectStorage */
-    private $entitiesWithTranslations;
+    private const CACHE_SALT = '$WebfactoryPolyglot';
 
     /**
-     * @var LoggerInterface|null
+     * Field to cache TranslatableClassMetadata information for a class and all of its
+     * parent classes, indexed by the leaf (child) class.
+     *
+     * @var array<class-string, list<TranslatableClassMetadata>>
      */
-    protected $logger;
+    private array $translatableClassMetadatasByClass = [];
 
     /**
-     * PolyglotListener constructor.
+     * Field to cache TranslatableClassMetadata information by class name.
+     *
+     * @var array<class-string, ?TranslatableClassMetadata>
      */
+    private array $translatedClasses = [];
+
+    /**
+     * @var array<WeakReference>
+     */
+    private array $entitiesWithTranslatables = [];
+
+    /**
+     * @var list<PersistentTranslatable>
+     */
+    private array $ejectedTranslatables = [];
+
     public function __construct(
-        Reader $annotationReader,
-        DefaultLocaleProvider $defaultLocaleProvider,
-        LoggerInterface $logger = null
+        private readonly Reader $annotationReader,
+        private readonly DefaultLocaleProvider $defaultLocaleProvider,
+        private readonly LoggerInterface $logger = null ?? new NullLogger(),
     ) {
-        $this->reader = $annotationReader;
-        $this->defaultLocaleProvider = $defaultLocaleProvider;
-        $this->logger = $logger;
-
-        $this->entitiesWithTranslations = new SplObjectStorage();
     }
 
-    public function postLoad(LifecycleEventArgs $event)
+    public function getSubscribedEvents(): array
+    {
+        return [
+            'prePersist',
+            'postLoad',
+            'preFlush',
+            'postFlush',
+        ];
+    }
+
+    public function postLoad(LifecycleEventArgs $event): void
     {
         // Called when the entity has been hydrated
-        $entity = $event->getEntity();
+        $this->injectPersistentTranslatables($event->getObjectManager(), $event->getObject());
+    }
 
-        if ($tm = $this->getTranslationMetadataForLifecycleEvent($event)) {
-            $this->entitiesWithTranslations->attach($entity, $tm);
-            $tm->injectProxies($entity, $this->defaultLocaleProvider);
+    public function prePersist(LifecycleEventArgs $event): void
+    {
+        // Called when a new entity is passed to persist() for the first time
+        $this->injectPersistentTranslatables($event->getObjectManager(), $event->getObject());
+    }
+
+    private function injectPersistentTranslatables(EntityManager $entityManager, object $object): void
+    {
+        $hasTranslatables = false;
+
+        foreach ($this->getTranslationMetadatas($object, $entityManager) as $tm) {
+            $tm->injectNewPersistentTranslatables($object, $entityManager, $this->defaultLocaleProvider);
+            $hasTranslatables = true;
+        }
+
+        if ($hasTranslatables) {
+            $this->entitiesWithTranslatables[] = WeakReference::create($object);
         }
     }
 
-    public function prePersist(LifecycleEventArgs $event)
+    public function preFlush(PreFlushEventArgs $event): void
     {
-        // Called before a new entity is persisted for the first time
-        $entity = $event->getEntity();
-
-        if ($tm = $this->getTranslationMetadataForLifecycleEvent($event)) {
-            $tm->manageTranslations($entity, $this->defaultLocaleProvider);
-            $this->entitiesWithTranslations->attach($entity, $tm);
-        }
-    }
-
-    public function preFlush(PreFlushEventArgs $event)
-    {
-        $entityManager = $event->getEntityManager();
-        // Called before changes are flushed out to the database - even before the change sets are computed
-        foreach ($this->entitiesWithTranslations as $entity) {
-            /** @var TranslatableClassMetadata $translationMetadata */
-            $translationMetadata = $this->entitiesWithTranslations[$entity];
-            $translationMetadata->preFlush($entity, $entityManager);
-        }
-    }
-
-    public function postFlush(PostFlushEventArgs $event)
-    {
-        // The postFlush event occurs at the end of a flush operation.
-        foreach ($this->entitiesWithTranslations as $entity) {
-            $translationMetadata = $this->entitiesWithTranslations[$entity];
-            $translationMetadata->injectProxies($entity, $this->defaultLocaleProvider);
-        }
-    }
-
-    protected function getTranslationMetadataForLifecycleEvent(LifecycleEventArgs $event)
-    {
-        $entity = $event->getEntity();
         $em = $event->getEntityManager();
 
-        $className = \get_class($entity);
+        foreach ($this->entitiesWithTranslatables as $key => $weakRef) {
+            $object = $weakRef->get();
+            if (null === $object) {
+                unset($this->entitiesWithTranslatables[$key]);
+                continue;
+            }
 
-        return $this->getTranslationMetadata($className, $em);
+            foreach ($this->getTranslationMetadatas($object, $em) as $tm) {
+                $this->ejectedTranslatables = array_merge($this->ejectedTranslatables, $tm->ejectPersistentTranslatables($object));
+            }
+        }
     }
 
-    protected function getTranslationMetadata($className, EntityManager $em)
+    public function postFlush(PostFlushEventArgs $event): void
+    {
+        foreach ($this->ejectedTranslatables as $persistentTranslatable) {
+            $persistentTranslatable->inject();
+        }
+        $this->ejectedTranslatables = [];
+    }
+
+    /**
+     * @return list<TranslatableClassMetadata>
+     */
+    private function getTranslationMetadatas(object $entity, EntityManager $em): array
+    {
+        $class = $entity::class;
+
+        if (!isset($this->translatableClassMetadatasByClass[$class])) {
+            $this->translatableClassMetadatasByClass[$class] = [];
+            $classMetadata = $em->getClassMetadata($class);
+
+            foreach (array_merge([$classMetadata->name], $classMetadata->parentClasses) as $className) {
+                if ($tm = $this->loadTranslationMetadataForClass($className, $em)) {
+                    $this->translatableClassMetadatasByClass[$class][] = $tm;
+                }
+            }
+        }
+
+        return $this->translatableClassMetadatasByClass[$class];
+    }
+
+    private function loadTranslationMetadataForClass($className, EntityManager $em): ?TranslatableClassMetadata
     {
         // In memory cache
         if (isset($this->translatedClasses[$className])) {
@@ -114,36 +146,34 @@ class PolyglotListener
         }
 
         $metadataFactory = $em->getMetadataFactory();
-        $reflectionService = $metadataFactory->getReflectionService();
         $cacheDriver = $em->getConfiguration()->getMetadataCacheImpl();
 
-        // Cache driver available and in cache
         if ($cacheDriver) {
-            if (($cached = $cacheDriver->fetch($className.self::CACHE_SALT)) !== false) {
-                $this->translatedClasses[$className] = $cached;
-                if ($cached) { // evtl. ist im Cache gespeichert, das die Klasse *nicht* übersetzt ist
-                    /* @var $cached TranslatableClassMetadata */
-                    $cached->wakeupReflection($reflectionService);
-                    $cached->setLogger($this->logger);
-                }
+            if (($data = $cacheDriver->fetch($className.self::CACHE_SALT)) !== false) {
+                if (null === $data) {
+                    $this->translatedClasses[$className] = null;
 
-                return $cached;
+                    return null;
+                } else {
+                    $wakeup = TranslatableClassMetadata::wakeup($data);
+                    $wakeup->setLogger($this->logger);
+                    $this->translatedClasses[$className] = $wakeup;
+
+                    return $wakeup;
+                }
             }
         }
 
         // Load/parse
-        /* @var $metadataInfo ClassMetadataInfo */
-        $metadataInfo = $metadataFactory->getMetadataFor($className);
-        $meta = TranslatableClassMetadata::parseFromClassMetadata($metadataInfo, $this->reader);
+        $meta = TranslatableClassMetadata::parseFromClass($className, $this->annotationReader, $metadataFactory);
+
         if (null !== $meta) {
             $meta->setLogger($this->logger);
             $this->translatedClasses[$className] = $meta;
         }
 
         // Save if cache driver available
-        if ($cacheDriver) {
-            $cacheDriver->save($className.self::CACHE_SALT, $meta ? $meta->prepareSleepInstance() : null);
-        }
+        $cacheDriver?->save($className.self::CACHE_SALT, $meta?->sleep());
 
         return $meta;
     }
