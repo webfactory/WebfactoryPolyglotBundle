@@ -18,6 +18,7 @@ use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
  * @Target({"CLASS","PROPERTY"})
  */
 #[Attribute(Attribute::TARGET_CLASS)]
+#[Attribute(Attribute::TARGET_PROPERTY)]
 final class Locale
 {
     private ?string $primary;
