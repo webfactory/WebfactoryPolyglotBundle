@@ -27,7 +27,7 @@ class BaseTranslation
      */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     protected $id;
 
     /**
@@ -42,7 +42,7 @@ class BaseTranslation
     /**
      * @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable=false)
      */
-    #[ORM\JoinColumn(name: "entity_id", referencedColumnName: "id", nullable: false)]
+    #[ORM\JoinColumn(name: 'entity_id', referencedColumnName: 'id', nullable: false)]
     protected $entity;
 
     public function getLocale()
