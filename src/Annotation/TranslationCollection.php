@@ -9,9 +9,12 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Annotation;
 
+use Attribute;
+
 /**
  * @Annotation
  */
+#[Attribute]
 final class TranslationCollection
 {
 }
