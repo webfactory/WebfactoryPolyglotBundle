@@ -9,12 +9,14 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Annotation;
 
+use Attribute;
 use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
 
 /**
  * @Annotation
  * @NamedArgumentConstructor
  */
+#[Attribute(Attribute::TARGET_PROPERTY)]
 final class Translatable
 {
     private ?string $translationFieldname;
