@@ -5,7 +5,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
@@ -100,16 +100,14 @@ class UndeclaredBaseClassTest_BaseClass
 
     /**
      * @ORM\OneToMany(targetEntity="UndeclaredBaseClassTest_BaseClassTranslation", mappedBy="entity")
-     *
-     * @Polyglot\TranslationCollection
      */
+    #[Polyglot\TranslationCollection]
     protected Collection $translations;
 
     /**
      * @ORM\Column(type="string")
-     *
-     * @Polyglot\Translatable
      */
+    #[Polyglot\Translatable]
     protected string|TranslatableInterface|null $text = null;
 
     public function __construct()
@@ -149,9 +147,8 @@ class UndeclaredBaseClassTest_BaseClassTranslation
 
     /**
      * @ORM\Column
-     *
-     * @Polyglot\Locale
      */
+    #[Polyglot\Locale]
     private string $locale;
 
     /**
@@ -167,9 +164,8 @@ class UndeclaredBaseClassTest_BaseClassTranslation
 
 /**
  * @ORM\Entity
- *
- * @Polyglot\Locale(primary="en_GB")
  */
+#[Polyglot\Locale(primary: "en_GB")]
 class UndeclaredBaseClassTest_EntityClass extends UndeclaredBaseClassTest_BaseClass
 {
 }

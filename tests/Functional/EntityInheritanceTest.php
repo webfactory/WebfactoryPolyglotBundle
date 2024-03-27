@@ -5,7 +5,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
@@ -109,9 +109,8 @@ class EntityInheritanceTest extends FunctionalTestBase
  * @ORM\DiscriminatorMap({"base"="EntityInheritance_BaseEntityClass", "child"="EntityInheritance_ChildEntityClass"})
  *
  * @ORM\DiscriminatorColumn(name="discriminator", type="string")
- *
- * @Polyglot\Locale(primary="en_GB")
  */
+#[Polyglot\Locale(primary: "en_GB")]
 class EntityInheritance_BaseEntityClass
 {
     /**
@@ -127,16 +126,14 @@ class EntityInheritance_BaseEntityClass
 
     /**
      * @ORM\OneToMany(targetEntity="EntityInheritance_BaseEntityClassTranslation", mappedBy="entity")
-     *
-     * @Polyglot\TranslationCollection
      */
+    #[Polyglot\TranslationCollection]
     private Collection $translations;
 
     /**
      * @ORM\Column(type="string")
-     *
-     * @Polyglot\Translatable
      */
+    #[Polyglot\Translatable]
     private TranslatableInterface|string|null $text = null;
 
     public function __construct()
@@ -176,9 +173,8 @@ class EntityInheritance_BaseEntityClassTranslation
 
     /**
      * @ORM\Column
-     *
-     * @Polyglot\Locale
      */
+    #[Polyglot\Locale]
     private string $locale;
 
     /**
@@ -199,16 +195,14 @@ class EntityInheritance_ChildEntityClass extends EntityInheritance_BaseEntityCla
 {
     /**
      * @ORM\Column(type="string")
-     *
-     * @Polyglot\Translatable
      */
+    #[Polyglot\Translatable]
     private TranslatableInterface|string|null $extraText = null;
 
     /**
      * @ORM\OneToMany(targetEntity="EntityInheritance_ChildEntityClassTranslation", mappedBy="entity")
-     *
-     * @Polyglot\TranslationCollection
      */
+    #[Polyglot\TranslationCollection]
     private Collection $extraTranslations;
 
     public function __construct()
@@ -244,9 +238,8 @@ class EntityInheritance_ChildEntityClassTranslation
 
     /**
      * @ORM\Column
-     *
-     * @Polyglot\Locale
      */
+    #[Polyglot\Locale]
     private string $locale;
 
     /**

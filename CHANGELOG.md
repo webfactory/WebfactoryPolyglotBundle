@@ -2,6 +2,11 @@
 
 To get the diff for a specific change, go to https://github.com/webfactory/polyglot-bundle/commit/XXX where XXX is the change hash. To get the diff between two versions, go to https://github.com/webfactory/polyglot-bundle/compare/{oldversion}...{newversion}.
 
+## Version 3.1.0
+
+* The annotations `\Webfactory\Bundle\PolyglotBundle\Annotation\Locale`, `\Webfactory\Bundle\PolyglotBundle\Annotation\Translatable` and `\Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` have been deprecated. Replace them with the corresponding PHP attributes from the `\Webfactory\Bundle\PolyglotBundle\Attribute` namespace.
+* Using annotations to configure entity classes for this bundle has been deprecated. Switch to PHP 8 attributes.
+
 ## Version 3.0.0
 
 * Dropped support for PHP versions below 8.1, and for Symfony versions before 5.4.

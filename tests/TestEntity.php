@@ -12,16 +12,15 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
  * Doctrine entity that is used for testing.
  *
  * @ORM\Entity()
- *
- * @Polyglot\Locale(primary="en_GB")
  */
+#[Polyglot\Locale(primary: "en_GB")]
 class TestEntity
 {
     /**
@@ -38,17 +37,18 @@ class TestEntity
      * Doctrine PolyglotListener.
      *
      * @ORM\Column(type="string")
-     *
-     * @Polyglot\Translatable
      */
+    #[Polyglot\Translatable]
     private TranslatableInterface|string|null $text;
 
     /**
      * @ORM\OneToMany(targetEntity="TestEntityTranslation", mappedBy="entity")
      *
-     * @Polyglot\TranslationCollection
+     * This property is currently not typed to avoid an error in the \Webfactory\Bundle\PolyglotBundle\Tests\Doctrine\TranslatableClassMetadataTest::can_be_serialized_and_retrieved
+     * test; Doctrine uses specialized Reflection subclasses to do ... what ?!.
      */
-    private Collection $translations;
+    #[Polyglot\TranslationCollection]
+    private $translations;
 
     public function __construct($text)
     {

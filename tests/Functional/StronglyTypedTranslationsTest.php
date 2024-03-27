@@ -5,7 +5,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
@@ -190,9 +190,8 @@ class StronglyTypedTranslationsTest extends FunctionalTestBase
 
 /**
  * @ORM\Entity
- *
- * @Polyglot\Locale(primary="en_GB")
  */
+#[Polyglot\Locale(primary: "en_GB")]
 class StronglyTypedTranslationsTest_Entity
 {
     /**
@@ -206,18 +205,16 @@ class StronglyTypedTranslationsTest_Entity
 
     /**
      * @ORM\OneToMany(targetEntity="StronglyTypedTranslationsTest_Translation", mappedBy="entity")
-     *
-     * @Polyglot\TranslationCollection
      */
+    #[Polyglot\TranslationCollection]
     public Collection $translations;
 
     /**
      * @var TranslatableInterface<string>
      *
      * @ORM\Column(type="translatable_string", options={"use_text_column": true})
-     *
-     * @Polyglot\Translatable
      */
+    #[Polyglot\Translatable]
     public TranslatableInterface $text;
 
     public function __construct()
@@ -243,9 +240,8 @@ class StronglyTypedTranslationsTest_Translation
 
     /**
      * @ORM\Column
-     *
-     * @Polyglot\Locale
      */
+    #[Polyglot\Locale]
     public string $locale;
 
     /**
