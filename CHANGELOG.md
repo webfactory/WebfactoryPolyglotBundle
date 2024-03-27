@@ -6,6 +6,7 @@ To get the diff for a specific change, go to https://github.com/webfactory/polyg
 
 * The annotations `\Webfactory\Bundle\PolyglotBundle\Annotation\Locale`, `\Webfactory\Bundle\PolyglotBundle\Annotation\Translatable` and `\Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` have been deprecated. Replace them with the corresponding PHP attributes from the `\Webfactory\Bundle\PolyglotBundle\Attribute` namespace.
 * Using annotations to configure entity classes for this bundle has been deprecated. Switch to PHP 8 attributes.
+* Attribute classes will be made `final` in the next major release.
 
 ## Version 3.0.0
 
