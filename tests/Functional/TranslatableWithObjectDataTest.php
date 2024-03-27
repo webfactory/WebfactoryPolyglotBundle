@@ -120,7 +120,7 @@ class TranslatableWithObjectDataTest extends FunctionalTestBase
 /**
  * @ORM\Entity
  */
-#[Polyglot\Locale(primary: "en_GB")]
+#[Polyglot\Locale(primary: 'en_GB')]
 class TranslatableWithObjectDataTest_Entity
 {
     /**

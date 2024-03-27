@@ -83,7 +83,7 @@ class TranslationPropertyNamedDifferentlyTest extends FunctionalTestBase
 /**
  * @ORM\Entity
  */
-#[Polyglot\Locale(primary: "en_GB")]
+#[Polyglot\Locale(primary: 'en_GB')]
 class TranslationPropertyNamedDifferently_Entity
 {
     /**
@@ -104,7 +104,7 @@ class TranslationPropertyNamedDifferently_Entity
     /**
      * @ORM\Column(type="string")
      */
-    #[Polyglot\Translatable(translationFieldname: "textOtherName")]
+    #[Polyglot\Translatable(translationFieldname: 'textOtherName')]
     protected string|TranslatableInterface|null $text = null;
 
     public function __construct()

@@ -47,7 +47,7 @@ class CascadePersistTranslationsTest extends FunctionalTestBase
 /**
  * @ORM\Entity
  */
-#[Polyglot\Locale(primary: "en_GB")]
+#[Polyglot\Locale(primary: 'en_GB')]
 class CascadePersistTranslationsTest_Entity
 {
     /**

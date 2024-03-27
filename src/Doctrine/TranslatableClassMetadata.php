@@ -231,7 +231,7 @@ final class TranslatableClassMetadata
 
             if ($reflectionProperty->getAttributes(Attribute\TranslationCollection::class)) {
                 $found = true;
-            } else if ($reader->getPropertyAnnotation($reflectionProperty, Annotation\TranslationCollection::class)) {
+            } elseif ($reader->getPropertyAnnotation($reflectionProperty, Annotation\TranslationCollection::class)) {
                 trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'Using the %s annotation on the %s::%s property is deprecated. Use the %s attribute instead.', Annotation\TranslationCollection::class, $reflectionProperty->class, $reflectionProperty->name, Attribute\TranslationCollection::class);
                 $found = true;
             }
@@ -284,6 +284,7 @@ final class TranslatableClassMetadata
             if ($reader->getPropertyAnnotation($reflectionProperty, Annotation\Locale::class)) {
                 $this->translationLocaleProperty = $reflectionProperty;
                 trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'Using the %s annotation on the %s::%s property is deprecated. Use the %s attribute instead.', Annotation\Locale::class, $reflectionProperty->class, $reflectionProperty->name, Attribute\Locale::class);
+
                 return;
             }
         }

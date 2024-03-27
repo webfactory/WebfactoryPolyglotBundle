@@ -10,7 +10,6 @@
 namespace Webfactory\Bundle\PolyglotBundle\Tests;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
@@ -20,7 +19,7 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
  *
  * @ORM\Entity()
  */
-#[Polyglot\Locale(primary: "en_GB")]
+#[Polyglot\Locale(primary: 'en_GB')]
 class TestEntity
 {
     /**

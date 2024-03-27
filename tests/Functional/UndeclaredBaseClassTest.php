@@ -165,7 +165,7 @@ class UndeclaredBaseClassTest_BaseClassTranslation
 /**
  * @ORM\Entity
  */
-#[Polyglot\Locale(primary: "en_GB")]
+#[Polyglot\Locale(primary: 'en_GB')]
 class UndeclaredBaseClassTest_EntityClass extends UndeclaredBaseClassTest_BaseClass
 {
 }
