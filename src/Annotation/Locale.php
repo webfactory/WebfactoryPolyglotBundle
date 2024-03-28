@@ -21,7 +21,7 @@ final class Locale extends Attribute
 {
     public function __construct(string $primary = null)
     {
-        trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'The %s annotation has been deprecated. Use the %s attribute instead.', self::class, parent::class);
+        trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'The %s annotation has been deprecated and will be removed in the 4.0 release. Use the %s attribute instead.', self::class, parent::class);
         parent::__construct($primary);
     }
 }
