@@ -5,7 +5,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
@@ -82,9 +82,8 @@ class TranslationPropertyNamedDifferentlyTest extends FunctionalTestBase
 
 /**
  * @ORM\Entity
- *
- * @Polyglot\Locale(primary="en_GB")
  */
+#[Polyglot\Locale(primary: 'en_GB')]
 class TranslationPropertyNamedDifferently_Entity
 {
     /**
@@ -98,16 +97,14 @@ class TranslationPropertyNamedDifferently_Entity
 
     /**
      * @ORM\OneToMany(targetEntity="TranslationPropertyNamedDifferently_Translation", mappedBy="entity")
-     *
-     * @Polyglot\TranslationCollection
      */
+    #[Polyglot\TranslationCollection]
     protected Collection $translations;
 
     /**
      * @ORM\Column(type="string")
-     *
-     * @Polyglot\Translatable(translationFieldname="textOtherName")
      */
+    #[Polyglot\Translatable(translationFieldname: 'textOtherName')]
     protected string|TranslatableInterface|null $text = null;
 
     public function __construct()
@@ -147,9 +144,8 @@ class TranslationPropertyNamedDifferently_Translation
 
     /**
      * @ORM\Column
-     *
-     * @Polyglot\Locale
      */
+    #[Polyglot\Locale]
     private string $locale;
 
     /**

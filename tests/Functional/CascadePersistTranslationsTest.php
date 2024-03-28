@@ -5,7 +5,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
@@ -46,9 +46,8 @@ class CascadePersistTranslationsTest extends FunctionalTestBase
 
 /**
  * @ORM\Entity
- *
- * @Polyglot\Locale(primary="en_GB")
  */
+#[Polyglot\Locale(primary: 'en_GB')]
 class CascadePersistTranslationsTest_Entity
 {
     /**
@@ -64,16 +63,14 @@ class CascadePersistTranslationsTest_Entity
      * (!) There is *not* cascade="persist" configuration here.
      *
      * @ORM\OneToMany(targetEntity="CascadePersistTranslationsTest_Translation", mappedBy="entity")
-     *
-     * @Polyglot\TranslationCollection
      */
+    #[Polyglot\TranslationCollection]
     protected Collection $translations;
 
     /**
      * @ORM\Column(type="string")
-     *
-     * @Polyglot\Translatable
      */
+    #[Polyglot\Translatable]
     protected string|TranslatableInterface $text;
 
     public function __construct()
@@ -104,9 +101,8 @@ class CascadePersistTranslationsTest_Translation
 
     /**
      * @ORM\Column
-     *
-     * @Polyglot\Locale
      */
+    #[Polyglot\Locale]
     private string $locale;
 
     /**

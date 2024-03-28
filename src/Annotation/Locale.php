@@ -10,23 +10,18 @@
 namespace Webfactory\Bundle\PolyglotBundle\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
+use Webfactory\Bundle\PolyglotBundle\Attribute\Locale as Attribute;
 
 /**
  * @Annotation
  * @NamedArgumentConstructor
  * @Target({"CLASS","PROPERTY"})
  */
-final class Locale
+final class Locale extends Attribute
 {
-    private ?string $primary;
-
     public function __construct(string $primary = null)
     {
-        $this->primary = $primary;
-    }
-
-    public function getPrimary(): ?string
-    {
-        return $this->primary;
+        trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'The %s annotation has been deprecated and will be removed in the 4.0 release. Use the %s attribute instead.', self::class, parent::class);
+        parent::__construct($primary);
     }
 }

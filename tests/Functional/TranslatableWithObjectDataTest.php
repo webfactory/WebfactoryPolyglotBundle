@@ -5,7 +5,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
@@ -119,9 +119,8 @@ class TranslatableWithObjectDataTest extends FunctionalTestBase
 
 /**
  * @ORM\Entity
- *
- * @Polyglot\Locale(primary="en_GB")
  */
+#[Polyglot\Locale(primary: 'en_GB')]
 class TranslatableWithObjectDataTest_Entity
 {
     /**
@@ -135,16 +134,14 @@ class TranslatableWithObjectDataTest_Entity
 
     /**
      * @ORM\OneToMany(targetEntity="TranslatableWithObjectDataTest_Translation", mappedBy="entity")
-     *
-     * @Polyglot\TranslationCollection
      */
+    #[Polyglot\TranslationCollection]
     public Collection $translations;
 
     /**
      * @ORM\Column(type="object")
-     *
-     * @Polyglot\Translatable
      */
+    #[Polyglot\Translatable]
     public TranslatableInterface|TranslatableWithObjectDataTest_Object $data;
 
     public function __construct()
@@ -170,9 +167,8 @@ class TranslatableWithObjectDataTest_Translation
 
     /**
      * @ORM\Column
-     *
-     * @Polyglot\Locale
      */
+    #[Polyglot\Locale]
     private string $locale;
 
     /**

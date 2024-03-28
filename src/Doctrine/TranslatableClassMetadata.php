@@ -18,6 +18,7 @@ use ReflectionClass;
 use ReflectionProperty;
 use RuntimeException;
 use Webfactory\Bundle\PolyglotBundle\Annotation;
+use Webfactory\Bundle\PolyglotBundle\Attribute;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 
@@ -193,15 +194,22 @@ final class TranslatableClassMetadata
                 continue;
             }
 
+            $foundAttributeOrAnnotation = null;
             $reflectionProperty = $cm->getReflectionClass()->getProperty($fieldName);
+            $attributes = $reflectionProperty->getAttributes(Attribute\Translatable::class);
 
-            $annotation = $reader->getPropertyAnnotation(
-                $reflectionProperty,
-                Annotation\Translatable::class
-            );
+            if ($attributes) {
+                $foundAttributeOrAnnotation = $attributes[0]->newInstance();
+            } else {
+                $foundAttributeOrAnnotation = $reader->getPropertyAnnotation($reflectionProperty, Annotation\Translatable::class);
 
-            if ($annotation) {
-                $translationFieldname = $annotation->getTranslationFieldname() ?: $fieldName;
+                if ($foundAttributeOrAnnotation) {
+                    trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'Using the %s annotation on the %s::%s property is deprecated. Use the %s attribute instead.', Annotation\Translatable::class, $reflectionProperty->class, $reflectionProperty->name, Attribute\Translatable::class);
+                }
+            }
+
+            if ($foundAttributeOrAnnotation) {
+                $translationFieldname = $foundAttributeOrAnnotation->getTranslationFieldname() ?: $fieldName;
                 $translationFieldReflectionProperty = $translationClassMetadata->getReflectionProperty($translationFieldname);
 
                 $this->translatedProperties[$fieldName] = $reflectionProperty;
@@ -212,19 +220,24 @@ final class TranslatableClassMetadata
 
     private function findTranslationsCollection(ClassMetadataInfo $cm, Reader $reader, ClassMetadataFactory $classMetadataFactory): void
     {
+        $found = false;
         foreach ($cm->associationMappings as $fieldName => $mapping) {
             if (isset($mapping['declared'])) {
                 // The association is inherited from a parent class
                 continue;
             }
 
-            $annotation = $reader->getPropertyAnnotation(
-                $cm->getReflectionProperty($fieldName),
-                Annotation\TranslationCollection::class
-            );
+            $reflectionProperty = $cm->getReflectionProperty($fieldName);
 
-            if ($annotation) {
-                $this->translationsCollectionProperty = $cm->getReflectionClass()->getProperty($fieldName);
+            if ($reflectionProperty->getAttributes(Attribute\TranslationCollection::class)) {
+                $found = true;
+            } elseif ($reader->getPropertyAnnotation($reflectionProperty, Annotation\TranslationCollection::class)) {
+                trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'Using the %s annotation on the %s::%s property is deprecated. Use the %s attribute instead.', Annotation\TranslationCollection::class, $reflectionProperty->class, $reflectionProperty->name, Attribute\TranslationCollection::class);
+                $found = true;
+            }
+
+            if ($found) {
+                $this->translationsCollectionProperty = $reflectionProperty;
 
                 $translationEntityMetadata = $classMetadataFactory->getMetadataFor($mapping['targetEntity']);
                 $this->translationClass = $translationEntityMetadata->getReflectionClass();
@@ -239,8 +252,17 @@ final class TranslatableClassMetadata
     private function findPrimaryLocale(ClassMetadataInfo $cm, Reader $reader): void
     {
         foreach (array_merge([$cm->name], $cm->parentClasses) as $class) {
-            $annotation = $reader->getClassAnnotation(new ReflectionClass($class), Annotation\Locale::class);
+            $reflectionClass = new ReflectionClass($class);
+
+            foreach ($reflectionClass->getAttributes(Attribute\Locale::class) as $attribute) {
+                $this->primaryLocale = $attribute->newInstance()->getPrimary();
+
+                return;
+            }
+
+            $annotation = $reader->getClassAnnotation($reflectionClass, Annotation\Locale::class);
             if (null !== $annotation) {
+                trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'Using the %s annotation on the %s class is deprecated. Use the %s attribute instead.', Annotation\Locale::class, $reflectionClass->name, Attribute\Locale::class);
                 $this->primaryLocale = $annotation->getPrimary();
 
                 return;
@@ -253,13 +275,15 @@ final class TranslatableClassMetadata
         foreach ($cm->fieldMappings as $fieldName => $mapping) {
             $reflectionProperty = $cm->getReflectionProperty($fieldName);
 
-            $annotation = $reader->getPropertyAnnotation(
-                $reflectionProperty,
-                Annotation\Locale::class
-            );
-
-            if ($annotation) {
+            if ($reflectionProperty->getAttributes(Attribute\Locale::class)) {
                 $this->translationLocaleProperty = $reflectionProperty;
+
+                return;
+            }
+
+            if ($reader->getPropertyAnnotation($reflectionProperty, Annotation\Locale::class)) {
+                $this->translationLocaleProperty = $reflectionProperty;
+                trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'Using the %s annotation on the %s::%s property is deprecated. Use the %s attribute instead.', Annotation\Locale::class, $reflectionProperty->class, $reflectionProperty->name, Attribute\Locale::class);
 
                 return;
             }

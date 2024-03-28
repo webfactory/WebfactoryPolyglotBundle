@@ -10,22 +10,17 @@
 namespace Webfactory\Bundle\PolyglotBundle\Annotation;
 
 use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
+use Webfactory\Bundle\PolyglotBundle\Attribute\Translatable as Attribute;
 
 /**
  * @Annotation
  * @NamedArgumentConstructor
  */
-final class Translatable
+final class Translatable extends Attribute
 {
-    private ?string $translationFieldname;
-
     public function __construct(string $translationFieldname = null)
     {
-        $this->translationFieldname = $translationFieldname;
-    }
-
-    public function getTranslationFieldname(): ?string
-    {
-        return $this->translationFieldname;
+        trigger_deprecation('webfactory/polyglot-bundle', '3.1.0', 'The %s annotation has been deprecated and will be removed in the 4.0 release. Use the %s attribute instead.', self::class, parent::class);
+        parent::__construct($translationFieldname);
     }
 }
