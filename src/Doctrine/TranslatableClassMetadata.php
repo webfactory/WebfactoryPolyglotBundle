@@ -195,7 +195,7 @@ final class TranslatableClassMetadata
             $reflectionProperty = $cm->getReflectionClass()->getProperty($fieldName);
             $attributes = $reflectionProperty->getAttributes(Attribute\Translatable::class);
 
-            if (! $attributes) {
+            if (!$attributes) {
                 continue;
             }
 
