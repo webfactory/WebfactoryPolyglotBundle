@@ -11,9 +11,8 @@ namespace Webfactory\Bundle\PolyglotBundle\Attribute;
 
 use Attribute;
 
-/** @final */
 #[Attribute]
-class Translatable
+final class Translatable
 {
     private ?string $translationFieldname;
 

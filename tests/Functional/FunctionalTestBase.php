@@ -2,7 +2,6 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -28,7 +27,7 @@ abstract class FunctionalTestBase extends TestCase
         $this->defaultLocaleProvider = new DefaultLocaleProvider('en_GB');
 
         $this->entityManager->getEventManager()->addEventSubscriber(
-            new PolyglotListener(new AnnotationReader(), $this->defaultLocaleProvider)
+            new PolyglotListener($this->defaultLocaleProvider)
         );
     }
 

@@ -9,7 +9,6 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
-use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\PostFlushEventArgs;
@@ -50,7 +49,6 @@ final class PolyglotListener implements EventSubscriber
     private array $ejectedTranslatables = [];
 
     public function __construct(
-        private readonly Reader $annotationReader,
         private readonly DefaultLocaleProvider $defaultLocaleProvider,
         private readonly LoggerInterface $logger = null ?? new NullLogger(),
     ) {
@@ -165,7 +163,7 @@ final class PolyglotListener implements EventSubscriber
         }
 
         // Load/parse
-        $meta = TranslatableClassMetadata::parseFromClass($className, $this->annotationReader, $metadataFactory);
+        $meta = TranslatableClassMetadata::parseFromClass($className, $metadataFactory);
 
         if (null !== $meta) {
             $meta->setLogger($this->logger);

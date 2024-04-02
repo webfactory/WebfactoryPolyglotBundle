@@ -11,8 +11,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Attribute;
 
 use Attribute;
 
-/** @final */
 #[Attribute]
-class TranslationCollection
+final class TranslationCollection
 {
 }
