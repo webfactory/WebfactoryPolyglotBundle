@@ -48,7 +48,6 @@ class CascadePersistTranslationsTest extends FunctionalTestBase
 #[ORM\Entity]
 class CascadePersistTranslationsTest_Entity
 {
-    
     #[ORM\Column(type: 'integer')]
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -80,7 +79,6 @@ class CascadePersistTranslationsTest_Entity
 #[ORM\Entity]
 class CascadePersistTranslationsTest_Translation
 {
-    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

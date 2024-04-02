@@ -121,7 +121,6 @@ class TranslatableWithObjectDataTest extends FunctionalTestBase
 #[ORM\Entity]
 class TranslatableWithObjectDataTest_Entity
 {
-    
     #[ORM\Column(type: 'integer')]
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -145,7 +144,6 @@ class TranslatableWithObjectDataTest_Entity
 #[ORM\Entity]
 class TranslatableWithObjectDataTest_Translation
 {
-    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
