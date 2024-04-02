@@ -10,7 +10,8 @@
 namespace Webfactory\Bundle\PolyglotBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Annotation as PolyglotAnnotation;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 
 /**
  * @ORM\MappedSuperclass
@@ -29,8 +30,9 @@ class BaseTranslation
     /**
      * @ORM\Column
      *
-     * @Polyglot\Locale
+     * @PolyglotAnnotation\Locale
      */
+    #[Polyglot\Locale]
     protected $locale;
 
     /**
