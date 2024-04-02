@@ -44,33 +44,25 @@ class CascadePersistTranslationsTest extends FunctionalTestBase
     }
 }
 
-/**
- * @ORM\Entity
- */
 #[Polyglot\Locale(primary: 'en_GB')]
+#[ORM\Entity]
 class CascadePersistTranslationsTest_Entity
 {
-    /**
-     * @ORM\Column(type="integer")
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     */
+    
+    #[ORM\Column(type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
     private ?int $id = null;
 
     /**
      * (!) There is *not* cascade="persist" configuration here.
-     *
-     * @ORM\OneToMany(targetEntity="CascadePersistTranslationsTest_Translation", mappedBy="entity")
      */
     #[Polyglot\TranslationCollection]
+    #[ORM\OneToMany(targetEntity: \CascadePersistTranslationsTest_Translation::class, mappedBy: 'entity')]
     protected Collection $translations;
 
-    /**
-     * @ORM\Column(type="string")
-     */
     #[Polyglot\Translatable]
+    #[ORM\Column(type: 'string')]
     protected string|TranslatableInterface $text;
 
     public function __construct()
@@ -85,33 +77,22 @@ class CascadePersistTranslationsTest_Entity
     }
 }
 
-/**
- * @ORM\Entity
- */
+#[ORM\Entity]
 class CascadePersistTranslationsTest_Translation
 {
-    /**
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(type="integer")
-     */
+    
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column
-     */
     #[Polyglot\Locale]
+    #[ORM\Column]
     private string $locale;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="CascadePersistTranslationsTest_Entity", inversedBy="translations")
-     */
+    #[ORM\ManyToOne(targetEntity: \CascadePersistTranslationsTest_Entity::class, inversedBy: 'translations')]
     private CascadePersistTranslationsTest_Entity $entity;
 
-    /**
-     * @ORM\Column
-     */
+    #[ORM\Column]
     private string $text;
 }
