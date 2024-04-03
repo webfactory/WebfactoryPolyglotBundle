@@ -14,14 +14,16 @@ use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
 
 /**
  * Translation entity of the Doctrine entity that is used for testing.
+ *
+ * @ORM\Entity
  */
-#[ORM\Entity]
 class TestEntityTranslation extends BaseTranslation
 {
     /**
+     * @ORM\ManyToOne(targetEntity="TestEntity", inversedBy="translations")
+     *
      * @var TestEntity
      */
-    #[ORM\ManyToOne(targetEntity: \TestEntity::class, inversedBy: 'translations')]
     protected $entity;
 
     /**
@@ -29,9 +31,10 @@ class TestEntityTranslation extends BaseTranslation
      *
      * Must be protected to be usable when this class is used as base for a mock.
      *
+     * @ORM\Column(type="string")
+     *
      * @var string
      */
-    #[ORM\Column(type: 'string')]
     protected $text;
 
     /**

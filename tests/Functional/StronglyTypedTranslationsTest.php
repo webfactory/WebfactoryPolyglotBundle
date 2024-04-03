@@ -188,24 +188,33 @@ class StronglyTypedTranslationsTest extends FunctionalTestBase
     }
 }
 
+/**
+ * @ORM\Entity
+ */
 #[Polyglot\Locale(primary: 'en_GB')]
-#[ORM\Entity]
 class StronglyTypedTranslationsTest_Entity
 {
-    #[ORM\Column(type: 'integer')]
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
+    /**
+     * @ORM\Column(type="integer")
+     *
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue
+     */
     public ?int $id = null;
 
+    /**
+     * @ORM\OneToMany(targetEntity="StronglyTypedTranslationsTest_Translation", mappedBy="entity")
+     */
     #[Polyglot\TranslationCollection]
-    #[ORM\OneToMany(targetEntity: \StronglyTypedTranslationsTest_Translation::class, mappedBy: 'entity')]
     public Collection $translations;
 
     /**
      * @var TranslatableInterface<string>
+     *
+     * @ORM\Column(type="translatable_string", options={"use_text_column": true})
      */
     #[Polyglot\Translatable]
-    #[ORM\Column(type: 'translatable_string', options: ['use_text_column' => true])]
     public TranslatableInterface $text;
 
     public function __construct()
@@ -215,21 +224,33 @@ class StronglyTypedTranslationsTest_Entity
     }
 }
 
-#[ORM\Entity]
+/**
+ * @ORM\Entity
+ */
 class StronglyTypedTranslationsTest_Translation
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue
+     *
+     * @ORM\Column(type="integer")
+     */
     public ?int $id = null;
 
+    /**
+     * @ORM\Column
+     */
     #[Polyglot\Locale]
-    #[ORM\Column]
     public string $locale;
 
-    #[ORM\ManyToOne(targetEntity: \StronglyTypedTranslationsTest_Entity::class, inversedBy: 'translations')]
+    /**
+     * @ORM\ManyToOne(targetEntity="StronglyTypedTranslationsTest_Entity", inversedBy="translations")
+     */
     public StronglyTypedTranslationsTest_Entity $entity;
 
-    #[ORM\Column]
+    /**
+     * @ORM\Column
+     */
     public string $text;
 }
