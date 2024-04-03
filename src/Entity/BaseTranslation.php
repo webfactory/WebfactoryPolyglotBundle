@@ -16,7 +16,6 @@ use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 /**
  * @ORM\MappedSuperclass
  */
-#[ORM\MappedSuperclass]
 class BaseTranslation
 {
     /**
@@ -26,9 +25,6 @@ class BaseTranslation
      *
      * @ORM\Column(type="integer")
      */
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
     protected $id;
 
     /**
@@ -37,13 +33,11 @@ class BaseTranslation
      * @PolyglotAnnotation\Locale
      */
     #[Polyglot\Locale]
-    #[ORM\Column]
     protected $locale;
 
     /**
      * @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable=false)
      */
-    #[ORM\JoinColumn(name: 'entity_id', referencedColumnName: 'id', nullable: false)]
     protected $entity;
 
     public function getLocale()

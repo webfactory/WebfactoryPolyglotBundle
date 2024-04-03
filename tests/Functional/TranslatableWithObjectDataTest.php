@@ -117,22 +117,31 @@ class TranslatableWithObjectDataTest extends FunctionalTestBase
     }
 }
 
+/**
+ * @ORM\Entity
+ */
 #[Polyglot\Locale(primary: 'en_GB')]
-#[ORM\Entity]
 class TranslatableWithObjectDataTest_Entity
 {
-    
-    #[ORM\Column(type: 'integer')]
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
+    /**
+     * @ORM\Column(type="integer")
+     *
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue
+     */
     public ?int $id = null;
 
+    /**
+     * @ORM\OneToMany(targetEntity="TranslatableWithObjectDataTest_Translation", mappedBy="entity")
+     */
     #[Polyglot\TranslationCollection]
-    #[ORM\OneToMany(targetEntity: \TranslatableWithObjectDataTest_Translation::class, mappedBy: 'entity')]
     public Collection $translations;
 
+    /**
+     * @ORM\Column(type="object")
+     */
     #[Polyglot\Translatable]
-    #[ORM\Column(type: 'object')]
     public TranslatableInterface|TranslatableWithObjectDataTest_Object $data;
 
     public function __construct()
@@ -142,23 +151,34 @@ class TranslatableWithObjectDataTest_Entity
     }
 }
 
-#[ORM\Entity]
+/**
+ * @ORM\Entity
+ */
 class TranslatableWithObjectDataTest_Translation
 {
-    
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue
+     *
+     * @ORM\Column(type="integer")
+     */
     private ?int $id = null;
 
+    /**
+     * @ORM\Column
+     */
     #[Polyglot\Locale]
-    #[ORM\Column]
     private string $locale;
 
-    #[ORM\ManyToOne(targetEntity: \TranslatableWithObjectDataTest_Entity::class, inversedBy: 'translations')]
+    /**
+     * @ORM\ManyToOne(targetEntity="TranslatableWithObjectDataTest_Entity", inversedBy="translations")
+     */
     private TranslatableWithObjectDataTest_Entity $entity;
 
-    #[ORM\Column(type: 'object')]
+    /**
+     * @ORM\Column(type="object")
+     */
     private TranslatableWithObjectDataTest_Object $data;
 }
 

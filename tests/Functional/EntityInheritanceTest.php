@@ -101,28 +101,39 @@ class EntityInheritanceTest extends FunctionalTestBase
     }
 }
 
-
+/**
+ * @ORM\Entity()
+ *
+ * @ORM\InheritanceType(value="SINGLE_TABLE")
+ *
+ * @ORM\DiscriminatorMap({"base"="EntityInheritance_BaseEntityClass", "child"="EntityInheritance_ChildEntityClass"})
+ *
+ * @ORM\DiscriminatorColumn(name="discriminator", type="string")
+ */
 #[Polyglot\Locale(primary: 'en_GB')]
-#[ORM\Entity]
-#[ORM\InheritanceType(value: 'SINGLE_TABLE')]
-#[ORM\DiscriminatorMap(['base' => 'EntityInheritance_BaseEntityClass', 'child' => 'EntityInheritance_ChildEntityClass'])]
-#[ORM\DiscriminatorColumn(name: 'discriminator', type: 'string')]
 class EntityInheritance_BaseEntityClass
 {
-    
-    #[ORM\Column(type: 'integer')]
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
+    /**
+     * @ORM\Column(type="integer")
+     *
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue
+     */
     private ?int $id = null;
 
     private string $discriminator;
 
+    /**
+     * @ORM\OneToMany(targetEntity="EntityInheritance_BaseEntityClassTranslation", mappedBy="entity")
+     */
     #[Polyglot\TranslationCollection]
-    #[ORM\OneToMany(targetEntity: \EntityInheritance_BaseEntityClassTranslation::class, mappedBy: 'entity')]
     private Collection $translations;
 
+    /**
+     * @ORM\Column(type="string")
+     */
     #[Polyglot\Translatable]
-    #[ORM\Column(type: 'string')]
     private TranslatableInterface|string|null $text = null;
 
     public function __construct()
@@ -146,35 +157,52 @@ class EntityInheritance_BaseEntityClass
     }
 }
 
-#[ORM\Entity]
+/**
+ * @ORM\Entity
+ */
 class EntityInheritance_BaseEntityClassTranslation
 {
-    
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue
+     *
+     * @ORM\Column(type="integer")
+     */
     private ?int $id = null;
 
+    /**
+     * @ORM\Column
+     */
     #[Polyglot\Locale]
-    #[ORM\Column]
     private string $locale;
 
-    #[ORM\ManyToOne(targetEntity: \EntityInheritance_BaseEntityClass::class, inversedBy: 'translations')]
+    /**
+     * @ORM\ManyToOne(targetEntity="EntityInheritance_BaseEntityClass", inversedBy="translations")
+     */
     private EntityInheritance_BaseEntityClass $entity;
 
-    #[ORM\Column]
+    /**
+     * @ORM\Column()
+     */
     private string $text;
 }
 
-#[ORM\Entity]
+/**
+ * @ORM\Entity
+ */
 class EntityInheritance_ChildEntityClass extends EntityInheritance_BaseEntityClass
 {
+    /**
+     * @ORM\Column(type="string")
+     */
     #[Polyglot\Translatable]
-    #[ORM\Column(type: 'string')]
     private TranslatableInterface|string|null $extraText = null;
 
+    /**
+     * @ORM\OneToMany(targetEntity="EntityInheritance_ChildEntityClassTranslation", mappedBy="entity")
+     */
     #[Polyglot\TranslationCollection]
-    #[ORM\OneToMany(targetEntity: \EntityInheritance_ChildEntityClassTranslation::class, mappedBy: 'entity')]
     private Collection $extraTranslations;
 
     public function __construct()
@@ -194,22 +222,33 @@ class EntityInheritance_ChildEntityClass extends EntityInheritance_BaseEntityCla
     }
 }
 
-#[ORM\Entity]
+/**
+ * @ORM\Entity
+ */
 class EntityInheritance_ChildEntityClassTranslation
 {
-    
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Id
+     *
+     * @ORM\GeneratedValue
+     *
+     * @ORM\Column(type="integer")
+     */
     private ?int $id = null;
 
+    /**
+     * @ORM\Column
+     */
     #[Polyglot\Locale]
-    #[ORM\Column]
     private string $locale;
 
-    #[ORM\ManyToOne(targetEntity: \EntityInheritance_ChildEntityClass::class, inversedBy: 'extraTranslations')]
+    /**
+     * @ORM\ManyToOne(targetEntity="EntityInheritance_ChildEntityClass", inversedBy="extraTranslations")
+     */
     private EntityInheritance_ChildEntityClass $entity;
 
-    #[ORM\Column]
+    /**
+     * @ORM\Column()
+     */
     private string $extraText;
 }
