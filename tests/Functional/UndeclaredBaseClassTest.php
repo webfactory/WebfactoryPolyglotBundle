@@ -89,6 +89,7 @@ class UndeclaredBaseClassTest extends FunctionalTestBase
  */
 class UndeclaredBaseClassTest_BaseClass
 {
+    
     #[ORM\Column(type: 'integer')]
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -126,6 +127,7 @@ class UndeclaredBaseClassTest_BaseClass
 #[ORM\Entity]
 class UndeclaredBaseClassTest_BaseClassTranslation
 {
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

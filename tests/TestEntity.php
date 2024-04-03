@@ -11,7 +11,6 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use TestEntityTranslation;
 use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
@@ -22,6 +21,7 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 #[ORM\Entity]
 class TestEntity
 {
+    
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
@@ -36,7 +36,7 @@ class TestEntity
     private TranslatableInterface|string|null $text;
 
     #[Polyglot\TranslationCollection]
-    #[ORM\OneToMany(targetEntity: TestEntityTranslation::class, mappedBy: 'entity')] // This property is currently not typed to avoid an error in the \Webfactory\Bundle\PolyglotBundle\Tests\Doctrine\TranslatableClassMetadataTest::can_be_serialized_and_retrieved
+    #[ORM\OneToMany(targetEntity: \TestEntityTranslation::class, mappedBy: 'entity')] // This property is currently not typed to avoid an error in the \Webfactory\Bundle\PolyglotBundle\Tests\Doctrine\TranslatableClassMetadataTest::can_be_serialized_and_retrieved
     private $translations;
 
     public function __construct($text)

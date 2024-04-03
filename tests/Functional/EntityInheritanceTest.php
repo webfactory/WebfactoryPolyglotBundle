@@ -101,6 +101,7 @@ class EntityInheritanceTest extends FunctionalTestBase
     }
 }
 
+
 #[Polyglot\Locale(primary: 'en_GB')]
 #[ORM\Entity]
 #[ORM\InheritanceType(value: 'SINGLE_TABLE')]
@@ -108,6 +109,7 @@ class EntityInheritanceTest extends FunctionalTestBase
 #[ORM\DiscriminatorColumn(name: 'discriminator', type: 'string')]
 class EntityInheritance_BaseEntityClass
 {
+    
     #[ORM\Column(type: 'integer')]
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -147,6 +149,7 @@ class EntityInheritance_BaseEntityClass
 #[ORM\Entity]
 class EntityInheritance_BaseEntityClassTranslation
 {
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -194,6 +197,7 @@ class EntityInheritance_ChildEntityClass extends EntityInheritance_BaseEntityCla
 #[ORM\Entity]
 class EntityInheritance_ChildEntityClassTranslation
 {
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

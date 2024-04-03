@@ -84,6 +84,7 @@ class TranslationPropertyNamedDifferentlyTest extends FunctionalTestBase
 #[ORM\Entity]
 class TranslationPropertyNamedDifferently_Entity
 {
+    
     #[ORM\Column(type: 'integer')]
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -121,6 +122,7 @@ class TranslationPropertyNamedDifferently_Entity
 #[ORM\Entity]
 class TranslationPropertyNamedDifferently_Translation
 {
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

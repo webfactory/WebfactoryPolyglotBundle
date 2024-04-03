@@ -192,6 +192,7 @@ class StronglyTypedTranslationsTest extends FunctionalTestBase
 #[ORM\Entity]
 class StronglyTypedTranslationsTest_Entity
 {
+    
     #[ORM\Column(type: 'integer')]
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -218,6 +219,7 @@ class StronglyTypedTranslationsTest_Entity
 #[ORM\Entity]
 class StronglyTypedTranslationsTest_Translation
 {
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

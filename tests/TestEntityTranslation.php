@@ -29,6 +29,7 @@ class TestEntityTranslation extends BaseTranslation
      *
      * Must be protected to be usable when this class is used as base for a mock.
      *
+     *
      * @var string
      */
     #[ORM\Column(type: 'string')]
