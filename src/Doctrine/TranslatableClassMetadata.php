@@ -12,6 +12,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionProperty;
@@ -126,23 +127,23 @@ final class TranslatableClassMetadata
         return $sleep;
     }
 
-    public static function wakeup(SerializedTranslatableClassMetadata $data): self
+    public static function wakeup(SerializedTranslatableClassMetadata $data, RuntimeReflectionService $reflectionService): self
     {
         $self = new self($data->class);
         $self->primaryLocale = $data->primaryLocale;
-        $self->translationClass = new ReflectionClass($data->translationClass);
+        $self->translationClass = $reflectionService->getClass($data->translationClass);
 
         foreach ($data->translationFieldMapping as $fieldname => $property) {
-            $self->translationFieldMapping[$fieldname] = new ReflectionProperty(...$property);
+            $self->translationFieldMapping[$fieldname] = $reflectionService->getAccessibleProperty(...$property);
         }
 
         foreach ($data->translatedProperties as $fieldname => $property) {
-            $self->translatedProperties[$fieldname] = new ReflectionProperty(...$property);
+            $self->translatedProperties[$fieldname] = $reflectionService->getAccessibleProperty(...$property);
         }
 
-        $self->translationsCollectionProperty = new ReflectionProperty(...$data->translationsCollectionProperty);
-        $self->translationMappingProperty = new ReflectionProperty(...$data->translationMappingProperty);
-        $self->translationLocaleProperty = new ReflectionProperty(...$data->translationLocaleProperty);
+        $self->translationsCollectionProperty = $reflectionService->getAccessibleProperty(...$data->translationsCollectionProperty);
+        $self->translationMappingProperty = $reflectionService->getAccessibleProperty(...$data->translationMappingProperty);
+        $self->translationLocaleProperty = $reflectionService->getAccessibleProperty(...$data->translationLocaleProperty);
 
         return $self;
     }
@@ -192,7 +193,7 @@ final class TranslatableClassMetadata
                 continue;
             }
 
-            $reflectionProperty = $cm->getReflectionClass()->getProperty($fieldName);
+            $reflectionProperty = $cm->getReflectionProperty($fieldName);
             $attributes = $reflectionProperty->getAttributes(Attribute\Translatable::class);
 
             if (!$attributes) {
