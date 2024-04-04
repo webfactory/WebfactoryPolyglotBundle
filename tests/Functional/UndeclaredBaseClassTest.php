@@ -89,25 +89,17 @@ class UndeclaredBaseClassTest extends FunctionalTestBase
  */
 class UndeclaredBaseClassTest_BaseClass
 {
-    /**
-     * @ORM\Column(type="integer")
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     */
+    #[ORM\Column(type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
     protected ?int $id = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="UndeclaredBaseClassTest_BaseClassTranslation", mappedBy="entity")
-     */
     #[Polyglot\TranslationCollection]
+    #[ORM\OneToMany(targetEntity: \UndeclaredBaseClassTest_BaseClassTranslation::class, mappedBy: 'entity')]
     protected Collection $translations;
 
-    /**
-     * @ORM\Column(type="string")
-     */
     #[Polyglot\Translatable]
+    #[ORM\Column(type: 'string')]
     protected string|TranslatableInterface|null $text = null;
 
     public function __construct()
@@ -131,41 +123,27 @@ class UndeclaredBaseClassTest_BaseClass
     }
 }
 
-/**
- * @ORM\Entity
- */
+#[ORM\Entity]
 class UndeclaredBaseClassTest_BaseClassTranslation
 {
-    /**
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column
-     */
     #[Polyglot\Locale]
+    #[ORM\Column]
     private string $locale;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="UndeclaredBaseClassTest_EntityClass", inversedBy="translations")
-     */
+    #[ORM\ManyToOne(targetEntity: \UndeclaredBaseClassTest_EntityClass::class, inversedBy: 'translations')]
     private UndeclaredBaseClassTest_EntityClass $entity;
 
-    /**
-     * @ORM\Column
-     */
+    #[ORM\Column]
     private string $text;
 }
 
-/**
- * @ORM\Entity
- */
 #[Polyglot\Locale(primary: 'en_GB')]
+#[ORM\Entity]
 class UndeclaredBaseClassTest_EntityClass extends UndeclaredBaseClassTest_BaseClass
 {
 }

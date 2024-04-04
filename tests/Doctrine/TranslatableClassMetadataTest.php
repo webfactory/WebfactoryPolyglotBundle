@@ -2,6 +2,7 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableClassMetadata;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
@@ -28,7 +29,7 @@ class TranslatableClassMetadataTest extends TestCase
         $infrastructure = new ORMInfrastructure([
             TestEntity::class,
             TestEntityTranslation::class,
-        ]);
+        ], mappingDriver: new AttributeDriver([], true));
         $entityManager = $infrastructure->getEntityManager();
 
         return TranslatableClassMetadata::parseFromClass(TestEntity::class, $entityManager->getMetadataFactory());
