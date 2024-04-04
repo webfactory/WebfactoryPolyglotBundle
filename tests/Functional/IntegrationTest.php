@@ -2,7 +2,6 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
-use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
 use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
