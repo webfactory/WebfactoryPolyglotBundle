@@ -21,7 +21,12 @@ class TranslatableStringType extends Type
             return $platform->getClobTypeDeclarationSQL($column);
         }
 
-        return $platform->getStringTypeDeclarationSQL($column);
+        if (method_exists($platform, 'getStringTypeDeclarationSQL')) {
+            return $platform->getStringTypeDeclarationSQL($column);
+        } else {
+            // deprecated as of doctrine/dbal 3.4.0
+            return $platform->getVarcharTypeDeclarationSQL($column);
+        }
     }
 
     public function getName(): string
