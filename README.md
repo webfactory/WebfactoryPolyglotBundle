@@ -65,22 +65,16 @@ Let's say you have an existing Doctrine entity `Document` that looks like this:
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- * @ORM\Table()
- */
+#[ORM\Table]
+#[ORM\Entity]
 class Document
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
     private int $id;
 
-    /**
-     * @ORM\Column
-     */
+    #[ORM\Column]
     private string $text;
 
     public function getText(): string
@@ -118,25 +112,18 @@ use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
-/**
- * ...
- * @Polyglot\Locale(primary="en_GB")
- */
+#[Polyglot\Locale(primary: "en_GB")]
 class Document
 {
-    // ...
-
-    /**
-     * @Polyglot\TranslationCollection
-     * @ORM\OneToMany(targetEntity="DocumentTranslation", mappedBy="entity")
-     */
+    #[Polyglot\TranslationCollection]
+    #[ORM\OneToMany(targetEntity: \DocumentTranslation::class, mappedBy: 'entity')]
     private Collection $translations;
 
     /**
-     * @Polyglot\Translatable
-     * @ORM\Column(type="translatable_string")
      * @var TranslatableInterface<string>
      */
+    #[Polyglot\Translatable]
+    #[ORM\Column(type: 'translatable_string')]
     private TranslatableInterface $text;
 
     public function __construct(...)
@@ -170,32 +157,21 @@ Your code should look similar to this:
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
 
-/**
- * @ORM\Entity
- * @ORM\Table(
- *      uniqueConstraints = {
- *          @ORM\UniqueConstraint(columns={"entity_id", "locale"})
- *     }
- * )
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(columns: ['entity_id', 'locale'])]
+#[ORM\Entity]
 class DocumentTranslation
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
     private int $id;
 
-    /**
-     * @Polyglot\Locale
-     * @ORM\Column
-     */
+    #[ORM\Column]
+    #[Polyglot\Locale]
     private string $locale;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Document", inversedBy="translations")
-     */
+    #[ORM\ManyToOne(targetEntity: \Document::class, inversedBy: 'translations')]
     private Document $entity;
 
     public function getLocale(): string
@@ -203,9 +179,7 @@ class DocumentTranslation
         return $this->locale;
     }
 
-    /**
-     * @ORM\Column
-     */
+    #[ORM\Column]
     private string $text;
 }
 ```
@@ -275,11 +249,8 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 class Document
 {
     // ... fields and collections omitted for brevity
-
-    /**
-     * @ORM\Column(type=...your type) 
-     * @Polyglot\Translatable
-     */
+    #[ORM\Column(type: '...yourtype')]
+    #[Polyglot\Translatable]
     private TranslatableInterface|<other type> $text;
 
     // ...
