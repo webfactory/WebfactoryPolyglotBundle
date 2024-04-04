@@ -88,18 +88,18 @@ Now, we want to make the `text` field translatable.
 
 ### Step 1) Update the Main Entity
 
-1. For the main entity class, add the `Webfactory\Bundle\PolyglotBundle\Annotation\Locale` annotation to indicate your
+1. For the main entity class, add the `Webfactory\Bundle\PolyglotBundle\Attribute\Locale` attribute to indicate your
    primary locale. That's the locale you have used for your fields so far.
-2. Annotate all translatable fields with `Webfactory\Bundle\PolyglotBundle\Annotation\Translatable`.
+2. Add the `Webfactory\Bundle\PolyglotBundle\Attribute\Translatable` attribute to all translatable fields. 
 3. Add the collection to hold translation instances (more about that in the next section), 
-   and annotate its field with `Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection`. Also make sure it 
+   and add the `Webfactory\Bundle\PolyglotBundle\Attribute\TranslationCollection` attribute to its field. Also make sure it 
    is initialized with an empty Doctrine collection.
 4. Change the type hints for the translated fields in the main entity class from `string` to `TranslatableInterface`,
    and use the special `translatable_string` Doctrine column type for it.
 
 The `translatable_string` column type behaves like the built-in `string` type, but allows for type hinting with 
 `TranslatableInterface`. If you want it to behave like the `text` type instead, add the `use_text_column` option
-like so: `@ORM\Column(type="translatable_string", options={"use_text_column": true})`.
+like so: `#[ORM\Column(type: "translatable_string", options: ["use_text_column" => true])]`.
 
 This will lead you to something like the following, with some code skipped for brevity:
 
@@ -109,7 +109,7 @@ This will lead you to something like the following, with some code skipped for b
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 #[Polyglot\Locale(primary: "en_GB")]
@@ -143,7 +143,7 @@ class Document
 
 1. Create a class for the translation entity. As for the name, we suggest suffixing your main entity's name with
    `Translation`. It has to contain fields for all the fields in your main entity that are to be translated. Declare
-   these fields as regular Doctrine ORM column, using plain column types like `text` (e.g. `@ORM\Column(type="text")`).
+   these fields as regular Doctrine ORM column, using plain column types like `text` (e.g. `#[ORM\Column(type: "text")]`).
    You may want to extend `\Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation` to save yourself some boilerplate
    code, but extending this class is not necessary.
 2. To implement the one-to-many relationship, the translation entity needs to reference to the original entity. 
@@ -242,7 +242,7 @@ In this case, you need to use a union type for your field type declaration as in
 <?php
 
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 // ...
@@ -264,12 +264,6 @@ to obtain the translated values as well.
 
 Note that it is not necessary to do this in the translations class (`DocumentTranslation` in the above examples), since that 
 class represents the values of a single locale only and never contains `TranslatableInterface` instances.
-
-## Planned Features / Wish List
-
-For now, each entity has one fixed primary locale. We have encountered cases in which some records were only available
-in a language different from the primary locale. Therefore, we want to remove the primary locale annotation and store
-this information in an attribute. This would allow each record to have its own primary locale.
 
 ## Credits, Copyright and License
 
