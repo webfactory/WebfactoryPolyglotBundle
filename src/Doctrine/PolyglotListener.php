@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
+use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use WeakReference;
@@ -51,6 +52,7 @@ final class PolyglotListener implements EventSubscriber
     public function __construct(
         private readonly DefaultLocaleProvider $defaultLocaleProvider,
         private readonly LoggerInterface $logger = null ?? new NullLogger(),
+        private readonly RuntimeReflectionService $reflectionService = new RuntimeReflectionService(),
     ) {
     }
 
@@ -154,7 +156,7 @@ final class PolyglotListener implements EventSubscriber
 
                 return null;
             } else {
-                $wakeup = TranslatableClassMetadata::wakeup($data);
+                $wakeup = TranslatableClassMetadata::wakeup($data, $this->reflectionService);
                 $wakeup->setLogger($this->logger);
                 $this->translatedClasses[$className] = $wakeup;
 
