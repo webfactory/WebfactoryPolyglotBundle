@@ -4,6 +4,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableStringType;
@@ -22,7 +23,7 @@ abstract class FunctionalTestBase extends TestCase
         if (!Type::hasType(TranslatableStringType::NAME)) {
             Type::addType(TranslatableStringType::NAME, TranslatableStringType::class);
         }
-        $this->infrastructure = ORMInfrastructure::createOnlyFor($classes);
+        $this->infrastructure = ORMInfrastructure::createOnlyFor($classes, mappingDriver: new AttributeDriver([], true));
         $this->entityManager = $this->infrastructure->getEntityManager();
         $this->defaultLocaleProvider = new DefaultLocaleProvider('en_GB');
 

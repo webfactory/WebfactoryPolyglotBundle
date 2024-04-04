@@ -80,31 +80,21 @@ class TranslationPropertyNamedDifferentlyTest extends FunctionalTestBase
     }
 }
 
-/**
- * @ORM\Entity
- */
 #[Polyglot\Locale(primary: 'en_GB')]
+#[ORM\Entity]
 class TranslationPropertyNamedDifferently_Entity
 {
-    /**
-     * @ORM\Column(type="integer")
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     */
+    #[ORM\Column(type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
     private ?int $id = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="TranslationPropertyNamedDifferently_Translation", mappedBy="entity")
-     */
     #[Polyglot\TranslationCollection]
+    #[ORM\OneToMany(targetEntity: \TranslationPropertyNamedDifferently_Translation::class, mappedBy: 'entity')]
     protected Collection $translations;
 
-    /**
-     * @ORM\Column(type="string")
-     */
     #[Polyglot\Translatable(translationFieldname: 'textOtherName')]
+    #[ORM\Column(type: 'string')]
     protected string|TranslatableInterface|null $text = null;
 
     public function __construct()
@@ -128,33 +118,21 @@ class TranslationPropertyNamedDifferently_Entity
     }
 }
 
-/**
- * @ORM\Entity
- */
+#[ORM\Entity]
 class TranslationPropertyNamedDifferently_Translation
 {
-    /**
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column
-     */
     #[Polyglot\Locale]
+    #[ORM\Column]
     private string $locale;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="TranslationPropertyNamedDifferently_Entity", inversedBy="translations")
-     */
+    #[ORM\ManyToOne(targetEntity: \TranslationPropertyNamedDifferently_Entity::class, inversedBy: 'translations')]
     private TranslationPropertyNamedDifferently_Entity $entity;
 
-    /**
-     * @ORM\Column
-     */
+    #[ORM\Column]
     private string $textOtherName;
 }
