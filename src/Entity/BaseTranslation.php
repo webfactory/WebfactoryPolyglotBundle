@@ -10,7 +10,6 @@
 namespace Webfactory\Bundle\PolyglotBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Annotation as PolyglotAnnotation;
 use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 
 /**
@@ -33,8 +32,6 @@ class BaseTranslation
 
     /**
      * @ORM\Column
-     *
-     * @PolyglotAnnotation\Locale
      */
     #[Polyglot\Locale]
     #[ORM\Column]

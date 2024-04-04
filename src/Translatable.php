@@ -28,11 +28,11 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
  * Die Klasse heisst "Translatable", damit sie in Klienten "nett" initialisiert werden
  * kann:
  *
- *  use Webfactory\Bundle\PolyglotBundle\Annotation as Polyglot;
+ *  use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
  *  use Webfactory\Bundle\PolyglotBundle\Translatable;
  *
  *  class MyClass { ...
- *     // @ Polyglot\Translatable
+ *     #[Polyglot\Translatable]
  *     private $aField;
  *     public function __construct() {...
  *       $aField = new Translatable();

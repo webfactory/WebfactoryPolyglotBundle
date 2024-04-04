@@ -11,9 +11,8 @@ namespace Webfactory\Bundle\PolyglotBundle\Attribute;
 
 use Attribute;
 
-/** @final */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY)]
-class Locale
+final class Locale
 {
     private ?string $primary;
 
