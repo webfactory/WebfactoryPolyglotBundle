@@ -2,6 +2,11 @@
 
 To get the diff for a specific change, go to https://github.com/webfactory/polyglot-bundle/commit/XXX where XXX is the change hash. To get the diff between two versions, go to https://github.com/webfactory/polyglot-bundle/compare/{oldversion}...{newversion}.
 
+## Version 4.0.0
+
+* Support for annotation-based configuration of translation properties has been removed. Switch to attribute-based configuration, which has been added in 3.1.0.
+* Classes from the `Webfactory\Bundle\PolyglotBundle\Attribute` namespace are now `final`.
+
 ## Version 3.1.0
 
 * The annotations `\Webfactory\Bundle\PolyglotBundle\Annotation\Locale`, `\Webfactory\Bundle\PolyglotBundle\Annotation\Translatable` and `\Webfactory\Bundle\PolyglotBundle\Annotation\TranslationCollection` have been deprecated. Replace them with the corresponding PHP attributes from the `\Webfactory\Bundle\PolyglotBundle\Attribute` namespace.
