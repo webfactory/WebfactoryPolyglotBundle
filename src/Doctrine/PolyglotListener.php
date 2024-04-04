@@ -92,7 +92,7 @@ final class PolyglotListener implements EventSubscriber
 
     public function preFlush(PreFlushEventArgs $event): void
     {
-        $em = $event->getObjectManager();
+        $em = $event->getEntityManager();
 
         foreach ($this->entitiesWithTranslatables as $key => $weakRef) {
             $object = $weakRef->get();
