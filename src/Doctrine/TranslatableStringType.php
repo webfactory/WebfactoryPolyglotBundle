@@ -21,7 +21,7 @@ class TranslatableStringType extends Type
             return $platform->getClobTypeDeclarationSQL($column);
         }
 
-        return $platform->getVarcharTypeDeclarationSQL($column);
+        return $platform->getStringTypeDeclarationSQL($column);
     }
 
     public function getName(): string

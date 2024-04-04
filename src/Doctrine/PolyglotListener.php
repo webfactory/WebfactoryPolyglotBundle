@@ -92,7 +92,7 @@ final class PolyglotListener implements EventSubscriber
 
     public function preFlush(PreFlushEventArgs $event): void
     {
-        $em = $event->getEntityManager();
+        $em = $event->getObjectManager();
 
         foreach ($this->entitiesWithTranslatables as $key => $weakRef) {
             $object = $weakRef->get();
@@ -144,21 +144,21 @@ final class PolyglotListener implements EventSubscriber
         }
 
         $metadataFactory = $em->getMetadataFactory();
-        $cacheDriver = $em->getConfiguration()->getMetadataCacheImpl();
+        $cache = $em->getConfiguration()->getMetadataCache();
 
-        if ($cacheDriver) {
-            if (($data = $cacheDriver->fetch($className.self::CACHE_SALT)) !== false) {
-                if (null === $data) {
-                    $this->translatedClasses[$className] = null;
+        if ($cache?->hasItem($className.self::CACHE_SALT)) {
+            $item = $cache->getItem($className.self::CACHE_SALT);
+            $data = $item->get();
+            if (null === $data) {
+                $this->translatedClasses[$className] = null;
 
-                    return null;
-                } else {
-                    $wakeup = TranslatableClassMetadata::wakeup($data);
-                    $wakeup->setLogger($this->logger);
-                    $this->translatedClasses[$className] = $wakeup;
+                return null;
+            } else {
+                $wakeup = TranslatableClassMetadata::wakeup($data);
+                $wakeup->setLogger($this->logger);
+                $this->translatedClasses[$className] = $wakeup;
 
-                    return $wakeup;
-                }
+                return $wakeup;
             }
         }
 
@@ -171,7 +171,11 @@ final class PolyglotListener implements EventSubscriber
         }
 
         // Save if cache driver available
-        $cacheDriver?->save($className.self::CACHE_SALT, $meta?->sleep());
+        if ($cache) {
+            $item = $cache->getItem($className.self::CACHE_SALT);
+            $item->set($meta?->sleep());
+            $cache->save($item);
+        }
 
         return $meta;
     }
