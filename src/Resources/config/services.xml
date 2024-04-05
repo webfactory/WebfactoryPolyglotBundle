@@ -7,7 +7,6 @@
         <defaults autowire="true" autoconfigure="true" />
 
         <service id="Webfactory\Bundle\PolyglotBundle\Doctrine\PolyglotListener">
-            <tag name="doctrine.event_subscriber" priority="-100" />
             <tag name="doctrine.event_listener" priority="-100" event="postFlush"/>
             <tag name="doctrine.event_listener" priority="-100" event="prePersist"/>
             <tag name="doctrine.event_listener" priority="-100" event="preFlush"/>

@@ -27,7 +27,8 @@ abstract class FunctionalTestBase extends TestCase
         $this->entityManager = $this->infrastructure->getEntityManager();
         $this->defaultLocaleProvider = new DefaultLocaleProvider('en_GB');
 
-        $this->entityManager->getEventManager()->addEventSubscriber(
+        $this->entityManager->getEventManager()->addEventListener(
+            ['postFlush', 'prePersist', 'preFlush', 'postLoad'],
             new PolyglotListener($this->defaultLocaleProvider)
         );
     }
