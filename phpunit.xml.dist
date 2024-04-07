@@ -12,7 +12,7 @@
     <php>
         <server name="KERNEL_CLASS" value="Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\TestKernel" />
         <server name="KERNEL_DIR" value="tests/Fixtures/" />
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0" />
         <env name="DOCTRINE_DEPRECATIONS" value="trigger" />
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
