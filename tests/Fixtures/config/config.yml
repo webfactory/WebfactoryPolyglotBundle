@@ -1,0 +1,17 @@
+framework:
+    test: true
+    annotations: false
+
+doctrine:
+    dbal:
+        driver: pdo_sqlite
+        memory: true
+    orm:
+        report_fields_where_declared: true
+        #enable_lazy_ghost_objects: true
+        mappings:
+            WebfactoryPolyglotBundle:
+                type: attribute
+                dir: ../tests/Fixtures/Entity
+                prefix: Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity
+

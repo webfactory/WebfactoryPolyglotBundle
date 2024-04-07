@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webfactory\Bundle\PolyglotBundle\Tests;
+namespace Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
@@ -21,7 +21,7 @@ class TestEntityTranslation extends BaseTranslation
     /**
      * @var TestEntity
      */
-    #[ORM\ManyToOne(targetEntity: \TestEntity::class, inversedBy: 'translations')]
+    #[ORM\ManyToOne(targetEntity: TestEntity::class, inversedBy: 'translations')]
     protected $entity;
 
     /**

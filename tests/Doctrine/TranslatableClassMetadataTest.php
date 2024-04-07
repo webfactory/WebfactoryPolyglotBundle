@@ -6,8 +6,8 @@ use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableClassMetadata;
-use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
-use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntity;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntityTranslation;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 
 class TranslatableClassMetadataTest extends TestCase

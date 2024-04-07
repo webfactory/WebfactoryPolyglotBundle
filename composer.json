@@ -35,9 +35,13 @@
     },
 
     "require-dev": {
+        "doctrine/common": "^3.1",
+        "doctrine/doctrine-bundle": "^2.12",
         "phpunit/phpunit": "^9.6.18",
         "symfony/error-handler": "^6.4|^7.0",
+        "symfony/framework-bundle": "^5.4|^6.4|^7.0",
         "symfony/phpunit-bridge": ">= 7.0",
+        "symfony/yaml": "^5.4|^6.4|^7.0",
         "webfactory/doctrine-orm-test-infrastructure": "^1.14"
     },
 

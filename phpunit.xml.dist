@@ -9,17 +9,12 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-
-    <!-- Filter for code coverage -->
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src</directory>
-            <exclude>
-                <directory>src/Resources</directory>
-            </exclude>
-        </whitelist>
-    </filter>
-
+    <php>
+        <server name="KERNEL_CLASS" value="Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\TestKernel" />
+        <server name="KERNEL_DIR" value="tests/Fixtures/" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+        <env name="DOCTRINE_DEPRECATIONS" value="trigger" />
+    </php>
     <listeners>
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
     </listeners>
