@@ -26,10 +26,10 @@ class TestKernel extends Kernel
         return __DIR__;
     }
 
-//    public function getCacheDir(): string
-//    {
-//        return __DIR__.'/cache/'.$this->environment;
-//    }
+    //    public function getCacheDir(): string
+    //    {
+    //        return __DIR__.'/cache/'.$this->environment;
+    //    }
 }
 
-#class_alias(TestKernel::class, 'TestKernel');
+// class_alias(TestKernel::class, 'TestKernel');
