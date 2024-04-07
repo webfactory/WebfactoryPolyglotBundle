@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.5/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true">
 
@@ -12,7 +12,7 @@
     <php>
         <server name="KERNEL_CLASS" value="Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\TestKernel" />
         <server name="KERNEL_DIR" value="tests/Fixtures/" />
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[direct]=0" />
         <env name="DOCTRINE_DEPRECATIONS" value="trigger" />
     </php>
     <listeners>
