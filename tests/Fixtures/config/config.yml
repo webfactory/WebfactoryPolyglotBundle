@@ -8,7 +8,7 @@ doctrine:
         memory: true
     orm:
         report_fields_where_declared: true
-        #enable_lazy_ghost_objects: true
+        enable_lazy_ghost_objects: true
         mappings:
             WebfactoryPolyglotBundle:
                 type: attribute
