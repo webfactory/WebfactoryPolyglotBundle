@@ -15,7 +15,7 @@ use Webfactory\Bundle\PolyglotBundle\DependencyInjection\RegisterDoctrineTypePas
 
 final class WebfactoryPolyglotBundle extends Bundle
 {
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new RegisterDoctrineTypePass());
     }

@@ -7,11 +7,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webfactory\Bundle\PolyglotBundle\Tests;
+namespace Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use TestEntityTranslation;
 use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 

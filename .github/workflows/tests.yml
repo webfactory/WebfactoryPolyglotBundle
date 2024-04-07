@@ -6,10 +6,6 @@ on:
             - master
     pull_request:
 
-env:
-    SYMFONY_DEPRECATIONS_HELPER: max[direct]=0
-    DOCTRINE_DEPRECATIONS: trigger
-
 jobs:
     PHPUnit:
 

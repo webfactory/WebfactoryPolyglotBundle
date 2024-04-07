@@ -2,8 +2,8 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
-use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
-use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntity;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntityTranslation;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 

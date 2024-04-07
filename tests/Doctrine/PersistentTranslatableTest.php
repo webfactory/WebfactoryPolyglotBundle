@@ -12,8 +12,8 @@ use RuntimeException;
 use Symfony\Component\ErrorHandler\BufferingLogger;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
-use Webfactory\Bundle\PolyglotBundle\Tests\TestEntity;
-use Webfactory\Bundle\PolyglotBundle\Tests\TestEntityTranslation;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntity;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntityTranslation;
 
 class PersistentTranslatableTest extends TestCase
 {
