@@ -20,7 +20,7 @@ use Psr\Log\NullLogger;
 use WeakReference;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
-final class PolyglotListener implements EventSubscriber
+final class PolyglotListener
 {
     private const CACHE_SALT = '$WebfactoryPolyglot';
 
@@ -54,16 +54,6 @@ final class PolyglotListener implements EventSubscriber
         private readonly DefaultLocaleProvider $defaultLocaleProvider,
         private readonly LoggerInterface $logger = null ?? new NullLogger(),
     ) {
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            'prePersist',
-            'postLoad',
-            'preFlush',
-            'postFlush',
-        ];
     }
 
     public function postLoad(LifecycleEventArgs $event): void
