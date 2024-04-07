@@ -1,3 +1,4 @@
+tests/Fixtures/var
 vendor/
 composer.lock
 phpunit.xml$

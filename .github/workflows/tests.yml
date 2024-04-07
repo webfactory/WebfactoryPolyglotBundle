@@ -6,9 +6,6 @@ on:
             - master
     pull_request:
 
-env:
-    SYMFONY_DEPRECATIONS_HELPER: weak
-
 jobs:
     PHPUnit:
 

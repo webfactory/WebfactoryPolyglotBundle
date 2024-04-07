@@ -1,0 +1,18 @@
+framework:
+    test: true
+
+doctrine:
+    dbal:
+        driver: pdo_sqlite
+        memory: true
+    orm:
+        # The following would silence Doctrine bundle deprecation messages, but it's not straightforward
+        # to do while still being compliant across a range of ORM / DoctrineBundle versions.
+        #report_fields_where_declared: true
+        #enable_lazy_ghost_objects: true
+        mappings:
+            WebfactoryPolyglotBundle:
+                type: annotation
+                dir: ../tests/Fixtures/Entity
+                prefix: Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity
+
