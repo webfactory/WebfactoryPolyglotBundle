@@ -35,8 +35,8 @@
     },
 
     "require-dev": {
-        "doctrine/common": "^3.1",
-        "doctrine/doctrine-bundle": "^2.10",
+        "doctrine/common": "^2.0|^3.1",
+        "doctrine/doctrine-bundle": "^2.0",
         "phpunit/phpunit": "^9.6.18",
         "symfony/error-handler": "^6.4|^7.0",
         "symfony/framework-bundle": "^5.4|^6.4|^7.0",
