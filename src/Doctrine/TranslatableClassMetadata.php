@@ -10,8 +10,8 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
