@@ -11,7 +11,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
@@ -84,7 +84,7 @@ final class TranslatableClassMetadata
 
     public static function parseFromClass(string $class, ClassMetadataFactory $classMetadataFactory): ?self
     {
-        /** @var ClassMetadataInfo $cm */
+        /** @var ClassMetadata $cm */
         $cm = $classMetadataFactory->getMetadataFor($class);
 
         $tm = new static($class);
@@ -179,7 +179,7 @@ final class TranslatableClassMetadata
         }
     }
 
-    private function findTranslatedProperties(ClassMetadataInfo $cm, ClassMetadataFactory $classMetadataFactory): void
+    private function findTranslatedProperties(ClassMetadata $cm, ClassMetadataFactory $classMetadataFactory): void
     {
         if (!$this->translationClass) {
             return;
@@ -209,7 +209,7 @@ final class TranslatableClassMetadata
         }
     }
 
-    private function findTranslationsCollection(ClassMetadataInfo $cm, ClassMetadataFactory $classMetadataFactory): void
+    private function findTranslationsCollection(ClassMetadata $cm, ClassMetadataFactory $classMetadataFactory): void
     {
         foreach ($cm->associationMappings as $fieldName => $mapping) {
             if (isset($mapping['declared'])) {
@@ -232,7 +232,7 @@ final class TranslatableClassMetadata
         }
     }
 
-    private function findPrimaryLocale(ClassMetadataInfo $cm): void
+    private function findPrimaryLocale(ClassMetadata $cm): void
     {
         foreach (array_merge([$cm->name], $cm->parentClasses) as $class) {
             $reflectionClass = new ReflectionClass($class);
@@ -245,7 +245,7 @@ final class TranslatableClassMetadata
         }
     }
 
-    private function parseTranslationsEntity(ClassMetadataInfo $cm): void
+    private function parseTranslationsEntity(ClassMetadata $cm): void
     {
         foreach ($cm->fieldMappings as $fieldName => $mapping) {
             $reflectionProperty = $cm->getReflectionProperty($fieldName);
