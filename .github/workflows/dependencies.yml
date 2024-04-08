@@ -23,7 +23,7 @@ jobs:
                   tools: composer:v2
                   ini-values: variables_order=EGPCS, date.timezone=Europe/Berlin
             -   name: Cache Composer Dependencies
-                uses: actions/cache@v1
+                uses: actions/cache@v4
                 with:
                     path: vendor/
                     key: composer-${{ env.PHP_VERSION }}-${{ hashFiles('composer.*') }}
