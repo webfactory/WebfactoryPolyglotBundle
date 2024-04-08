@@ -14,12 +14,12 @@ final class UninitializedPersistentTranslatable implements TranslatableInterface
     {
     }
 
-    public function translate(string $locale = null): mixed
+    public function translate(?string $locale = null): mixed
     {
         throw new LogicException('this method is not supposed to be called');
     }
 
-    public function setTranslation(mixed $value, string $locale = null): void
+    public function setTranslation(mixed $value, ?string $locale = null): void
     {
         throw new LogicException('this method is not supposed to be called');
     }

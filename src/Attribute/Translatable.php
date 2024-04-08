@@ -16,7 +16,7 @@ final class Translatable
 {
     private ?string $translationFieldname;
 
-    public function __construct(string $translationFieldname = null)
+    public function __construct(?string $translationFieldname = null)
     {
         $this->translationFieldname = $translationFieldname;
     }

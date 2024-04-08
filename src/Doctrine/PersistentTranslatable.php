@@ -85,7 +85,7 @@ final class PersistentTranslatable implements TranslatableInterface
         private readonly ReflectionProperty $localeField,
         private readonly ReflectionProperty $translationMapping,
         private readonly ReflectionProperty $translatedProperty,
-        LoggerInterface $logger = null,
+        ?LoggerInterface $logger = null,
     ) {
         $this->oid = spl_object_id($entity);
         $this->logger = $logger ?? new NullLogger();
@@ -158,7 +158,7 @@ final class PersistentTranslatable implements TranslatableInterface
         return $entity;
     }
 
-    public function setTranslation(mixed $value, string $locale = null): void
+    public function setTranslation(mixed $value, ?string $locale = null): void
     {
         $locale = $locale ?: $this->getDefaultLocale();
         if ($locale === $this->primaryLocale) {
@@ -175,7 +175,7 @@ final class PersistentTranslatable implements TranslatableInterface
     /**
      * @throws TranslationException
      */
-    public function translate(string $locale = null): mixed
+    public function translate(?string $locale = null): mixed
     {
         $locale = $locale ?: $this->getDefaultLocale();
         try {

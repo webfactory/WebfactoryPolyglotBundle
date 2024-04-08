@@ -23,7 +23,7 @@ interface TranslatableInterface
      *
      * @return TTranslatedValue The translation or null if not available.
      */
-    public function translate(string $locale = null): mixed;
+    public function translate(?string $locale = null): mixed;
 
     /**
      * Overwrites the translation for the given locale.
@@ -31,7 +31,7 @@ interface TranslatableInterface
      * @param TTranslatedValue $value  The value to set for the particular locale
      * @param string|null      $locale The target locale or null for the current locale.
      */
-    public function setTranslation(mixed $value, string $locale = null): void;
+    public function setTranslation(mixed $value, ?string $locale = null): void;
 
     /**
      * Returns wether the text is translated into the target locale.

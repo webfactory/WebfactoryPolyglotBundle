@@ -37,7 +37,7 @@ class TestEntityTranslation extends BaseTranslation
     /**
      * @param string|null $text
      */
-    public function __construct($locale = null, $text = null, TestEntity $entity = null)
+    public function __construct($locale = null, $text = null, ?TestEntity $entity = null)
     {
         $this->locale = $locale;
         $this->text = $text;

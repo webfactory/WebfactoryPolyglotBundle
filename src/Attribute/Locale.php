@@ -16,7 +16,7 @@ final class Locale
 {
     private ?string $primary;
 
-    public function __construct(string $primary = null)
+    public function __construct(?string $primary = null)
     {
         $this->primary = $primary;
     }
