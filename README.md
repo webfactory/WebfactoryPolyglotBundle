@@ -62,6 +62,7 @@ Let's say you have an existing Doctrine entity `Document` that looks like this:
 
 ```php
 <?php
+namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -105,6 +106,8 @@ This will lead you to something like the following, with some code skipped for b
 
 ```php 
 <?php
+
+namespace App\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -153,9 +156,13 @@ Your code should look similar to this:
 
 ```php
 <?php
+
+namespace App\Entity;
     
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
+use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 #[ORM\Table]
 #[ORM\UniqueConstraint(columns: ['entity_id', 'locale'])]
@@ -171,7 +178,7 @@ class DocumentTranslation
     #[Polyglot\Locale]
     private string $locale;
 
-    #[ORM\ManyToOne(targetEntity: \Document::class, inversedBy: 'translations')]
+    #[ORM\ManyToOne(targetEntity: Document::class, inversedBy: 'translations')]
     private Document $entity;
 
     public function getLocale(): string
