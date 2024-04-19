@@ -38,7 +38,7 @@ final class TranslatableChain implements TranslatableInterface
         $this->translatables = $translatables;
     }
 
-    public function translate(string $locale = null): mixed
+    public function translate(?string $locale = null): mixed
     {
         $c = $this->comparator;
         foreach ($this->translatables as $translation) {
@@ -51,7 +51,7 @@ final class TranslatableChain implements TranslatableInterface
         return null;
     }
 
-    public function setTranslation(mixed $value, string $locale = null): void
+    public function setTranslation(mixed $value, ?string $locale = null): void
     {
         $this->translatables[0]->setTranslation($value, $locale);
     }

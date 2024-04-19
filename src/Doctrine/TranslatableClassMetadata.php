@@ -100,7 +100,7 @@ final class TranslatableClassMetadata
         return $tm;
     }
 
-    public function setLogger(LoggerInterface $logger = null): void
+    public function setLogger(?LoggerInterface $logger = null): void
     {
         $this->logger = $logger;
     }

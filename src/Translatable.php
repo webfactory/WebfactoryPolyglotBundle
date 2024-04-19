@@ -66,14 +66,14 @@ final class Translatable implements TranslatableInterface
         $this->defaultLocale = $locale;
     }
 
-    public function translate(string $locale = null): mixed
+    public function translate(?string $locale = null): mixed
     {
         $locale = $locale ?: $this->getDefaultLocale();
 
         return $this->translations[$locale] ?? null;
     }
 
-    public function setTranslation(mixed $value, string $locale = null): void
+    public function setTranslation(mixed $value, ?string $locale = null): void
     {
         $locale = $locale ?: $this->getDefaultLocale();
 

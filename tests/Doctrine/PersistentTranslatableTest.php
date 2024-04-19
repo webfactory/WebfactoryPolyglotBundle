@@ -150,7 +150,7 @@ class PersistentTranslatableTest extends TestCase
     /**
      * @return PersistentTranslatable
      */
-    private function createProxy(TestEntity $entity, LoggerInterface $logger = null)
+    private function createProxy(TestEntity $entity, ?LoggerInterface $logger = null)
     {
         $localeProvider = new DefaultLocaleProvider();
         $localeProvider->setDefaultLocale('de');
