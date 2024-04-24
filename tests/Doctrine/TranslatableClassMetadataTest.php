@@ -3,6 +3,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableClassMetadata;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntity;
@@ -19,7 +20,7 @@ class TranslatableClassMetadataTest extends TestCase
         $metadata = $this->createMetadata();
 
         $serialize = serialize($metadata->sleep());
-        $unserialized = TranslatableClassMetadata::wakeup(unserialize($serialize));
+        $unserialized = TranslatableClassMetadata::wakeup(unserialize($serialize), new RuntimeReflectionService());
 
         self::assertEquals($metadata, $unserialized);
     }
