@@ -43,6 +43,7 @@ class TranslatingUnmappedPropertiesTest extends FunctionalTestBase
 
 /**
  * @ORM\Entity
+ *
  * @ORM\HasLifecycleCallbacks
  */
 #[Polyglot\Locale(primary: 'en_GB')]
@@ -93,6 +94,7 @@ class TranslatingUnmappedPropertiesTest_Entity
 
 /**
  * @ORM\Entity
+ *
  * @ORM\HasLifecycleCallbacks
  */
 class TranslatingUnmappedPropertiesTest_Translation
