@@ -187,6 +187,7 @@ final class TranslatableClassMetadata
             return;
         }
 
+        $reflectionService = $classMetadataFactory->getReflectionService();
         $translationClassMetadata = $classMetadataFactory->getMetadataFor($this->translationClass->getName());
 
         /* Iterate all properties of the class, not only those mapped by Doctrine */
@@ -216,9 +217,9 @@ final class TranslatableClassMetadata
             }
 
             if ($foundAttributeOrAnnotation) {
-                $this->translatedProperties[$propertyName] = $classMetadataFactory->getReflectionService()->getAccessibleProperty($cm->name, $propertyName);
+                $this->translatedProperties[$propertyName] = $reflectionService->getAccessibleProperty($cm->name, $propertyName);
                 $translationFieldname = $foundAttributeOrAnnotation->getTranslationFieldname() ?: $propertyName;
-                $this->translationFieldMapping[$propertyName] = $translationClassMetadata->getReflectionProperty($translationFieldname);
+                $this->translationFieldMapping[$propertyName] = $reflectionService->getAccessibleProperty($translationClassMetadata->name, $translationFieldname);
             }
         }
     }
