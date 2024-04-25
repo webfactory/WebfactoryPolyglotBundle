@@ -55,7 +55,7 @@ class TranslatingUnmappedPropertiesTest_Entity
     #[Polyglot\TranslationCollection]
     protected Collection $translations;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     public $mappedText;
 
     // (!) This field is unmapped from the ORM point of view
@@ -90,14 +90,14 @@ class TranslatingUnmappedPropertiesTest_Translation
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     #[Polyglot\Locale]
     private string $locale;
 
     #[ORM\ManyToOne(targetEntity: TranslatingUnmappedPropertiesTest_Entity::class, inversedBy: 'translations')]
     private TranslatingUnmappedPropertiesTest_Entity $entity;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     private $mappedText;
 
     // (!) This field is unmapped from the ORM point of view
