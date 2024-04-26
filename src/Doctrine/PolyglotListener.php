@@ -140,7 +140,7 @@ final class PolyglotListener
         $cacheDriver = $em->getConfiguration()->getMetadataCacheImpl();
 
         if ($cacheDriver) {
-            $cacheKey = $this->getCacheKey($class);
+            $cacheKey = $this->getCacheKey($className);
             if (($data = $cacheDriver->fetch($cacheKey)) !== false) {
                 if (null === $data) {
                     $this->translatedClasses[$className] = null;
@@ -175,9 +175,9 @@ final class PolyglotListener
     {
         if (str_contains($class, '@')) {
             // anonymous class: replace all PSR6-reserved characters
-            return str_replace(["\0", '\\', '/', '@', ':', '{', '}', '(', ')'], '.', $class) . self::CACHE_SALT;
+            return str_replace(["\0", '\\', '/', '@', ':', '{', '}', '(', ')'], '.', $class).self::CACHE_SALT;
         }
 
-        return str_replace('\\', '.', $class) . self::CACHE_SALT;
+        return str_replace('\\', '.', $class).self::CACHE_SALT;
     }
 }
