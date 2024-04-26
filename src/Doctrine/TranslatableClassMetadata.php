@@ -185,15 +185,22 @@ final class TranslatableClassMetadata
             return;
         }
 
+        $reflectionService = $classMetadataFactory->getReflectionService();
         $translationClassMetadata = $classMetadataFactory->getMetadataFor($this->translationClass->getName());
 
-        foreach ($cm->fieldMappings as $fieldName => $mapping) {
-            if (isset($mapping['declared'])) {
-                // The association is inherited from a parent class
+        /* Iterate all properties of the class, not only those mapped by Doctrine */
+        foreach ($cm->getReflectionClass()->getProperties() as $reflectionProperty) {
+            $propertyName = $reflectionProperty->name;
+
+            /*
+                If the property is inherited from a parent class, and our parent entity class
+                already contains that declaration, we need not include it.
+            */
+            $declaringClass = $reflectionProperty->getDeclaringClass()->name;
+            if ($declaringClass !== $cm->name && $cm->parentClasses && is_a($cm->parentClasses[0], $declaringClass, true)) {
                 continue;
             }
 
-            $reflectionProperty = $cm->getReflectionProperty($fieldName);
             $attributes = $reflectionProperty->getAttributes(Attribute\Translatable::class);
 
             if (!$attributes) {
@@ -201,11 +208,9 @@ final class TranslatableClassMetadata
             }
 
             $attribute = $attributes[0]->newInstance();
-            $translationFieldname = $attribute->getTranslationFieldname() ?: $fieldName;
-            $translationFieldReflectionProperty = $translationClassMetadata->getReflectionProperty($translationFieldname);
-
-            $this->translatedProperties[$fieldName] = $reflectionProperty;
-            $this->translationFieldMapping[$fieldName] = $translationFieldReflectionProperty;
+            $this->translatedProperties[$propertyName] = $reflectionService->getAccessibleProperty($cm->name, $propertyName);
+            $translationFieldname = $attribute->getTranslationFieldname() ?: $propertyName;
+            $this->translationFieldMapping[$propertyName] = $reflectionService->getAccessibleProperty($translationClassMetadata->name, $translationFieldname);
         }
     }
 
