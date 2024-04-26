@@ -136,9 +136,10 @@ final class PolyglotListener
 
         $metadataFactory = $em->getMetadataFactory();
         $cache = $em->getConfiguration()->getMetadataCache();
+        $cacheKey = $this->getCacheKey($className);
 
-        if ($cache?->hasItem($className.self::CACHE_SALT)) {
-            $item = $cache->getItem($className.self::CACHE_SALT);
+        if ($cache?->hasItem($cacheKey)) {
+            $item = $cache->getItem($cacheKey);
             $data = $item->get();
             if (null === $data) {
                 $this->translatedClasses[$className] = null;
@@ -163,11 +164,22 @@ final class PolyglotListener
 
         // Save if cache driver available
         if ($cache) {
-            $item = $cache->getItem($className.self::CACHE_SALT);
+            $item = $cache->getItem($cacheKey);
             $item->set($meta?->sleep());
             $cache->save($item);
         }
 
         return $meta;
+    }
+
+    // this is taken from \Symfony\Component\Validator\Mapping\Factory\LazyLoadingMetadataFactory::escapeClassName
+    private function getCacheKey(string $class): string
+    {
+        if (str_contains($class, '@')) {
+            // anonymous class: replace all PSR6-reserved characters
+            return str_replace(["\0", '\\', '/', '@', ':', '{', '}', '(', ')'], '.', $class).self::CACHE_SALT;
+        }
+
+        return str_replace('\\', '.', $class).self::CACHE_SALT;
     }
 }
