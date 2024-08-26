@@ -159,7 +159,7 @@ final class TranslatableClassMetadata
     private function assertAttributesAreComplete(string $class): void
     {
         if (null === $this->translationClass) {
-            throw new RuntimeException(sprintf('Unable to find the translations for %s. There should be a one-to-may collection holding the translation entities, and it should be marked with %s.', $class, Attribute\TranslationCollection::class));
+            throw new RuntimeException(\sprintf('Unable to find the translations for %s. There should be a one-to-may collection holding the translation entities, and it should be marked with %s.', $class, Attribute\TranslationCollection::class));
         }
 
         if (null === $this->translationLocaleProperty) {
@@ -175,7 +175,7 @@ final class TranslatableClassMetadata
         }
 
         if (null === $this->primaryLocale) {
-            throw new RuntimeException(sprintf('Class %s uses translations, so it needs to provide the primary locale with the %s attribute at the class level. This can either be at the class itself, or in one of its parent classes.', $class, Attribute\Locale::class));
+            throw new RuntimeException(\sprintf('Class %s uses translations, so it needs to provide the primary locale with the %s attribute at the class level. This can either be at the class itself, or in one of its parent classes.', $class, Attribute\Locale::class));
         }
     }
 
