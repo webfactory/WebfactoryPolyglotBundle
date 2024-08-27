@@ -192,7 +192,7 @@ final class PersistentTranslatable implements TranslatableInterface
 
             return $this->primaryValue;
         } catch (Exception $e) {
-            $message = sprintf(
+            $message = \sprintf(
                 'Cannot translate property %s::%s into locale %s',
                 \get_class($this->entity),
                 $this->translationProperty->getName(),
@@ -271,7 +271,7 @@ final class PersistentTranslatable implements TranslatableInterface
             if (!empty($exceptionAsString)) {
                 $exceptionAsString .= \PHP_EOL.'Previous exception: '.\PHP_EOL;
             }
-            $exceptionAsString .= sprintf(
+            $exceptionAsString .= \sprintf(
                 "Exception '%s' with message '%s' in %s:%d\n%s",
                 $e::class,
                 $e->getMessage(),
