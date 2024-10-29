@@ -45,7 +45,7 @@ final class Translatable implements TranslatableInterface
     /**
      * Maps locales to translations.
      *
-     * @var array<string, mixed>
+     * @var array<string, T>
      */
     private array $translations = [];
 
@@ -73,11 +73,11 @@ final class Translatable implements TranslatableInterface
     }
 
     /**
-     * @return T
+     * @return T|null
      */
     public function translate(?string $locale = null): mixed
     {
-        $locale = $locale ?: $this->getDefaultLocale();
+        $locale ??= $this->getDefaultLocale();
 
         return $this->translations[$locale] ?? null;
     }
@@ -87,14 +87,14 @@ final class Translatable implements TranslatableInterface
      */
     public function setTranslation(mixed $value, ?string $locale = null): void
     {
-        $locale = $locale ?: $this->getDefaultLocale();
+        $locale ??= $this->getDefaultLocale();
 
         $this->translations[$locale] = $value;
     }
 
     public function isTranslatedInto(string $locale): bool
     {
-        return isset($this->translations[$locale]) && !empty($this->translations[$locale]);
+        return isset($this->translations[$locale]) && (string) $this->translations[$locale] !== '';
     }
 
     public function __toString(): string

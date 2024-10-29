@@ -16,15 +16,13 @@ class TranslatableStringType extends Type
 {
     public const NAME = 'translatable_string';
 
-    /**
-     * @param array{options: array{use_text_column?: string}} $column
-     */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        if ($column['options']['use_text_column'] ?? false) {
+        if (isset($column['options']) && is_array($column['options']) && ($column['options']['use_text_column'] ?? false)) {
             return $platform->getClobTypeDeclarationSQL($column);
         }
 
+        // @phpstan-ignore function.alreadyNarrowedType
         if (method_exists($platform, 'getStringTypeDeclarationSQL')) {
             return $platform->getStringTypeDeclarationSQL($column);
         } else {

@@ -218,7 +218,7 @@ final class TranslatableClassMetadata
      */
     private function findTranslatedProperties(ClassMetadata $cm, ClassMetadataFactory $classMetadataFactory): void
     {
-        if (!$this->translationClass) {
+        if ($this->translationClass === null) {
             return;
         }
 
@@ -234,13 +234,13 @@ final class TranslatableClassMetadata
                 already contains that declaration, we need not include it.
             */
             $declaringClass = $reflectionProperty->getDeclaringClass()->name;
-            if ($declaringClass !== $cm->name && $cm->parentClasses && is_a($cm->parentClasses[0], $declaringClass, true)) {
+            if ($declaringClass !== $cm->name && $cm->parentClasses !== [] && is_a($cm->parentClasses[0], $declaringClass, true)) {
                 continue;
             }
 
             $attributes = $reflectionProperty->getAttributes(Attribute\Translatable::class);
 
-            if (!$attributes) {
+            if ($attributes === []) {
                 continue;
             }
 
@@ -248,7 +248,7 @@ final class TranslatableClassMetadata
             $this->translatedProperties[$propertyName] = $reflectionService->getAccessibleProperty($cm->name, $propertyName) ??
                 throw new ShouldNotHappen("Cannot get reflection for {$cm->name}::{$propertyName}.");
 
-            $translationFieldname = $attribute->getTranslationFieldname() ?: $propertyName;
+            $translationFieldname = $attribute->getTranslationFieldname() ?? $propertyName;
 
             $this->translationFieldMapping[$propertyName] = $reflectionService->getAccessibleProperty($translationClassMetadata->name, $translationFieldname) ??
                 throw new ShouldNotHappen("Cannot get reflection for {$translationClassMetadata->name}::{$translationFieldname}.");
@@ -268,7 +268,7 @@ final class TranslatableClassMetadata
 
             $reflectionProperty = $cm->getReflectionProperty($fieldName);
 
-            if ($reflectionProperty?->getAttributes(Attribute\TranslationCollection::class) ?? false) {
+            if ($reflectionProperty !== null && $reflectionProperty->getAttributes(Attribute\TranslationCollection::class) !== []) {
                 if (!$mapping instanceof InverseSideMapping) {
                     return;
                 }
@@ -309,7 +309,7 @@ final class TranslatableClassMetadata
         foreach ($cm->fieldMappings as $fieldName => $mapping) {
             $reflectionProperty = $cm->getReflectionProperty($fieldName);
 
-            if ($reflectionProperty?->getAttributes(Attribute\Locale::class) ?? false) {
+            if ($reflectionProperty !== null && $reflectionProperty->getAttributes(Attribute\Locale::class) !== []) {
                 $this->translationLocaleProperty = $reflectionProperty;
 
                 return;

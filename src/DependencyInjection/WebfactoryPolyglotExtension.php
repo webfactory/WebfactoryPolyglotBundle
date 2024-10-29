@@ -16,15 +16,16 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 final class WebfactoryPolyglotExtension extends Extension
 {
-    /**
-     * @param list<array{defaultLocale: string}> $configs
-     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
         $m = ['defaultLocale' => 'de_DE'];
+
+        /**
+         * @var array{defaultLocale: string} $c
+         */
         foreach ($configs as $c) {
             $m = array_merge($m, $c);
         }

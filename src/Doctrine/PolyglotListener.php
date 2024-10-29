@@ -126,7 +126,8 @@ final class PolyglotListener
             $classMetadata = $em->getClassMetadata($class);
 
             foreach (array_merge([$classMetadata->name], $classMetadata->parentClasses) as $className) {
-                if ($tm = $this->loadTranslationMetadataForClass($className, $em)) {
+                $tm = $this->loadTranslationMetadataForClass($className, $em);
+                if ($tm !== null) {
                     $this->translatableClassMetadatasByClass[$class][] = $tm;
                 }
             }
@@ -149,7 +150,7 @@ final class PolyglotListener
         $cache = $em->getConfiguration()->getMetadataCache();
         $cacheKey = $this->getCacheKey($className);
 
-        if ($cache?->hasItem($cacheKey)) {
+        if ($cache !== null && $cache->hasItem($cacheKey)) {
             $item = $cache->getItem($cacheKey);
             /** @var SerializedTranslatableClassMetadata|null $data */
             $data = $item->get();
@@ -175,7 +176,7 @@ final class PolyglotListener
         }
 
         // Save if cache driver available
-        if ($cache) {
+        if ($cache !== null) {
             $item = $cache->getItem($cacheKey);
             $item->set($meta?->sleep());
             $cache->save($item);

@@ -61,6 +61,11 @@ final class TranslatableChain implements TranslatableInterface
         $c = $this->comparator;
         foreach ($this->translatables as $translation) {
             $value = $translation->translate($locale);
+
+            if (null === $value) {
+                continue;
+            }
+
             if ($c($value)) {
                 return $value;
             }

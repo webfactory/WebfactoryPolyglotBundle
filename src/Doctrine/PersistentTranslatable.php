@@ -120,7 +120,7 @@ final class PersistentTranslatable implements TranslatableInterface
 
         $type = $this->translatedProperty->getType();
         if ($type instanceof ReflectionNamedType && TranslatableInterface::class === $type->getName() && \is_string($value)) {
-            if (!$this->valueForEjection || $this->valueForEjection->getPrimaryValue() !== $value) {
+            if ($this->valueForEjection === null || $this->valueForEjection->getPrimaryValue() !== $value) {
                 $this->valueForEjection = new UninitializedPersistentTranslatable($value);
             }
             $value = $this->valueForEjection;
@@ -167,12 +167,13 @@ final class PersistentTranslatable implements TranslatableInterface
 
     public function setTranslation(mixed $value, ?string $locale = null): void
     {
-        $locale = $locale ?: $this->getDefaultLocale();
+        $locale ??= $this->getDefaultLocale();
+
         if ($locale === $this->primaryLocale) {
             $this->setPrimaryValue($value);
         } else {
             $entity = $this->getTranslationEntity($locale);
-            if (!$entity) {
+            if ($entity === null) {
                 $entity = $this->createTranslationEntity($locale);
             }
             $this->translationProperty->setValue($entity, $value);
@@ -184,13 +185,15 @@ final class PersistentTranslatable implements TranslatableInterface
      */
     public function translate(?string $locale = null): mixed
     {
-        $locale = $locale ?: $this->getDefaultLocale();
+        $locale ??= $this->getDefaultLocale();
+
         try {
             if ($locale === $this->primaryLocale) {
                 return $this->primaryValue;
             }
 
-            if ($entity = $this->getTranslationEntity($locale)) {
+            $entity = $this->getTranslationEntity($locale);
+            if ($entity !== null) {
                 $translated = $this->translationProperty->getValue($entity);
                 if (null !== $translated) {
                     return $translated;
@@ -212,12 +215,12 @@ final class PersistentTranslatable implements TranslatableInterface
     public function isTranslatedInto(string $locale): bool
     {
         if ($locale === $this->primaryLocale) {
-            return !empty($this->primaryValue);
+            return $this->primaryValue !== '' && $this->primaryValue !== null;
         }
 
         $entity = $this->getTranslationEntity($locale);
 
-        return $entity && null !== $this->translationProperty->getValue($entity);
+        return $entity !== null && $this->translationProperty->getValue($entity) !== null;
     }
 
     public function __toString(): string
@@ -279,7 +282,7 @@ final class PersistentTranslatable implements TranslatableInterface
     {
         $exceptionAsString = '';
         while (null !== $e) {
-            if (!empty($exceptionAsString)) {
+            if ($exceptionAsString !== '') {
                 $exceptionAsString .= \PHP_EOL.'Previous exception: '.\PHP_EOL;
             }
             $exceptionAsString .= \sprintf(
