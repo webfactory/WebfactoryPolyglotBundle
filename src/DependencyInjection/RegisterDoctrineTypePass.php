@@ -15,6 +15,7 @@ final class RegisterDoctrineTypePass implements CompilerPassInterface
             throw new RuntimeException('This bundle expects DoctrineBundle to be registered, it should provide the doctrine.dbal.connection_factory.types container parameter');
         }
 
+        /** @var array<string, mixed> $types */
         $types = $container->getParameter('doctrine.dbal.connection_factory.types');
         $types[TranslatableStringType::NAME] = ['class' => TranslatableStringType::class];
 

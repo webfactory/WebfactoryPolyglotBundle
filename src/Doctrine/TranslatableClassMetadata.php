@@ -12,12 +12,14 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
+use Doctrine\ORM\Mapping\InverseSideMapping;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionProperty;
 use RuntimeException;
 use Webfactory\Bundle\PolyglotBundle\Attribute;
+use Webfactory\Bundle\PolyglotBundle\Exception\ShouldNotHappen;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 
@@ -60,7 +62,7 @@ final class TranslatableClassMetadata
     private ?ReflectionProperty $translationLocaleProperty = null;
 
     /**
-     * Die Übersetzungs-Klasse.
+     * @var ReflectionClass<object>|null
      */
     private ?ReflectionClass $translationClass = null;
 
@@ -72,19 +74,22 @@ final class TranslatableClassMetadata
     private ?LoggerInterface $logger = null;
 
     /**
-     * @param class-string $class The FQCN for the entity class whose translatable fields are described by this
-     *                            TranslatableClassMetadata instance. If the class has base entity classes (or mapped
-     *                            superclasses), a separate instance of TranslatableClassMetadata will be used for
-     *                            their fields.
+     * @param class-string<object> $class The FQCN for the entity class whose translatable fields are described by this
+     *                                    TranslatableClassMetadata instance. If the class has base entity classes (or mapped
+     *                                    superclasses), a separate instance of TranslatableClassMetadata will be used for
+     *                                    their fields.
      */
     private function __construct(
         private readonly string $class
     ) {
     }
 
+    /**
+     * @param class-string<object> $class
+     */
     public static function parseFromClass(string $class, ClassMetadataFactory $classMetadataFactory): ?self
     {
-        /** @var ClassMetadata $cm */
+        /** @var ClassMetadata<object> $cm */
         $cm = $classMetadataFactory->getMetadataFor($class);
 
         $tm = new static($class);
@@ -107,21 +112,47 @@ final class TranslatableClassMetadata
 
     public function sleep(): SerializedTranslatableClassMetadata
     {
+        if (null === $this->translationClass) {
+            throw new ShouldNotHappen('translationClass cannot be null');
+        }
+
+        if (null === $this->primaryLocale) {
+            throw new ShouldNotHappen('primaryLocale cannot be null');
+        }
+
+        if (null === $this->translationLocaleProperty) {
+            throw new ShouldNotHappen('translationLocaleProperty cannot be null');
+        }
+
+        if (null === $this->translationMappingProperty) {
+            throw new ShouldNotHappen('translationMappingProperty cannot be null');
+        }
+
+        if (null === $this->translationsCollectionProperty) {
+            throw new ShouldNotHappen('translationsCollectionProperty cannot be null');
+        }
+
         $sleep = new SerializedTranslatableClassMetadata();
         $sleep->class = $this->class;
         $sleep->primaryLocale = $this->primaryLocale;
         $sleep->translationClass = $this->translationClass->name;
 
         foreach ($this->translationFieldMapping as $fieldname => $property) {
+            // @see https://github.com/phpstan/phpstan/issues/11334
+            // @phpstan-ignore assign.propertyType
             $sleep->translationFieldMapping[$fieldname] = [$property->class, $property->name];
         }
 
         foreach ($this->translatedProperties as $fieldname => $property) {
+            // @phpstan-ignore assign.propertyType
             $sleep->translatedProperties[$fieldname] = [$property->class, $property->name];
         }
 
+        // @phpstan-ignore assign.propertyType
         $sleep->translationLocaleProperty = [$this->translationLocaleProperty->class, $this->translationLocaleProperty->name];
+        // @phpstan-ignore assign.propertyType
         $sleep->translationsCollectionProperty = [$this->translationsCollectionProperty->class, $this->translationsCollectionProperty->name];
+        // @phpstan-ignore assign.propertyType
         $sleep->translationMappingProperty = [$this->translationMappingProperty->class, $this->translationMappingProperty->name];
 
         return $sleep;
@@ -134,11 +165,13 @@ final class TranslatableClassMetadata
         $self->translationClass = $reflectionService->getClass($data->translationClass);
 
         foreach ($data->translationFieldMapping as $fieldname => $property) {
-            $self->translationFieldMapping[$fieldname] = $reflectionService->getAccessibleProperty(...$property);
+            $self->translationFieldMapping[$fieldname] = $reflectionService->getAccessibleProperty(...$property) ??
+                throw new ShouldNotHappen("Cannot get reflection on {$property[0]}::{$property[1]}");
         }
 
         foreach ($data->translatedProperties as $fieldname => $property) {
-            $self->translatedProperties[$fieldname] = $reflectionService->getAccessibleProperty(...$property);
+            $self->translatedProperties[$fieldname] = $reflectionService->getAccessibleProperty(...$property) ??
+                throw new ShouldNotHappen("Cannot get reflection on {$property[0]}::{$property[1]}");
         }
 
         $self->translationsCollectionProperty = $reflectionService->getAccessibleProperty(...$data->translationsCollectionProperty);
@@ -179,9 +212,12 @@ final class TranslatableClassMetadata
         }
     }
 
+    /**
+     * @param ClassMetadata<object> $cm
+     */
     private function findTranslatedProperties(ClassMetadata $cm, ClassMetadataFactory $classMetadataFactory): void
     {
-        if (!$this->translationClass) {
+        if (null === $this->translationClass) {
             return;
         }
 
@@ -189,7 +225,7 @@ final class TranslatableClassMetadata
         $translationClassMetadata = $classMetadataFactory->getMetadataFor($this->translationClass->getName());
 
         /* Iterate all properties of the class, not only those mapped by Doctrine */
-        foreach ($cm->getReflectionClass()->getProperties() as $reflectionProperty) {
+        foreach ($cm->getReflectionClass()?->getProperties() ?? [] as $reflectionProperty) {
             $propertyName = $reflectionProperty->name;
 
             /*
@@ -197,23 +233,30 @@ final class TranslatableClassMetadata
                 already contains that declaration, we need not include it.
             */
             $declaringClass = $reflectionProperty->getDeclaringClass()->name;
-            if ($declaringClass !== $cm->name && $cm->parentClasses && is_a($cm->parentClasses[0], $declaringClass, true)) {
+            if ($declaringClass !== $cm->name && [] !== $cm->parentClasses && is_a($cm->parentClasses[0], $declaringClass, true)) {
                 continue;
             }
 
             $attributes = $reflectionProperty->getAttributes(Attribute\Translatable::class);
 
-            if (!$attributes) {
+            if ([] === $attributes) {
                 continue;
             }
 
             $attribute = $attributes[0]->newInstance();
-            $this->translatedProperties[$propertyName] = $reflectionService->getAccessibleProperty($cm->name, $propertyName);
-            $translationFieldname = $attribute->getTranslationFieldname() ?: $propertyName;
-            $this->translationFieldMapping[$propertyName] = $reflectionService->getAccessibleProperty($translationClassMetadata->name, $translationFieldname);
+            $this->translatedProperties[$propertyName] = $reflectionService->getAccessibleProperty($cm->name, $propertyName) ??
+                throw new ShouldNotHappen("Cannot get reflection for {$cm->name}::{$propertyName}.");
+
+            $translationFieldname = $attribute->getTranslationFieldname() ?? $propertyName;
+
+            $this->translationFieldMapping[$propertyName] = $reflectionService->getAccessibleProperty($translationClassMetadata->name, $translationFieldname) ??
+                throw new ShouldNotHappen("Cannot get reflection for {$translationClassMetadata->name}::{$translationFieldname}.");
         }
     }
 
+    /**
+     * @param ClassMetadata<object> $cm
+     */
     private function findTranslationsCollection(ClassMetadata $cm, ClassMetadataFactory $classMetadataFactory): void
     {
         foreach ($cm->associationMappings as $fieldName => $mapping) {
@@ -224,12 +267,16 @@ final class TranslatableClassMetadata
 
             $reflectionProperty = $cm->getReflectionProperty($fieldName);
 
-            if ($reflectionProperty->getAttributes(Attribute\TranslationCollection::class)) {
+            if (null !== $reflectionProperty && [] !== $reflectionProperty->getAttributes(Attribute\TranslationCollection::class)) {
+                if (!$mapping instanceof InverseSideMapping) {
+                    return;
+                }
+
                 $this->translationsCollectionProperty = $reflectionProperty;
 
-                $translationEntityMetadata = $classMetadataFactory->getMetadataFor($mapping['targetEntity']);
+                $translationEntityMetadata = $classMetadataFactory->getMetadataFor($mapping->targetEntity);
                 $this->translationClass = $translationEntityMetadata->getReflectionClass();
-                $this->translationMappingProperty = $translationEntityMetadata->getReflectionProperty($mapping['mappedBy']);
+                $this->translationMappingProperty = $translationEntityMetadata->getReflectionProperty($mapping->mappedBy);
                 $this->parseTranslationsEntity($translationEntityMetadata);
 
                 return;
@@ -237,6 +284,9 @@ final class TranslatableClassMetadata
         }
     }
 
+    /**
+     * @param ClassMetadata<object> $cm
+     */
     private function findPrimaryLocale(ClassMetadata $cm): void
     {
         foreach (array_merge([$cm->name], $cm->parentClasses) as $class) {
@@ -250,12 +300,15 @@ final class TranslatableClassMetadata
         }
     }
 
+    /**
+     * @param ClassMetadata<object> $cm
+     */
     private function parseTranslationsEntity(ClassMetadata $cm): void
     {
         foreach ($cm->fieldMappings as $fieldName => $mapping) {
             $reflectionProperty = $cm->getReflectionProperty($fieldName);
 
-            if ($reflectionProperty->getAttributes(Attribute\Locale::class)) {
+            if (null !== $reflectionProperty && [] !== $reflectionProperty->getAttributes(Attribute\Locale::class)) {
                 $this->translationLocaleProperty = $reflectionProperty;
 
                 return;
@@ -274,13 +327,13 @@ final class TranslatableClassMetadata
                 $entityManager->getUnitOfWork(),
                 $this->class,
                 $entity,
-                $this->primaryLocale,
+                $this->primaryLocale ?? new ShouldNotHappen('primaryLocale cannot be null.'),
                 $defaultLocaleProvider,
                 $this->translationFieldMapping[$fieldName],
-                $this->translationsCollectionProperty,
-                $this->translationClass,
-                $this->translationLocaleProperty,
-                $this->translationMappingProperty,
+                $this->translationsCollectionProperty ?? throw new ShouldNotHappen('primaryLocale cannot be null.'),
+                $this->translationClass ?? throw new ShouldNotHappen('primaryLocale cannot be null.'),
+                $this->translationLocaleProperty ?? throw new ShouldNotHappen('primaryLocale cannot be null.'),
+                $this->translationMappingProperty ?? throw new ShouldNotHappen('primaryLocale cannot be null.'),
                 $property,
                 $this->logger
             );
@@ -289,7 +342,7 @@ final class TranslatableClassMetadata
     }
 
     /**
-     * @return list<PersistentTranslatable>
+     * @return list<PersistentTranslatable<mixed>>
      */
     public function ejectPersistentTranslatables(object $entity): array
     {

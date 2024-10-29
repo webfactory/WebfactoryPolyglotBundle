@@ -21,7 +21,7 @@ interface TranslatableInterface
      *
      * @param string|null $locale The target locale or null for the current locale.
      *
-     * @return TTranslatedValue The translation or null if not available.
+     * @return TTranslatedValue|null The translation or null if not available.
      */
     public function translate(?string $locale = null): mixed;
 

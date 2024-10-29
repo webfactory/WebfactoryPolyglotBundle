@@ -9,6 +9,7 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\UnitOfWork;
@@ -25,6 +26,9 @@ use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
+ * @template T
+ * @implements TranslatableInterface<T>
+ *
  * This class implements `TranslatableInterface` for entities that are managed by
  * the entity manager. PolyglotListener will replace `Translatable` instances with
  * instances of this class as soon as a new entity is passed to EntityManager::persist().
@@ -61,17 +65,17 @@ final class PersistentTranslatable implements TranslatableInterface
     private LoggerInterface $logger;
 
     /**
-     * @param UnitOfWork            $unitOfWork            The UoW managing the entity that contains this PersistentTranslatable
-     * @param class-string          $class                 The class of the entity containing this PersistentTranslatable instance
-     * @param object                $entity                The entity containing this PersistentTranslatable instance
-     * @param string                $primaryLocale         The locale for which the translated value will be persisted in the "main" entity
-     * @param DefaultLocaleProvider $defaultLocaleProvider DefaultLocaleProvider that provides the locale to use when no explicit locale is passed to e. g. translate()
-     * @param ReflectionProperty    $translationProperty   ReflectionProperty pointing to the field in the translations class that holds the translated value to use
-     * @param ReflectionProperty    $translationCollection ReflectionProperty pointing to the collection in the main class that holds translation instances
-     * @param ReflectionClass       $translationClass      ReflectionClass for the class holding translated values
-     * @param ReflectionProperty    $localeField           ReflectionProperty pointing to the field in the translations class that holds a translation's locale
-     * @param ReflectionProperty    $translationMapping    ReflectionProperty pointing to the field in the translations class that refers back to the main entity (the owning side of the one-to-many translations collection).
-     * @param ReflectionProperty    $translatedProperty    ReflectionProperty pointing to the field in the main entity where this PersistentTranslatable instance will be used
+     * @param UnitOfWork              $unitOfWork            The UoW managing the entity that contains this PersistentTranslatable
+     * @param class-string            $class                 The class of the entity containing this PersistentTranslatable instance
+     * @param object                  $entity                The entity containing this PersistentTranslatable instance
+     * @param string                  $primaryLocale         The locale for which the translated value will be persisted in the "main" entity
+     * @param DefaultLocaleProvider   $defaultLocaleProvider DefaultLocaleProvider that provides the locale to use when no explicit locale is passed to e. g. translate()
+     * @param ReflectionProperty      $translationProperty   ReflectionProperty pointing to the field in the translations class that holds the translated value to use
+     * @param ReflectionProperty      $translationCollection ReflectionProperty pointing to the collection in the main class that holds translation instances
+     * @param ReflectionClass<object> $translationClass      ReflectionClass for the class holding translated values
+     * @param ReflectionProperty      $localeField           ReflectionProperty pointing to the field in the translations class that holds a translation's locale
+     * @param ReflectionProperty      $translationMapping    ReflectionProperty pointing to the field in the translations class that refers back to the main entity (the owning side of the one-to-many translations collection).
+     * @param ReflectionProperty      $translatedProperty    ReflectionProperty pointing to the field in the main entity where this PersistentTranslatable instance will be used
      */
     public function __construct(
         private readonly UnitOfWork $unitOfWork,
@@ -116,7 +120,7 @@ final class PersistentTranslatable implements TranslatableInterface
 
         $type = $this->translatedProperty->getType();
         if ($type instanceof ReflectionNamedType && TranslatableInterface::class === $type->getName() && \is_string($value)) {
-            if (!$this->valueForEjection || $this->valueForEjection->getPrimaryValue() !== $value) {
+            if (null === $this->valueForEjection || $this->valueForEjection->getPrimaryValue() !== $value) {
                 $this->valueForEjection = new UninitializedPersistentTranslatable($value);
             }
             $value = $this->valueForEjection;
@@ -150,7 +154,10 @@ final class PersistentTranslatable implements TranslatableInterface
         $this->localeField->setValue($entity, $locale);
 
         $this->translationMapping->setValue($entity, $this->entity);
-        $this->translationCollection->getValue($this->entity)->add($entity);
+
+        /** @var Collection<array-key, object> $collection */
+        $collection = $this->translationCollection->getValue($this->entity);
+        $collection->add($entity);
 
         self::$_translations[$this->class][$this->oid][$locale] = $entity;
         $this->unitOfWork->persist($entity);
@@ -160,12 +167,13 @@ final class PersistentTranslatable implements TranslatableInterface
 
     public function setTranslation(mixed $value, ?string $locale = null): void
     {
-        $locale = $locale ?: $this->getDefaultLocale();
+        $locale ??= $this->getDefaultLocale();
+
         if ($locale === $this->primaryLocale) {
             $this->setPrimaryValue($value);
         } else {
             $entity = $this->getTranslationEntity($locale);
-            if (!$entity) {
+            if (null === $entity) {
                 $entity = $this->createTranslationEntity($locale);
             }
             $this->translationProperty->setValue($entity, $value);
@@ -177,13 +185,15 @@ final class PersistentTranslatable implements TranslatableInterface
      */
     public function translate(?string $locale = null): mixed
     {
-        $locale = $locale ?: $this->getDefaultLocale();
+        $locale ??= $this->getDefaultLocale();
+
         try {
             if ($locale === $this->primaryLocale) {
                 return $this->primaryValue;
             }
 
-            if ($entity = $this->getTranslationEntity($locale)) {
+            $entity = $this->getTranslationEntity($locale);
+            if (null !== $entity) {
                 $translated = $this->translationProperty->getValue($entity);
                 if (null !== $translated) {
                     return $translated;
@@ -205,12 +215,12 @@ final class PersistentTranslatable implements TranslatableInterface
     public function isTranslatedInto(string $locale): bool
     {
         if ($locale === $this->primaryLocale) {
-            return !empty($this->primaryValue);
+            return '' !== $this->primaryValue && null !== $this->primaryValue;
         }
 
         $entity = $this->getTranslationEntity($locale);
 
-        return $entity && null !== $this->translationProperty->getValue($entity);
+        return null !== $entity && null !== $this->translationProperty->getValue($entity);
     }
 
     public function __toString(): string
@@ -241,12 +251,16 @@ final class PersistentTranslatable implements TranslatableInterface
      */
     private function cacheTranslation(string $locale): void
     {
-        /** @var $translationsInAllLanguages Selectable */
+        /** @var Selectable<array-key, object> $translationsInAllLanguages */
         $translationsInAllLanguages = $this->translationCollection->getValue($this->entity);
         $criteria = $this->createLocaleCriteria($locale);
         $translationsFilteredByLocale = $translationsInAllLanguages->matching($criteria);
 
         $translationInLocale = ($translationsFilteredByLocale->count() > 0) ? $translationsFilteredByLocale->first() : null;
+
+        if (\is_bool($translationInLocale)) {
+            return;
+        }
 
         self::$_translations[$this->class][$this->oid][$locale] = $translationInLocale;
     }
@@ -268,7 +282,7 @@ final class PersistentTranslatable implements TranslatableInterface
     {
         $exceptionAsString = '';
         while (null !== $e) {
-            if (!empty($exceptionAsString)) {
+            if ('' !== $exceptionAsString) {
                 $exceptionAsString .= \PHP_EOL.'Previous exception: '.\PHP_EOL;
             }
             $exceptionAsString .= \sprintf(

@@ -10,6 +10,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
@@ -39,28 +40,34 @@ final class PolyglotListener
     private array $translatedClasses = [];
 
     /**
-     * @var array<WeakReference>
+     * @var array<WeakReference<object>>
      */
     private array $entitiesWithTranslatables = [];
 
     /**
-     * @var list<PersistentTranslatable>
+     * @var list<PersistentTranslatable<mixed>>
      */
     private array $ejectedTranslatables = [];
 
     public function __construct(
         private readonly DefaultLocaleProvider $defaultLocaleProvider,
-        private readonly LoggerInterface $logger = null ?? new NullLogger(),
+        private readonly LoggerInterface $logger = new NullLogger(),
         private readonly RuntimeReflectionService $reflectionService = new RuntimeReflectionService(),
     ) {
     }
 
+    /**
+     * @param LifecycleEventArgs<EntityManager> $event
+     */
     public function postLoad(LifecycleEventArgs $event): void
     {
         // Called when the entity has been hydrated
         $this->injectPersistentTranslatables($event->getObjectManager(), $event->getObject());
     }
 
+    /**
+     * @param LifecycleEventArgs<EntityManager> $event
+     */
     public function prePersist(LifecycleEventArgs $event): void
     {
         // Called when a new entity is passed to persist() for the first time
@@ -109,7 +116,7 @@ final class PolyglotListener
     /**
      * @return list<TranslatableClassMetadata>
      */
-    private function getTranslationMetadatas(object $entity, EntityManager $em): array
+    private function getTranslationMetadatas(object $entity, EntityManagerInterface $em): array
     {
         $class = $entity::class;
 
@@ -118,7 +125,8 @@ final class PolyglotListener
             $classMetadata = $em->getClassMetadata($class);
 
             foreach (array_merge([$classMetadata->name], $classMetadata->parentClasses) as $className) {
-                if ($tm = $this->loadTranslationMetadataForClass($className, $em)) {
+                $tm = $this->loadTranslationMetadataForClass($className, $em);
+                if (null !== $tm) {
                     $this->translatableClassMetadatasByClass[$class][] = $tm;
                 }
             }
@@ -127,7 +135,10 @@ final class PolyglotListener
         return $this->translatableClassMetadatasByClass[$class];
     }
 
-    private function loadTranslationMetadataForClass($className, EntityManager $em): ?TranslatableClassMetadata
+    /**
+     * @param class-string<object> $className
+     */
+    private function loadTranslationMetadataForClass(string $className, EntityManagerInterface $em): ?TranslatableClassMetadata
     {
         // In memory cache
         if (isset($this->translatedClasses[$className])) {
@@ -138,8 +149,9 @@ final class PolyglotListener
         $cache = $em->getConfiguration()->getMetadataCache();
         $cacheKey = $this->getCacheKey($className);
 
-        if ($cache?->hasItem($cacheKey)) {
+        if (null !== $cache && $cache->hasItem($cacheKey)) {
             $item = $cache->getItem($cacheKey);
+            /** @var SerializedTranslatableClassMetadata|null $data */
             $data = $item->get();
             if (null === $data) {
                 $this->translatedClasses[$className] = null;
@@ -163,7 +175,7 @@ final class PolyglotListener
         }
 
         // Save if cache driver available
-        if ($cache) {
+        if (null !== $cache) {
             $item = $cache->getItem($cacheKey);
             $item->set($meta?->sleep());
             $cache->save($item);

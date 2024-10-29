@@ -28,22 +28,22 @@ class BaseTranslation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    protected $id;
+    protected mixed $id;
 
     /**
      * @ORM\Column
      */
     #[Polyglot\Locale]
     #[ORM\Column]
-    protected $locale;
+    protected ?string $locale;
 
     /**
      * @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable=false)
      */
     #[ORM\JoinColumn(name: 'entity_id', referencedColumnName: 'id', nullable: false)]
-    protected $entity;
+    protected object $entity;
 
-    public function getLocale()
+    public function getLocale(): ?string
     {
         return $this->locale;
     }
