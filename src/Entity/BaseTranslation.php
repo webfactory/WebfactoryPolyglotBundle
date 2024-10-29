@@ -35,7 +35,7 @@ class BaseTranslation
      */
     #[Polyglot\Locale]
     #[ORM\Column]
-    protected string|null $locale;
+    protected ?string $locale;
 
     /**
      * @ORM\JoinColumn(name="entity_id", referencedColumnName="id", nullable=false)
@@ -43,7 +43,7 @@ class BaseTranslation
     #[ORM\JoinColumn(name: 'entity_id', referencedColumnName: 'id', nullable: false)]
     protected object $entity;
 
-    public function getLocale(): string|null
+    public function getLocale(): ?string
     {
         return $this->locale;
     }

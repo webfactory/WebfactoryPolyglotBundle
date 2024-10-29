@@ -94,7 +94,7 @@ final class Translatable implements TranslatableInterface
 
     public function isTranslatedInto(string $locale): bool
     {
-        return isset($this->translations[$locale]) && (string) $this->translations[$locale] !== '';
+        return isset($this->translations[$locale]) && '' !== (string) $this->translations[$locale];
     }
 
     public function __toString(): string

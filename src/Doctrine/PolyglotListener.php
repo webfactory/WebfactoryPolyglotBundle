@@ -15,7 +15,6 @@ use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
-use Doctrine\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use WeakReference;
@@ -127,7 +126,7 @@ final class PolyglotListener
 
             foreach (array_merge([$classMetadata->name], $classMetadata->parentClasses) as $className) {
                 $tm = $this->loadTranslationMetadataForClass($className, $em);
-                if ($tm !== null) {
+                if (null !== $tm) {
                     $this->translatableClassMetadatasByClass[$class][] = $tm;
                 }
             }
@@ -150,7 +149,7 @@ final class PolyglotListener
         $cache = $em->getConfiguration()->getMetadataCache();
         $cacheKey = $this->getCacheKey($className);
 
-        if ($cache !== null && $cache->hasItem($cacheKey)) {
+        if (null !== $cache && $cache->hasItem($cacheKey)) {
             $item = $cache->getItem($cacheKey);
             /** @var SerializedTranslatableClassMetadata|null $data */
             $data = $item->get();
@@ -176,7 +175,7 @@ final class PolyglotListener
         }
 
         // Save if cache driver available
-        if ($cache !== null) {
+        if (null !== $cache) {
             $item = $cache->getItem($cacheKey);
             $item->set($meta?->sleep());
             $cache->save($item);

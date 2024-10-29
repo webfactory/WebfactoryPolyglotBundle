@@ -21,7 +21,7 @@ final class TranslatableChain implements TranslatableInterface
     private array $translatables;
 
     /**
-     * @param TranslatableInterface<T> ...$translatables
+     * @param  TranslatableInterface<T> ...$translatables
      * @return self<T>
      */
     public static function firstNonEmpty(TranslatableInterface ...$translatables): self
@@ -32,7 +32,7 @@ final class TranslatableChain implements TranslatableInterface
     }
 
     /**
-     * @param TranslatableInterface<T> ...$translatables
+     * @param  TranslatableInterface<T> ...$translatables
      * @return self<T>
      */
     public static function firstTranslation(TranslatableInterface ...$translatables): self
@@ -43,7 +43,7 @@ final class TranslatableChain implements TranslatableInterface
     }
 
     /**
-     * @param Closure(T): bool $comparator
+     * @param Closure(T): bool         $comparator
      * @param TranslatableInterface<T> ...$translatables
      */
     private function __construct(

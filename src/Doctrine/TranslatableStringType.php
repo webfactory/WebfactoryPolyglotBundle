@@ -18,7 +18,7 @@ class TranslatableStringType extends Type
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        if (isset($column['options']) && is_array($column['options']) && ($column['options']['use_text_column'] ?? false)) {
+        if (isset($column['options']) && \is_array($column['options']) && ($column['options']['use_text_column'] ?? false)) {
             return $platform->getClobTypeDeclarationSQL($column);
         }
 
@@ -51,7 +51,7 @@ class TranslatableStringType extends Type
 
     public function convertToPHPValue($value, AbstractPlatform $platform): UninitializedPersistentTranslatable
     {
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             throw new ShouldNotHappen('Translated value is not string.');
         }
 
