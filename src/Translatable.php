@@ -36,6 +36,9 @@ use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
  *     private $aField;
  *     public function __construct() {...
  *       $aField = new Translatable();
+ *
+ * @template T
+ * @implements TranslatableInterface<T>
  */
 final class Translatable implements TranslatableInterface
 {
@@ -46,6 +49,9 @@ final class Translatable implements TranslatableInterface
      */
     private array $translations = [];
 
+    /**
+     * @param T $value
+     */
     public function __construct(
         mixed $value = null,
         private string|DefaultLocaleProvider|null $defaultLocale = null,
@@ -66,6 +72,9 @@ final class Translatable implements TranslatableInterface
         $this->defaultLocale = $locale;
     }
 
+    /**
+     * @return T
+     */
     public function translate(?string $locale = null): mixed
     {
         $locale = $locale ?: $this->getDefaultLocale();
@@ -73,6 +82,9 @@ final class Translatable implements TranslatableInterface
         return $this->translations[$locale] ?? null;
     }
 
+    /**
+     * @param T $value
+     */
     public function setTranslation(mixed $value, ?string $locale = null): void
     {
         $locale = $locale ?: $this->getDefaultLocale();
@@ -92,6 +104,7 @@ final class Translatable implements TranslatableInterface
 
     /**
      * Copies translations from this object into the given one.
+     * @param TranslatableInterface<T> $p
      */
     public function copy(TranslatableInterface $p): void
     {

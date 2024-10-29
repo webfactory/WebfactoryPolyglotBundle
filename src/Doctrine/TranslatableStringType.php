@@ -5,6 +5,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use RuntimeException;
+use Webfactory\Bundle\PolyglotBundle\Exception\ShouldNotHappen;
 
 /**
  * Doctrine type to support mapping database string types (VARCHAR, TEXT etc.)
@@ -15,6 +16,9 @@ class TranslatableStringType extends Type
 {
     public const NAME = 'translatable_string';
 
+    /**
+     * @param array{options: array{use_text_column?: string}} $column
+     */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         if ($column['options']['use_text_column'] ?? false) {
@@ -49,6 +53,10 @@ class TranslatableStringType extends Type
 
     public function convertToPHPValue($value, AbstractPlatform $platform): UninitializedPersistentTranslatable
     {
+        if (!is_string($value)) {
+            throw new ShouldNotHappen('Translated value is not string.');
+        }
+
         return new UninitializedPersistentTranslatable($value);
     }
 

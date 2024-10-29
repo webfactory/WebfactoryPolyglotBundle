@@ -7,6 +7,7 @@ use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
  * @psalm-internal Webfactory\Bundle\PolyglotBundle
+ * @implements TranslatableInterface<mixed>
  */
 final class UninitializedPersistentTranslatable implements TranslatableInterface
 {

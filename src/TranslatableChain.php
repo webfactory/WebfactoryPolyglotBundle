@@ -9,21 +9,32 @@ use Closure;
  *
  * Goes through a list of `TranslatableInterface` instances and returns the first
  * (optionally, non-empty) translation found. Updates are passed to the primary translatable.
+ *
+ * @template T
+ * @implements TranslatableInterface<T>
  */
 final class TranslatableChain implements TranslatableInterface
 {
     /**
-     * @var list<TranslatableInterface>
+     * @var list<TranslatableInterface<T>>
      */
     private array $translatables;
 
+    /**
+     * @param TranslatableInterface<T> ...$translatables
+     * @return self<T>
+     */
     public static function firstNonEmpty(TranslatableInterface ...$translatables): self
     {
         return new self(function ($value) {
-            return null !== $value && '' !== trim($value);
+            return null !== $value && '' !== trim((string) $value);
         }, ...$translatables);
     }
 
+    /**
+     * @param TranslatableInterface<T> ...$translatables
+     * @return self<T>
+     */
     public static function firstTranslation(TranslatableInterface ...$translatables): self
     {
         return new self(function ($value) {
@@ -31,13 +42,20 @@ final class TranslatableChain implements TranslatableInterface
         }, ...$translatables);
     }
 
+    /**
+     * @param Closure(T): bool $comparator
+     * @param TranslatableInterface<T> ...$translatables
+     */
     private function __construct(
         private readonly Closure $comparator,
         TranslatableInterface ...$translatables,
     ) {
-        $this->translatables = $translatables;
+        $this->translatables = array_values($translatables);
     }
 
+    /**
+     * @return T|null
+     */
     public function translate(?string $locale = null): mixed
     {
         $c = $this->comparator;
@@ -69,6 +87,6 @@ final class TranslatableChain implements TranslatableInterface
 
     public function __toString(): string
     {
-        return $this->translate();
+        return (string) $this->translate();
     }
 }

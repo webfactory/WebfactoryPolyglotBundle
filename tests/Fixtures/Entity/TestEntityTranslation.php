@@ -22,7 +22,7 @@ class TestEntityTranslation extends BaseTranslation
      * @var TestEntity
      */
     #[ORM\ManyToOne(targetEntity: TestEntity::class, inversedBy: 'translations')]
-    protected $entity;
+    protected object $entity;
 
     /**
      * Contains the translation.
@@ -32,15 +32,15 @@ class TestEntityTranslation extends BaseTranslation
      * @var string
      */
     #[ORM\Column(type: 'string')]
-    protected $text;
+    protected string|null $text;
 
-    /**
-     * @param string|null $text
-     */
-    public function __construct($locale = null, $text = null, ?TestEntity $entity = null)
+    public function __construct(string|null $locale = null, string|null $text = null, ?TestEntity $entity = null)
     {
         $this->locale = $locale;
         $this->text = $text;
-        $this->entity = $entity;
+
+        if ($entity !== null) {
+            $this->entity = $entity;
+        }
     }
 }

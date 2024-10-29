@@ -11,33 +11,40 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 final class SerializedTranslatableClassMetadata
 {
+    /**
+     * @var class-string<object>
+     */
     public string $class;
+
+    /**
+     * @var class-string<object>
+     */
     public string $translationClass;
 
     /**
-     * @var array<string, array{0: string, 1: string}>
+     * @var array<string, array{0: class-string<object>, 1: string}>
      */
-    public array $translationFieldMapping = [];
+    public array $translationFieldMapping;
 
     /**
-     * @var array<string, array{0: string, 1: string}>
+     * @var array<string, array{0: class-string<object>, 1: string}>
      */
-    public array $translatedProperties = [];
+    public array $translatedProperties;
 
     /**
-     * @var array{0: string, 1: string}
+     * @var array{0: class-string<object>, 1: string}
      */
-    public array $translationLocaleProperty = [];
+    public array $translationLocaleProperty;
 
     /**
-     * @var array{0: string, 1: string}
+     * @var array{0: class-string<object>, 1: string}
      */
-    public array $translationsCollectionProperty = [];
+    public array $translationsCollectionProperty;
 
     /**
-     * @var array{0: string, 1: string}
+     * @var array{0: class-string<object>, 1: string}
      */
-    public array $translationMappingProperty = [];
+    public array $translationMappingProperty;
 
     public string $primaryLocale;
 }
