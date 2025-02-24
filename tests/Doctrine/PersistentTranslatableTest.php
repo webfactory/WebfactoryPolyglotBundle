@@ -17,7 +17,7 @@ use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntityTranslation
 
 class PersistentTranslatableTest extends TestCase
 {
-    public function testToStringReturnsTranslatedMessage()
+    public function testToStringReturnsTranslatedMessage(): void
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -31,7 +31,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertEquals('bar', $translation);
     }
 
-    public function testToStringReturnsStringIfExceptionOccurredAndNoLoggerIsAvailable()
+    public function testToStringReturnsStringIfExceptionOccurredAndNoLoggerIsAvailable(): void
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -41,7 +41,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertIsString($translation);
     }
 
-    public function testToStringReturnsStringIfExceptionOccurredAndLoggerIsAvailable()
+    public function testToStringReturnsStringIfExceptionOccurredAndLoggerIsAvailable(): void
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity, new NullLogger());
@@ -51,7 +51,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertIsString($translation);
     }
 
-    public function testToStringLogsExceptionIfLoggerIsAvailable()
+    public function testToStringLogsExceptionIfLoggerIsAvailable(): void
     {
         $entity = new TestEntity('foo');
 
@@ -64,7 +64,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertGreaterThan(0, \count($logger->cleanLogs()), 'Expected at least one log message');
     }
 
-    public function testLoggedMessageContainsInformationAboutTranslatedProperty()
+    public function testLoggedMessageContainsInformationAboutTranslatedProperty(): void
     {
         $entity = new TestEntity('foo');
 
@@ -84,7 +84,7 @@ class PersistentTranslatableTest extends TestCase
         self::assertStringContainsString('de', $logMessage, 'Missing locale.');
     }
 
-    public function testLoggedMessageContainsOriginalException()
+    public function testLoggedMessageContainsOriginalException(): void
     {
         $entity = new TestEntity('foo');
 
@@ -103,7 +103,7 @@ class PersistentTranslatableTest extends TestCase
     }
 
     /** @test */
-    public function isTranslatedInto_returns_true_for_primary_translation_if_set()
+    public function isTranslatedInto_returns_true_for_primary_translation_if_set(): void
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -114,7 +114,7 @@ class PersistentTranslatableTest extends TestCase
     }
 
     /** @test */
-    public function isTranslatedInto_returns_true_for_translation_if_set()
+    public function isTranslatedInto_returns_true_for_translation_if_set(): void
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -125,7 +125,7 @@ class PersistentTranslatableTest extends TestCase
     }
 
     /** @test */
-    public function isTranslatedInto_returns_false_if_primary_translation_is_empty()
+    public function isTranslatedInto_returns_false_if_primary_translation_is_empty(): void
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -137,7 +137,7 @@ class PersistentTranslatableTest extends TestCase
     }
 
     /** @test */
-    public function isTranslatedInto_returns_false_if_translation_is_not_set()
+    public function isTranslatedInto_returns_false_if_translation_is_not_set(): void
     {
         $entity = new TestEntity('foo');
         $proxy = $this->createProxy($entity);
@@ -150,7 +150,7 @@ class PersistentTranslatableTest extends TestCase
     /**
      * @return PersistentTranslatable
      */
-    private function createProxy(TestEntity $entity, ?LoggerInterface $logger = null)
+    private function createProxy(TestEntity $entity, ?LoggerInterface $logger = null): PersistentTranslatable
     {
         $localeProvider = new DefaultLocaleProvider();
         $localeProvider->setDefaultLocale('de');
@@ -174,7 +174,7 @@ class PersistentTranslatableTest extends TestCase
         );
     }
 
-    private function breakEntity(TestEntity $entity)
+    private function breakEntity(TestEntity $entity): void
     {
         $brokenCollection = $this->getMockBuilder('Doctrine\Common\Collections\ArrayCollection')->getMock();
         $brokenCollection->expects($this->any())

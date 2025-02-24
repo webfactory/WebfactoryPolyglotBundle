@@ -32,12 +32,12 @@ class TestEntityTranslation extends BaseTranslation
      * @var string
      */
     #[ORM\Column(type: 'string')]
-    protected $text;
+    protected ?string $text;
 
     /**
      * @param string|null $text
      */
-    public function __construct($locale = null, $text = null, ?TestEntity $entity = null)
+    public function __construct($locale = null, string $text = null, ?TestEntity $entity = null)
     {
         $this->locale = $locale;
         $this->text = $text;
