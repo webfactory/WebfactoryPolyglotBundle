@@ -2,6 +2,7 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\UnitOfWork;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -14,7 +15,6 @@ use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntity;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntityTranslation;
-use Doctrine\Common\Collections\ArrayCollection;
 
 class PersistentTranslatableTest extends TestCase
 {
@@ -148,9 +148,6 @@ class PersistentTranslatableTest extends TestCase
         self::assertFalse($proxy->isTranslatedInto('fr'));
     }
 
-    /**
-     * @return PersistentTranslatable
-     */
     private function createProxy(TestEntity $entity, ?LoggerInterface $logger = null): PersistentTranslatable
     {
         $localeProvider = new DefaultLocaleProvider();
