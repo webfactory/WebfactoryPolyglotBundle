@@ -145,13 +145,13 @@ final class PolyglotListener
                 $this->translatedClasses[$className] = null;
 
                 return null;
-            } else {
-                $wakeup = TranslatableClassMetadata::wakeup($data, $this->reflectionService);
-                $wakeup->setLogger($this->logger);
-                $this->translatedClasses[$className] = $wakeup;
-
-                return $wakeup;
             }
+
+            $wakeup = TranslatableClassMetadata::wakeup($data, $this->reflectionService);
+            $wakeup->setLogger($this->logger);
+            $this->translatedClasses[$className] = $wakeup;
+
+            return $wakeup;
         }
 
         // Load/parse

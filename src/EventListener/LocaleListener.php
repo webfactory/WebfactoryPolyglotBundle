@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 /**
- * This listeners sets the current locale for the TranslatableListener.
+ * This listener sets the current locale for the TranslatableListener.
  * Taken from Christophe COEVOET's Doctrine Extensions Bundle.
  *
  * @author Christophe COEVOET

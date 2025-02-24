@@ -10,6 +10,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
@@ -36,7 +37,7 @@ class TestEntity
 
     #[Polyglot\TranslationCollection]
     #[ORM\OneToMany(targetEntity: TestEntityTranslation::class, mappedBy: 'entity')] // This property is currently not typed to avoid an error in the \Webfactory\Bundle\PolyglotBundle\Tests\Doctrine\TranslatableClassMetadataTest::can_be_serialized_and_retrieved
-    private $translations;
+    private Collection $translations;
 
     public function __construct($text)
     {

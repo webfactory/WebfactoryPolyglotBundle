@@ -65,7 +65,7 @@ final class PersistentTranslatable implements TranslatableInterface
      * @param class-string          $class                 The class of the entity containing this PersistentTranslatable instance
      * @param object                $entity                The entity containing this PersistentTranslatable instance
      * @param string                $primaryLocale         The locale for which the translated value will be persisted in the "main" entity
-     * @param DefaultLocaleProvider $defaultLocaleProvider DefaultLocaleProvider that provides the locale to use when no explicit locale is passed to e. g. translate()
+     * @param DefaultLocaleProvider $defaultLocaleProvider DefaultLocaleProvider that provides the locale to use when no explicit locale is passed to e.g. translate()
      * @param ReflectionProperty    $translationProperty   ReflectionProperty pointing to the field in the translations class that holds the translated value to use
      * @param ReflectionProperty    $translationCollection ReflectionProperty pointing to the collection in the main class that holds translation instances
      * @param ReflectionClass       $translationClass      ReflectionClass for the class holding translated values

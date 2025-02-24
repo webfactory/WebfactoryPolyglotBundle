@@ -85,7 +85,7 @@ class UndeclaredBaseClassTest extends FunctionalTestBase
 
 /**
  * Fields in this class cannot be "private" - otherwise, they would not be picked up by the
- * Doctrine mapping drivers when processing the entity sub-class (UndeclaredBaseClassTest_EntityClass).
+ * Doctrine mapping drivers when processing the entity subclass (UndeclaredBaseClassTest_EntityClass).
  */
 class UndeclaredBaseClassTest_BaseClass
 {
