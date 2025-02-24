@@ -14,6 +14,7 @@ use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntity;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntityTranslation;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class PersistentTranslatableTest extends TestCase
 {
@@ -176,7 +177,7 @@ class PersistentTranslatableTest extends TestCase
 
     private function breakEntity(TestEntity $entity): void
     {
-        $brokenCollection = $this->getMockBuilder('Doctrine\Common\Collections\ArrayCollection')->getMock();
+        $brokenCollection = $this->getMockBuilder(ArrayCollection::class)->getMock();
         $brokenCollection
             ->method('matching')
             ->will($this->throwException(new RuntimeException('Cannot find translations')));
