@@ -12,7 +12,7 @@ use Webfactory\Bundle\PolyglotBundle\Translatable;
  * This test covers that also properties which are not mapped Doctrine fields
  * can be marked as translatable and will be handled by the PolyglotListener.
  *
- * This is useful when these fields are managed or updated by e. g. lifecycle callbacks
+ * This is useful when these fields are managed or updated by e.g. lifecycle callbacks
  * or other Doctrine event listeners.
  */
 class TranslatingUnmappedPropertiesTest extends FunctionalTestBase
