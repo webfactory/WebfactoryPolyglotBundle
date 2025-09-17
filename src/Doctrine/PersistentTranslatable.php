@@ -100,7 +100,7 @@ final class PersistentTranslatable implements TranslatableInterface
             $currentValue->copy($this);
 
             if (!isset($this->primaryValue) && !(new ReflectionProperty($this, 'primaryValue'))->isInitialized($this)) {
-                throw new InvalidArgumentException('An object of class '.$class.' has no value set (not even NULL) for the property "'.$this->translatedProperty->getName().'" for the primary locale "'.$primaryLocale.'" configured for this class (e.g. via `#[Polyglot\Locale(primary: "'.$primaryLocale.'")]`). Check any assignments of `new Translatable`s to the property "'.$this->translatedProperty->getName().'": If a $locale is passed, it differs from the primary locale configured the class ("'.$primaryLocale.'"). If no $locale is passed, the primary locale configured the class ("'.$primaryLocale.'") differs from the application default locale (configured via `webfactory.polyglot.default_locale`).');
+                throw new InvalidArgumentException('An object of class '.$class.' has no value set (not even NULL) for the property "'.$this->translatedProperty->getName().'" for the primary locale "'.$primaryLocale.'" configured for this class (e.g. via `#[Polyglot\Locale(primary: "'.$primaryLocale.'")]`). Check any assignments of `new Translatable`s to the property "'.$this->translatedProperty->getName().'": If a $locale is passed, it differs from the primary locale configured the class ("'.$primaryLocale.'"). If no $locale is passed, the primary locale configured the class ("'.$primaryLocale.'") differs from the application default locale (configured via `webfactory_polyglot.defaultLocale`).');
             }
         } else {
             $this->primaryValue = $currentValue;
