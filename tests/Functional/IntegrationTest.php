@@ -2,23 +2,28 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
+use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntity;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntityTranslation;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
-class IntegrationTest extends FunctionalTestBase
+class IntegrationTest extends DatabaseFunctionalTestCase
 {
+    protected DefaultLocaleProvider $defaultLocaleProvider;
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setupOrmInfrastructure([TestEntity::class, TestEntityTranslation::class]);
+        
+        self::setupSchema([TestEntity::class, TestEntityTranslation::class]);
+        $this->defaultLocaleProvider = self::getContainer()->get(DefaultLocaleProvider::class);
     }
 
     public function testPersistingEntityWithPlainStringInTranslatableField(): void
     {
         $entity = new TestEntity('text');
-        $this->infrastructure->import($entity);
+        self::import($entity);
 
         $entity = $this->fetch($entity);
         self::assertEquals('text', $entity->getText());
@@ -27,7 +32,7 @@ class IntegrationTest extends FunctionalTestBase
     public function testPersistingEntityWithTranslatableInstanceInTranslatableField(): void
     {
         $entity = new TestEntity(new Translatable('text'));
-        $this->infrastructure->import($entity);
+        self::import($entity);
 
         $entity = $this->fetch($entity);
         self::assertEquals('text', $entity->getText());
@@ -60,7 +65,7 @@ class IntegrationTest extends FunctionalTestBase
     {
         $newEntity = $this->createTestEntity();
 
-        $this->infrastructure->import($newEntity); // just import the "main" entity, which has no 'cascade="..."' configuration
+        self::import($newEntity); // just import the "main" entity, which has no 'cascade="..."' configuration
 
         $newEntity = $this->fetch($newEntity);
         self::assertEquals('text de_DE', $newEntity->getText()->translate('de_DE')); // translation is available, must have been persisted in the DB
@@ -81,7 +86,7 @@ class IntegrationTest extends FunctionalTestBase
     public function testEntityConsideredCleanWhenNoTranslationWasChanged(): void
     {
         $entity = $this->createAndFetchTestEntity();
-        $queryCount = \count($this->getQueries());
+        $queryCount = \count(self::getQueries());
 
         /*
            Nothing was changed here, so the flush() should not need to write anything
@@ -104,7 +109,7 @@ class IntegrationTest extends FunctionalTestBase
         // Effectively, this changes nothing:
         $entity->getText()->setTranslation('some change', 'en_GB');
         $entity->getText()->setTranslation('text en_GB', 'en_GB');
-        $this->infrastructure->getEntityManager()->flush();
+        $this->entityManager->flush();
 
         $queries = $this->getQueries();
         self::assertCount($queryCount, $queries);
@@ -114,7 +119,7 @@ class IntegrationTest extends FunctionalTestBase
     private function createAndFetchTestEntity(): TestEntity
     {
         $entity = $this->createTestEntity();
-        $this->infrastructure->import($entity);
+        self::import($entity);
 
         return $this->fetch($entity);
     }

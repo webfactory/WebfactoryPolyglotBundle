@@ -39,8 +39,7 @@
         "doctrine/doctrine-bundle": "^2.12",
         "phpunit/phpunit": "^10.5.58",
         "symfony/framework-bundle": "^6.4|^7.0",
-        "symfony/yaml": "^6.4|^7.0",
-        "webfactory/doctrine-orm-test-infrastructure": "^1.14"
+        "symfony/yaml": "^6.4|^7.0"
     },
 
     "config": {

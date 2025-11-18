@@ -2,25 +2,22 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
-use Webfactory\Bundle\PolyglotBundle\Translatable;
-use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TranslatableWithObjectData\TranslatableWithObjectDataTest_Entity;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TranslatableWithObjectData\TranslatableWithObjectDataTest_Object;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TranslatableWithObjectData\TranslatableWithObjectDataTest_Translation;
 
 /**
  * This tests shows that the translatable properties can even be objects.
  * Cave: Doctrine change tracking works only for changing objects to new
  * instances. It does not compare changed values of objects in "object" type columns.
  */
-class TranslatableWithObjectDataTest extends FunctionalTestBase
+class TranslatableWithObjectDataTest extends DatabaseFunctionalTestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setupOrmInfrastructure([
+        self::setupSchema([
             TranslatableWithObjectDataTest_Entity::class,
             TranslatableWithObjectDataTest_Translation::class,
         ]);
@@ -114,58 +111,5 @@ class TranslatableWithObjectDataTest extends FunctionalTestBase
         self::assertSame('updated text de_DE', $reload->data->translate('de_DE')->text);
         self::assertInstanceOf(TranslatableWithObjectDataTest_Object::class, $reload->data->translate('en_GB'));
         self::assertSame('updated text en_GB', $reload->data->translate('en_GB')->text);
-    }
-}
-
-#[Polyglot\Locale(primary: 'en_GB')]
-#[ORM\Entity]
-class TranslatableWithObjectDataTest_Entity
-{
-    #[ORM\Column(type: 'integer')]
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    public ?int $id = null;
-
-    #[Polyglot\TranslationCollection]
-    #[ORM\OneToMany(targetEntity: \TranslatableWithObjectDataTest_Translation::class, mappedBy: 'entity')]
-    public Collection $translations;
-
-    #[Polyglot\Translatable]
-    #[ORM\Column(type: 'object')]
-    public TranslatableInterface|TranslatableWithObjectDataTest_Object $data;
-
-    public function __construct()
-    {
-        $this->translations = new ArrayCollection();
-        $this->data = new Translatable();
-    }
-}
-
-#[ORM\Entity]
-class TranslatableWithObjectDataTest_Translation
-{
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
-
-    #[Polyglot\Locale]
-    #[ORM\Column]
-    private string $locale;
-
-    #[ORM\ManyToOne(targetEntity: \TranslatableWithObjectDataTest_Entity::class, inversedBy: 'translations')]
-    private TranslatableWithObjectDataTest_Entity $entity;
-
-    #[ORM\Column(type: 'object')]
-    private TranslatableWithObjectDataTest_Object $data;
-}
-
-class TranslatableWithObjectDataTest_Object
-{
-    public string $text;
-
-    public function __construct(string $text)
-    {
-        $this->text = $text;
     }
 }
