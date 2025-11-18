@@ -78,7 +78,7 @@ final class TranslatableClassMetadata
      *                            their fields.
      */
     private function __construct(
-        private readonly string $class
+        private readonly string $class,
     ) {
     }
 
