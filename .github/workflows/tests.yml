@@ -8,35 +8,34 @@ on:
 
 jobs:
     PHPUnit:
-
         runs-on: ubuntu-22.04
         strategy:
             fail-fast: false
             matrix:
                 include:
-                    - { php-version: 8.1, symfony-locked-version: none, orm-version: none, dependency-version: prefer-lowest }
-                    - { php-version: 8.1, symfony-locked-version: 6.4.*, orm-version: '^2.18', dependency-version: prefer-stable }
-                    - { php-version: 8.1, symfony-locked-version: 6.4.*, orm-version: none, dependency-version: prefer-stable }
-                    - { php-version: 8.2, symfony-locked-version: none, orm-version: '^2.18', dependency-version: prefer-stable }
-                    - { php-version: 8.3, symfony-locked-version: none, orm-version: none, dependency-version: prefer-stable }
-        name: PHPUnit (PHP ${{matrix.php-version}}, Symfony Version Lock ${{ matrix.symfony-locked-version }}, ORM Version ${{matrix.orm-version }}, ${{ matrix.dependency-version }})
+                    - { php-version: 8.1, symfony-version: '', orm-version: '', dependency-version: prefer-lowest }
+                    - { php-version: 8.3, symfony-version: 6.4.*, orm-version: '^2.20', dependency-version: '' }
+                    - { php-version: 8.3, symfony-version: 6.4.*, orm-version: '^3.0', dependency-version: '' }
+                    - { php-version: 8.4, symfony-version: 7.*, orm-version: '^2.20', dependency-version: '' }
+                    - { php-version: 8.4, symfony-version: 7.*, orm-version: '^3.0', dependency-version: '' }
+        name: PHPUnit (PHP ${{matrix.php-version}}, Symfony version constraint ${{ matrix.symfony-version || 'none' }}, Doctrine ORM version constraint ${{ matrix.orm-version || 'none' }}, ${{ matrix.dependency-version || 'prefer-stable' }})
         steps:
             -   uses: actions/checkout@v4
             -   uses: shivammathur/setup-php@v2
                 with:
                   php-version: ${{ matrix.php-version }}
                   coverage: none
-                  tools: composer:v2
+                  tools: composer:v2, flex
             -   uses: actions/cache@v4
                 with:
                     path: vendor
-                    key: composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.symfony-locked-version }}-${{ matrix.dependency-version }}-${{ hashFiles('composer.json') }}
+                    key: composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.symfony-version }}-${{ matrix.orm-version }}-${{ matrix.dependency-version }}-${{ hashFiles('composer.json') }}
                     restore-keys: |
-                        composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.symfony-locked-version }}-${{ matrix.dependency-version }}-
-            -   run: VERSION=${{ matrix.symfony-locked-version }} .github/workflows/lock-symfony-version.sh
-                if: matrix.symfony-locked-version != 'none'
-            -   run: composer require --no-update --no-interaction --no-scripts --no-progress --ansi doctrine/orm '${{ matrix.orm-version}}'
-                if: matrix.orm-version != 'none'
-            -   run: composer update --${{ matrix.dependency-version }} --no-interaction --no-scripts --no-progress --ansi
+                        composer-${{ runner.os }}-${{ matrix.php-version }}-${{ matrix.symfony-version }}-${{ matrix.orm-version }}-${{ matrix.dependency-version }}-
+            -   run: composer require --no-update doctrine/orm '${{ matrix.orm-version }}' --no-interaction --no-scripts --no-progress --ansi
+                if: matrix.orm-version != ''
+            -   run: composer update --no-interaction --no-scripts --no-progress --ansi --${{ matrix.dependency-version }}
+                env:
+                    SYMFONY_REQUIRE: ${{ matrix.symfony-version }}
             -   run: composer show
-            -   run: vendor/bin/phpunit
+            -   run: vendor/bin/phpunit --display-warnings --display-deprecations
