@@ -253,7 +253,7 @@ final class PersistentTranslatable implements TranslatableInterface
 
     private function createLocaleCriteria(string $locale): Criteria
     {
-        return Criteria::create()
+        return Criteria::create(true)
             ->where(
                 Criteria::expr()->eq($this->localeField->getName(), $locale)
             );
