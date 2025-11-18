@@ -241,7 +241,7 @@ final class PersistentTranslatable implements TranslatableInterface
      */
     private function cacheTranslation(string $locale): void
     {
-        /** @var $translationsInAllLanguages Selectable */
+        /** @var Selectable $translationsInAllLanguages */
         $translationsInAllLanguages = $this->translationCollection->getValue($this->entity);
         $criteria = $this->createLocaleCriteria($locale);
         $translationsFilteredByLocale = $translationsInAllLanguages->matching($criteria);
