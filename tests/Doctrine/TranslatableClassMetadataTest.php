@@ -2,15 +2,12 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Doctrine;
 
-use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
-use PHPUnit\Framework\TestCase;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\TranslatableClassMetadata;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntity;
-use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntityTranslation;
-use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
+use Webfactory\Bundle\PolyglotBundle\Tests\Functional\DatabaseFunctionalTestCase;
 
-class TranslatableClassMetadataTest extends TestCase
+class TranslatableClassMetadataTest extends DatabaseFunctionalTestCase
 {
     /**
      * @test
@@ -27,11 +24,7 @@ class TranslatableClassMetadataTest extends TestCase
 
     private function createMetadata(): TranslatableClassMetadata
     {
-        $infrastructure = new ORMInfrastructure([
-            TestEntity::class,
-            TestEntityTranslation::class,
-        ], mappingDriver: new AttributeDriver([], true));
-        $entityManager = $infrastructure->getEntityManager();
+        $entityManager = $this->entityManager;
 
         return TranslatableClassMetadata::parseFromClass(TestEntity::class, $entityManager->getMetadataFactory());
     }

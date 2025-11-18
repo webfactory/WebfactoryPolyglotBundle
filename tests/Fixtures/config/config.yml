@@ -2,12 +2,31 @@ framework:
     test: true
     annotations: false
 
+webfactory_polyglot:
+    defaultLocale: en_GB
+
+services:
+    # Basically a copy of the default entity manager, so that we have a dedicated instance
+    # that can be used to setup the schema and import entities, without e. g. initializing
+    # the identity map or similar in the default EM.
+    entity_manager_for_loading:
+        parent: doctrine.orm.entity_manager
+
+    Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\QueryLogger: ~
+    Doctrine\DBAL\Logging\Middleware:
+        arguments:
+            $logger: '@Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\QueryLogger'
+        tags:
+            - doctrine.middleware
 
 doctrine:
     dbal:
         driver: pdo_sqlite
         memory: true
     orm:
+        controller_resolver:
+            auto_mapping: false
+
         # The following would silence Doctrine bundle deprecation messages, but it's not straightforward
         # to do while still being compliant across a range of ORM / DoctrineBundle versions.
         #report_fields_where_declared: true

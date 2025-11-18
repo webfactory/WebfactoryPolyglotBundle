@@ -2,19 +2,16 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
-use Webfactory\Bundle\PolyglotBundle\Translatable;
-use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\StronglyTyped\StronglyTypedTranslationsTest_Entity;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\StronglyTyped\StronglyTypedTranslationsTest_Translation;
 
-class StronglyTypedTranslationsTest extends FunctionalTestBase
+class StronglyTypedTranslationsTest extends DatabaseFunctionalTestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setupOrmInfrastructure([
+
+        self::setupSchema([
             StronglyTypedTranslationsTest_Entity::class,
             StronglyTypedTranslationsTest_Translation::class,
         ]);
@@ -186,50 +183,4 @@ class StronglyTypedTranslationsTest extends FunctionalTestBase
 
         self::assertCount($count, $this->getQueries());
     }
-}
-
-#[Polyglot\Locale(primary: 'en_GB')]
-#[ORM\Entity]
-class StronglyTypedTranslationsTest_Entity
-{
-    #[ORM\Column(type: 'integer')]
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    public ?int $id = null;
-
-    #[Polyglot\TranslationCollection]
-    #[ORM\OneToMany(targetEntity: \StronglyTypedTranslationsTest_Translation::class, mappedBy: 'entity')]
-    public Collection $translations;
-
-    /**
-     * @var TranslatableInterface<string>
-     */
-    #[Polyglot\Translatable]
-    #[ORM\Column(type: 'translatable_string', options: ['use_text_column' => true])]
-    public TranslatableInterface $text;
-
-    public function __construct()
-    {
-        $this->text = new Translatable();
-        $this->translations = new ArrayCollection();
-    }
-}
-
-#[ORM\Entity]
-class StronglyTypedTranslationsTest_Translation
-{
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    public ?int $id = null;
-
-    #[Polyglot\Locale]
-    #[ORM\Column]
-    public string $locale;
-
-    #[ORM\ManyToOne(targetEntity: \StronglyTypedTranslationsTest_Entity::class, inversedBy: 'translations')]
-    public StronglyTypedTranslationsTest_Entity $entity;
-
-    #[ORM\Column]
-    public string $text;
 }
