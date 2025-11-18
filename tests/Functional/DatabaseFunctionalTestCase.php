@@ -4,9 +4,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
-use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TestEntity;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Query;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\QueryLogger;
 
@@ -34,7 +32,7 @@ abstract class DatabaseFunctionalTestCase extends KernelTestCase
 
     protected static function import(object|array $objects): void
     {
-        if (is_object($objects)) {
+        if (\is_object($objects)) {
             $objects = [$objects];
         }
         $container = static::getContainer();
@@ -43,10 +41,10 @@ abstract class DatabaseFunctionalTestCase extends KernelTestCase
         $classes = [];
         foreach ($objects as $object) {
             $entityManager->persist($object);
-            #$classes[get_class($object)] = true;
+            // $classes[get_class($object)] = true;
         }
 
-        #self::setupSchema(array_keys($classes));
+        // self::setupSchema(array_keys($classes));
         $entityManager->flush();
     }
 

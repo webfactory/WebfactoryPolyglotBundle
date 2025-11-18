@@ -15,7 +15,7 @@ class IntegrationTest extends DatabaseFunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         self::setupSchema([TestEntity::class, TestEntityTranslation::class]);
         $this->defaultLocaleProvider = self::getContainer()->get(DefaultLocaleProvider::class);
     }

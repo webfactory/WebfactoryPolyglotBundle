@@ -19,20 +19,20 @@ class Query
      *
      * @var string
      */
-    protected $sql = null;
+    protected $sql;
 
     /**
      * The assigned parameters.
      *
      * @var mixed[]
      */
-    protected $params = null;
+    protected $params;
 
     /**
      * Currently not used:
      * - types
      *
-     * @param string $sql - sql
+     * @param string  $sql    - sql
      * @param mixed[] $params - params
      */
     public function __construct($sql, array $params)
@@ -69,6 +69,7 @@ class Query
     public function __toString()
     {
         $template = '"%s" with parameters [%s]';
-        return sprintf($template, $this->getSql(), implode(', ', $this->getParams()));
+
+        return \sprintf($template, $this->getSql(), implode(', ', $this->getParams()));
     }
 }

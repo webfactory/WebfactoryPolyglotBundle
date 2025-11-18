@@ -25,8 +25,8 @@ class CascadePersistTranslationsTest extends DatabaseFunctionalTestCase
         $entity->addTranslation('de_DE', 'text de_DE');
 
         self::import([$entity]);
-//        $this->entityManager->persist($entity);
-//        $this->entityManager->flush();
+        //        $this->entityManager->persist($entity);
+        //        $this->entityManager->flush();
 
         // note the absent call to $this->entityManager->persist() for the translation entity
 
