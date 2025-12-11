@@ -23,7 +23,7 @@ class TranslatableWithObjectDataTest_Entity
     public Collection $translations;
 
     #[Polyglot\Translatable]
-    #[ORM\Column(type: 'object')]
+    #[ORM\Column(type: 'my_object')]
     public TranslatableInterface|TranslatableWithObjectDataTest_Object $data;
 
     public function __construct()

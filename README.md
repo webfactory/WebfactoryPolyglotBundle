@@ -277,6 +277,5 @@ class represents the values of a single locale only and never contains `Translat
 This Bundle was written by webfactory GmbH, Bonn, Germany. We're a software development agency with a focus on PHP (mostly [Symfony](http://github.com/symfony/symfony)). If you're a developer looking for new challenges, we'd like to hear from you!
 
 - <https://www.webfactory.de>
-- <https://twitter.com/webfactory>
 
-Copyright 2012-2024 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
+Copyright 2012-2025 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).

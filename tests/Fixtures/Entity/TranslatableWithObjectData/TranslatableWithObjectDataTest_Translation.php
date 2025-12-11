@@ -20,6 +20,6 @@ class TranslatableWithObjectDataTest_Translation
     #[ORM\ManyToOne(inversedBy: 'translations')]
     private TranslatableWithObjectDataTest_Entity $entity;
 
-    #[ORM\Column(type: 'object')]
+    #[ORM\Column(type: 'my_object')]
     private TranslatableWithObjectDataTest_Object $data;
 }
