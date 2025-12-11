@@ -3,8 +3,6 @@
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\TypeRegistry;
-use Doctrine\DBAL\Types\Types;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TranslatableWithObjectData\ObjectType;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TranslatableWithObjectData\TranslatableWithObjectDataTest_Entity;
