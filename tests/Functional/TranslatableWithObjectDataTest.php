@@ -2,7 +2,11 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
+use Doctrine\DBAL\Types\Types;
 use Webfactory\Bundle\PolyglotBundle\Doctrine\PersistentTranslatable;
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TranslatableWithObjectData\ObjectType;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TranslatableWithObjectData\TranslatableWithObjectDataTest_Entity;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TranslatableWithObjectData\TranslatableWithObjectDataTest_Object;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\TranslatableWithObjectData\TranslatableWithObjectDataTest_Translation;
@@ -17,6 +21,11 @@ class TranslatableWithObjectDataTest extends DatabaseFunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $typeRegistry = Type::getTypeRegistry();
+        if (!$typeRegistry->has(ObjectType::TYPE)) {
+            $typeRegistry->register(ObjectType::TYPE, new ObjectType());
+        }
+
         self::setupSchema([
             TranslatableWithObjectDataTest_Entity::class,
             TranslatableWithObjectDataTest_Translation::class,
