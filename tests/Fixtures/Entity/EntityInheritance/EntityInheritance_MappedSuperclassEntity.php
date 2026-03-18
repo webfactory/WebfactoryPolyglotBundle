@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 /**
  * An entity extending a mapped superclass, adding Polyglot support. The full Polyglot
@@ -24,5 +25,10 @@ class EntityInheritance_MappedSuperclassEntity extends EntityInheritance_MappedS
     public function __construct()
     {
         $this->translations = new ArrayCollection();
+    }
+
+    public function setText(TranslatableInterface $text): void
+    {
+        $this->text = $text;
     }
 }

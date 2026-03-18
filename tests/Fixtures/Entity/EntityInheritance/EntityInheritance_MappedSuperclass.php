@@ -26,11 +26,6 @@ abstract class EntityInheritance_MappedSuperclass
         return $this->id;
     }
 
-    public function setText(TranslatableInterface $text): void
-    {
-        $this->text = $text;
-    }
-
     public function getText(): TranslatableInterface|string|null
     {
         return $this->text;
