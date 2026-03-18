@@ -2,6 +2,7 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
+use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\EntityInheritance\EntityInheritance_MappedSuperclass;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\EntityInheritance\EntityInheritance_MappedSuperclassEntity;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\EntityInheritance\EntityInheritance_MappedSuperclassEntityTranslation;
 use Webfactory\Bundle\PolyglotBundle\Translatable;
@@ -19,6 +20,7 @@ class MappedSuperclassInheritanceTest extends DatabaseFunctionalTestCase
         parent::setUp();
 
         self::setupSchema([
+            EntityInheritance_MappedSuperclass::class,
             EntityInheritance_MappedSuperclassEntity::class,
             EntityInheritance_MappedSuperclassEntityTranslation::class,
         ]);
