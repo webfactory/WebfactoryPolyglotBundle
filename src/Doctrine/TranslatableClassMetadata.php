@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionProperty;
@@ -211,7 +212,7 @@ final class TranslatableClassMetadata
             $propertyName = $attribute->getPropertyName();
 
             if (!$reflectionClass->hasProperty($propertyName)) {
-                throw new \InvalidArgumentException(sprintf('Property "%s" not found in class "%s" (declared via #[TranslatedProperty]).', $propertyName, $cm->name));
+                throw new InvalidArgumentException(\sprintf('Property "%s" not found in class "%s" (declared via #[TranslatedProperty]).', $propertyName, $cm->name));
             }
 
             if ($this->isDeclaredByParentEntity($reflectionClass->getProperty($propertyName), $cm)) {
@@ -268,7 +269,7 @@ final class TranslatableClassMetadata
         Returns true if the property is declared in a parent class that is already covered
         by our parent entity's metadata, so we need not include it again.
     */
-    private function isDeclaredByParentEntity(\ReflectionProperty $property, ClassMetadata $cm): bool
+    private function isDeclaredByParentEntity(ReflectionProperty $property, ClassMetadata $cm): bool
     {
         $declaringClass = $property->getDeclaringClass()->name;
 
