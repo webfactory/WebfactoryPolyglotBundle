@@ -171,7 +171,7 @@ final class TranslatableClassMetadata
         }
 
         if (0 === \count($this->translatedProperties)) {
-            throw new RuntimeException('No translatable properties attributed with #[Polyglot\Translatable] were found');
+            throw new RuntimeException('No translatable properties attributed with #[Polyglot\Translatable] (at the property level) or #[Polyglot\TranslatedProperty] (at the class level) were found');
         }
 
         if (null === $this->primaryLocale) {
@@ -187,30 +187,44 @@ final class TranslatableClassMetadata
 
         $reflectionService = $classMetadataFactory->getReflectionService();
         $translationClassMetadata = $classMetadataFactory->getMetadataFor($this->translationClass->getName());
+        $reflectionClass = $cm->getReflectionClass();
 
-        /* Iterate all properties of the class, not only those mapped by Doctrine */
-        foreach ($cm->getReflectionClass()->getProperties() as $reflectionProperty) {
-            $propertyName = $reflectionProperty->name;
+        /*
+            Collect all (propertyName => translationFieldname) candidates from both sources.
+            Using propertyName as key ensures deduplication when both sources declare the same property.
+        */
+        $candidates = []; // propertyName => translationFieldname|null
 
-            /*
-                If the property is inherited from a parent class, and our parent entity class
-                already contains that declaration, we need not include it.
-            */
-            $declaringClass = $reflectionProperty->getDeclaringClass()->name;
-            if ($declaringClass !== $cm->name && $cm->parentClasses && is_a($cm->parentClasses[0], $declaringClass, true)) {
-                continue;
-            }
-
+        /* Property-level #[Translatable] attributes */
+        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
             $attributes = $reflectionProperty->getAttributes(Attribute\Translatable::class);
-
-            if (!$attributes) {
+            if (!$attributes || $this->isDeclaredByParentEntity($reflectionProperty, $cm)) {
                 continue;
             }
 
-            $attribute = $attributes[0]->newInstance();
+            $candidates[$reflectionProperty->name] = $attributes[0]->newInstance()->getTranslationFieldname();
+        }
+
+        /* Class-level #[TranslatedProperty] attributes */
+        foreach ($reflectionClass->getAttributes(Attribute\TranslatedProperty::class) as $classAttribute) {
+            $attribute = $classAttribute->newInstance();
+            $propertyName = $attribute->getPropertyName();
+
+            if (!$reflectionClass->hasProperty($propertyName)) {
+                throw new \InvalidArgumentException(sprintf('Property "%s" not found in class "%s" (declared via #[TranslatedProperty]).', $propertyName, $cm->name));
+            }
+
+            if ($this->isDeclaredByParentEntity($reflectionClass->getProperty($propertyName), $cm)) {
+                continue;
+            }
+
+            $candidates[$propertyName] = $attribute->getTranslationFieldname();
+        }
+
+        /* Register all collected candidates */
+        foreach ($candidates as $propertyName => $translationFieldname) {
             $this->translatedProperties[$propertyName] = $reflectionService->getAccessibleProperty($cm->name, $propertyName);
-            $translationFieldname = $attribute->getTranslationFieldname() ?: $propertyName;
-            $this->translationFieldMapping[$propertyName] = $reflectionService->getAccessibleProperty($translationClassMetadata->name, $translationFieldname);
+            $this->translationFieldMapping[$propertyName] = $reflectionService->getAccessibleProperty($translationClassMetadata->name, $translationFieldname ?: $propertyName);
         }
     }
 
@@ -248,6 +262,17 @@ final class TranslatableClassMetadata
                 return;
             }
         }
+    }
+
+    /*
+        Returns true if the property is declared in a parent class that is already covered
+        by our parent entity's metadata, so we need not include it again.
+    */
+    private function isDeclaredByParentEntity(\ReflectionProperty $property, ClassMetadata $cm): bool
+    {
+        $declaringClass = $property->getDeclaringClass()->name;
+
+        return $declaringClass !== $cm->name && $cm->parentClasses && is_a($cm->parentClasses[0], $declaringClass, true);
     }
 
     private function parseTranslationsEntity(ClassMetadata $cm): void
