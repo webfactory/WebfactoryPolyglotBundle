@@ -117,8 +117,7 @@ final class PolyglotListener
             $this->translatableClassMetadatasByClass[$class] = [];
             $classMetadata = $em->getClassMetadata($class);
 
-            $candidates = array_merge([$classMetadata->name], $classMetadata->parentClasses);
-            foreach ($candidates as $className) {
+            foreach (array_merge([$classMetadata->name], $classMetadata->parentClasses) as $className) {
                 if ($tm = $this->loadTranslationMetadataForClass($className, $em)) {
                     $this->translatableClassMetadatasByClass[$class][] = $tm;
                 }
