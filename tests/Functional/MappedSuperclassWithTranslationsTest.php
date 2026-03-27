@@ -2,7 +2,6 @@
 
 namespace Webfactory\Bundle\PolyglotBundle\Tests\Functional;
 
-use Doctrine\ORM\Tools\ResolveTargetEntity;
 use Doctrine\ORM\Tools\ResolveTargetEntityListener;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\EntityInheritance\EntityInheritance_MappedSuperclassTranslation;
 use Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\Entity\EntityInheritance\EntityInheritance_MappedSuperclassWithTranslations;
