@@ -232,8 +232,10 @@ final class TranslatableClassMetadata
     private function findTranslationsCollection(ClassMetadata $cm, ClassMetadataFactory $classMetadataFactory): void
     {
         foreach ($cm->associationMappings as $fieldName => $mapping) {
-            if (isset($mapping['declared'])) {
-                // The association is inherited from a parent class
+            if (isset($mapping['inherited'])) {
+                // "inherited" means that there is another (inheritance parent) entity class containing this
+                // field (https://github.com/doctrine/orm/blob/580a95ce3f5f016547d15ecc6cc94dd85453bed5/src/Mapping/AssociationMapping.php#L34-L46).
+                // Since PolyglotListener::getTranslationMetadatas() loops over these parent classes as well, we can skip the field here.
                 continue;
             }
 
