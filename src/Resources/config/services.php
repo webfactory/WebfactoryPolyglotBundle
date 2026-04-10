@@ -15,6 +15,7 @@ return static function (ContainerConfigurator $container) {
         ->tag('doctrine.event_listener', ['priority' => -100, 'event' => 'prePersist'])
         ->tag('doctrine.event_listener', ['priority' => -100, 'event' => 'preFlush'])
         ->tag('doctrine.event_listener', ['priority' => -100, 'event' => 'postLoad'])
+        ->tag('doctrine.event_listener', ['priority' => -100, 'event' => 'onClear'])
         ->tag('monolog.logger', ['channel' => 'webfactory_polyglot_bundle']);
 
     $services->set(\Webfactory\Bundle\PolyglotBundle\EventListener\LocaleListener::class);
