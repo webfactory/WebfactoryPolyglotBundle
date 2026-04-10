@@ -17,6 +17,7 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use WeakMap;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 final class PolyglotListener
@@ -39,9 +40,9 @@ final class PolyglotListener
     private array $translatedClasses = [];
 
     /**
-     * @var \WeakMap<object, true>
+     * @var WeakMap<object, true>
      */
-    private \WeakMap $entitiesWithTranslatables;
+    private WeakMap $entitiesWithTranslatables;
 
     /**
      * @var list<PersistentTranslatable>
@@ -53,12 +54,12 @@ final class PolyglotListener
         private readonly LoggerInterface $logger = null ?? new NullLogger(),
         private readonly RuntimeReflectionService $reflectionService = new RuntimeReflectionService(),
     ) {
-        $this->entitiesWithTranslatables = new \WeakMap();
+        $this->entitiesWithTranslatables = new WeakMap();
     }
 
     public function onClear(OnClearEventArgs $args): void
     {
-        $this->entitiesWithTranslatables = new \WeakMap();
+        $this->entitiesWithTranslatables = new WeakMap();
     }
 
     public function postLoad(LifecycleEventArgs $event): void
