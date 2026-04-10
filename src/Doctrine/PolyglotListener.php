@@ -10,13 +10,13 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Event\OnClearEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use WeakReference;
 use Webfactory\Bundle\PolyglotBundle\Locale\DefaultLocaleProvider;
 
 final class PolyglotListener
@@ -39,9 +39,9 @@ final class PolyglotListener
     private array $translatedClasses = [];
 
     /**
-     * @var array<WeakReference>
+     * @var \WeakMap<object, true>
      */
-    private array $entitiesWithTranslatables = [];
+    private \WeakMap $entitiesWithTranslatables;
 
     /**
      * @var list<PersistentTranslatable>
@@ -53,6 +53,12 @@ final class PolyglotListener
         private readonly LoggerInterface $logger = null ?? new NullLogger(),
         private readonly RuntimeReflectionService $reflectionService = new RuntimeReflectionService(),
     ) {
+        $this->entitiesWithTranslatables = new \WeakMap();
+    }
+
+    public function onClear(OnClearEventArgs $args): void
+    {
+        $this->entitiesWithTranslatables = new \WeakMap();
     }
 
     public function postLoad(LifecycleEventArgs $event): void
@@ -69,6 +75,10 @@ final class PolyglotListener
 
     private function injectPersistentTranslatables(EntityManager $entityManager, object $object): void
     {
+        if (isset($this->entitiesWithTranslatables[$object])) {
+            return;
+        }
+
         $hasTranslatables = false;
 
         foreach ($this->getTranslationMetadatas($object, $entityManager) as $tm) {
@@ -77,7 +87,7 @@ final class PolyglotListener
         }
 
         if ($hasTranslatables) {
-            $this->entitiesWithTranslatables[] = WeakReference::create($object);
+            $this->entitiesWithTranslatables[$object] = true;
         }
     }
 
@@ -85,13 +95,7 @@ final class PolyglotListener
     {
         $em = $event->getObjectManager();
 
-        foreach ($this->entitiesWithTranslatables as $key => $weakRef) {
-            $object = $weakRef->get();
-            if (null === $object) {
-                unset($this->entitiesWithTranslatables[$key]);
-                continue;
-            }
-
+        foreach ($this->entitiesWithTranslatables as $object => $ignored) {
             foreach ($this->getTranslationMetadatas($object, $em) as $tm) {
                 $this->ejectedTranslatables = array_merge($this->ejectedTranslatables, $tm->ejectPersistentTranslatables($object));
             }
