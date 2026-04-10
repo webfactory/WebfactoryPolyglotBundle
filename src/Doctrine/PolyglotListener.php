@@ -76,10 +76,6 @@ final class PolyglotListener
 
     private function injectPersistentTranslatables(EntityManager $entityManager, object $object): void
     {
-        if (isset($this->entitiesWithTranslatables[$object])) {
-            return;
-        }
-
         $hasTranslatables = false;
 
         foreach ($this->getTranslationMetadatas($object, $entityManager) as $tm) {
