@@ -109,17 +109,30 @@ This will lead you to something like the following, with some code skipped for b
 
 namespace App\Entity;
 
+use App\Repository\DocumentRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
+use Webfactory\Bundle\PolyglotBundle\Translatable;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 #[Polyglot\Locale(primary: "en_GB")]
+#[ORM\Entity(repositoryClass: DocumentRepository::class)]
 class Document
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
     #[Polyglot\TranslationCollection]
-    #[ORM\OneToMany(targetEntity: \DocumentTranslation::class, mappedBy: 'entity')]
+    #[ORM\OneToMany(targetEntity: DocumentTranslation::class, mappedBy: 'document')]
     private Collection $translations;
 
     /**
@@ -129,17 +142,18 @@ class Document
     #[ORM\Column(type: 'translatable_string')]
     private TranslatableInterface $text;
 
-    public function __construct(...)
+    public function __construct(string $text)
     {
-        // ...
+        $this->text = new Translatable($text, 'en_GB');
         $this->translations = new ArrayCollection();
     }
 
-    public function getText(): string
+    public function getText(): TranslatableInterface
     {
-        return $this->text->translate();
+        return $this->text;
     }
 }
+
 ```
 
 ### Step 2) Create the Translation Entity
@@ -158,14 +172,14 @@ Your code should look similar to this:
 <?php
 
 namespace App\Entity;
-    
+
 use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Bundle\PolyglotBundle\Entity\BaseTranslation;
 use Webfactory\Bundle\PolyglotBundle\Attribute as Polyglot;
 use Webfactory\Bundle\PolyglotBundle\TranslatableInterface;
 
 #[ORM\Table]
-#[ORM\UniqueConstraint(columns: ['entity_id', 'locale'])]
+#[ORM\UniqueConstraint(columns: ['document_id', 'locale'])]
 #[ORM\Entity]
 class DocumentTranslation
 {
@@ -179,7 +193,7 @@ class DocumentTranslation
     private string $locale;
 
     #[ORM\ManyToOne(targetEntity: Document::class, inversedBy: 'translations')]
-    private Document $entity;
+    private Document $document;
 
     public function getLocale(): string
     {
@@ -189,6 +203,7 @@ class DocumentTranslation
     #[ORM\Column]
     private string $text;
 }
+
 ```
 
 ### Step 3) Update your database schema
