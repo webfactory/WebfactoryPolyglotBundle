@@ -219,7 +219,7 @@ final class TranslatableClassMetadata
                 continue;
             }
 
-            $candidates[$propertyName] = $attribute->getTranslationFieldname();
+            $candidates[$propertyName] ??= $attribute->getTranslationFieldname();
         }
 
         /* Register all collected candidates */
@@ -270,14 +270,10 @@ final class TranslatableClassMetadata
 
     private function findPrimaryLocale(ClassMetadata $cm): void
     {
-        foreach (array_merge([$cm->name], $cm->parentClasses) as $class) {
-            $reflectionClass = new ReflectionClass($class);
+        $attributes = self::getAttributesIncludingParents($cm->getReflectionClass(), Attribute\Locale::class);
 
-            foreach ($reflectionClass->getAttributes(Attribute\Locale::class) as $attribute) {
-                $this->primaryLocale = $attribute->newInstance()->getPrimary();
-
-                return;
-            }
+        if ($attributes) {
+            $this->primaryLocale = $attributes[0]->newInstance()->getPrimary();
         }
     }
 
