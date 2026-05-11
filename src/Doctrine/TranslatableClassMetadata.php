@@ -229,7 +229,8 @@ final class TranslatableClassMetadata
         }
     }
 
-    private static function getAttributesIncludingParents(ReflectionClass $rc, ?string $attributeName = null, int $flags = 0): array {
+    private static function getAttributesIncludingParents(ReflectionClass $rc, ?string $attributeName = null, int $flags = 0): array
+    {
         $attributes = [];
 
         do {
