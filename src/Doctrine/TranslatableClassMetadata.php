@@ -207,7 +207,7 @@ final class TranslatableClassMetadata
         }
 
         /* Class-level #[TranslatedProperty] attributes */
-        foreach ($reflectionClass->getAttributes(Attribute\TranslatedProperty::class) as $classAttribute) {
+        foreach (self::getAttributesIncludingParents($reflectionClass, Attribute\TranslatedProperty::class) as $classAttribute) {
             $attribute = $classAttribute->newInstance();
             $propertyName = $attribute->getPropertyName();
 
@@ -227,6 +227,19 @@ final class TranslatableClassMetadata
             $this->translatedProperties[$propertyName] = $reflectionService->getAccessibleProperty($cm->name, $propertyName);
             $this->translationFieldMapping[$propertyName] = $reflectionService->getAccessibleProperty($translationClassMetadata->name, $translationFieldname ?: $propertyName);
         }
+    }
+
+    private static function getAttributesIncludingParents(ReflectionClass $rc, ?string $attributeName = null, int $flags = 0): array {
+        $attributes = [];
+
+        do {
+            $attributes = array_merge(
+                $attributes,
+                $rc->getAttributes($attributeName, $flags)
+            );
+        } while ($rc = $rc->getParentClass());
+
+        return $attributes;
     }
 
     private function findTranslationsCollection(ClassMetadata $cm, ClassMetadataFactory $classMetadataFactory): void
