@@ -207,7 +207,7 @@ final class TranslatableClassMetadata
         }
 
         /* Class-level #[TranslatedProperty] attributes */
-        foreach ($reflectionClass->getAttributes(Attribute\TranslatedProperty::class) as $classAttribute) {
+        foreach (self::getAttributesIncludingParents($reflectionClass, Attribute\TranslatedProperty::class) as $classAttribute) {
             $attribute = $classAttribute->newInstance();
             $propertyName = $attribute->getPropertyName();
 
@@ -219,7 +219,7 @@ final class TranslatableClassMetadata
                 continue;
             }
 
-            $candidates[$propertyName] = $attribute->getTranslationFieldname();
+            $candidates[$propertyName] ??= $attribute->getTranslationFieldname();
         }
 
         /* Register all collected candidates */
@@ -227,6 +227,20 @@ final class TranslatableClassMetadata
             $this->translatedProperties[$propertyName] = $reflectionService->getAccessibleProperty($cm->name, $propertyName);
             $this->translationFieldMapping[$propertyName] = $reflectionService->getAccessibleProperty($translationClassMetadata->name, $translationFieldname ?: $propertyName);
         }
+    }
+
+    private static function getAttributesIncludingParents(ReflectionClass $rc, ?string $attributeName = null, int $flags = 0): array
+    {
+        $attributes = [];
+
+        do {
+            $attributes = array_merge(
+                $attributes,
+                $rc->getAttributes($attributeName, $flags)
+            );
+        } while ($rc = $rc->getParentClass());
+
+        return $attributes;
     }
 
     private function findTranslationsCollection(ClassMetadata $cm, ClassMetadataFactory $classMetadataFactory): void
@@ -256,14 +270,10 @@ final class TranslatableClassMetadata
 
     private function findPrimaryLocale(ClassMetadata $cm): void
     {
-        foreach (array_merge([$cm->name], $cm->parentClasses) as $class) {
-            $reflectionClass = new ReflectionClass($class);
+        $attributes = self::getAttributesIncludingParents($cm->getReflectionClass(), Attribute\Locale::class);
 
-            foreach ($reflectionClass->getAttributes(Attribute\Locale::class) as $attribute) {
-                $this->primaryLocale = $attribute->newInstance()->getPrimary();
-
-                return;
-            }
+        if ($attributes) {
+            $this->primaryLocale = $attributes[0]->newInstance()->getPrimary();
         }
     }
 
