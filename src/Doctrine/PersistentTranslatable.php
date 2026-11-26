@@ -10,6 +10,7 @@
 namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\ReadableCollection;
 use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\UnitOfWork;
 use Exception;
@@ -253,10 +254,16 @@ final class PersistentTranslatable implements TranslatableInterface
 
     private function createLocaleCriteria(string $locale): Criteria
     {
-        return Criteria::create(true)
-            ->where(
-                Criteria::expr()->eq($this->localeField->getName(), $locale)
-            );
+        // doctrine/collections >= 3.0 always uses raw field access and made the opt-in parameter a
+        // deprecated no-op; older versions still need it passed explicitly to avoid their own
+        // deprecation warning about not opting in.
+        $criteria = \in_array(Selectable::class, class_implements(ReadableCollection::class), true)
+            ? Criteria::create()
+            : Criteria::create(true);
+
+        return $criteria->where(
+            Criteria::expr()->eq($this->localeField->getName(), $locale)
+        );
     }
 
     private function getCachedTranslation(string $locale): ?object
