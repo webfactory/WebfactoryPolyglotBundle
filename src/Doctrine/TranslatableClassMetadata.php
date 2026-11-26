@@ -12,6 +12,7 @@ namespace Webfactory\Bundle\PolyglotBundle\Doctrine;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
+use Doctrine\Persistence\Mapping\ReflectionService;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -229,6 +230,19 @@ final class TranslatableClassMetadata
         }
     }
 
+    /**
+     * Doctrine ORM 2 represents field/association mappings as plain arrays, while ORM 3 uses
+     * FieldMapping/AssociationMapping objects (which still support array access for BC, but that
+     * is deprecated for FieldMapping). The "declared" entry holds the class that originally
+     * declared the field, e.g. a mapped superclass, which can differ from the entity class.
+     */
+    private static function getDeclaringClassName(array|object $mapping, string $fallbackClassName): string
+    {
+        $declaringClass = \is_array($mapping) ? ($mapping['declared'] ?? null) : $mapping->declared;
+
+        return $declaringClass ?? $fallbackClassName;
+    }
+
     private static function getAttributesIncludingParents(ReflectionClass $rc, ?string $attributeName = null, int $flags = 0): array
     {
         $attributes = [];
@@ -245,6 +259,8 @@ final class TranslatableClassMetadata
 
     private function findTranslationsCollection(ClassMetadata $cm, ClassMetadataFactory $classMetadataFactory): void
     {
+        $reflectionService = $classMetadataFactory->getReflectionService();
+
         foreach ($cm->associationMappings as $fieldName => $mapping) {
             if (isset($mapping['inherited'])) {
                 // "inherited" means that there is another (inheritance parent) entity class containing this
@@ -253,15 +269,16 @@ final class TranslatableClassMetadata
                 continue;
             }
 
-            $reflectionProperty = $cm->getReflectionProperty($fieldName);
+            $reflectionProperty = $reflectionService->getAccessibleProperty(self::getDeclaringClassName($mapping, $cm->name), $fieldName);
 
             if ($reflectionProperty->getAttributes(Attribute\TranslationCollection::class)) {
                 $this->translationsCollectionProperty = $reflectionProperty;
 
                 $translationEntityMetadata = $classMetadataFactory->getMetadataFor($mapping['targetEntity']);
+                $mappedByMapping = $translationEntityMetadata->associationMappings[$mapping['mappedBy']];
                 $this->translationClass = $translationEntityMetadata->getReflectionClass();
-                $this->translationMappingProperty = $translationEntityMetadata->getReflectionProperty($mapping['mappedBy']);
-                $this->parseTranslationsEntity($translationEntityMetadata);
+                $this->translationMappingProperty = $reflectionService->getAccessibleProperty(self::getDeclaringClassName($mappedByMapping, $translationEntityMetadata->name), $mapping['mappedBy']);
+                $this->parseTranslationsEntity($translationEntityMetadata, $reflectionService);
 
                 return;
             }
@@ -288,10 +305,10 @@ final class TranslatableClassMetadata
         return $declaringClass !== $cm->name && $cm->parentClasses && is_a($cm->parentClasses[0], $declaringClass, true);
     }
 
-    private function parseTranslationsEntity(ClassMetadata $cm): void
+    private function parseTranslationsEntity(ClassMetadata $cm, ReflectionService $reflectionService): void
     {
         foreach ($cm->fieldMappings as $fieldName => $mapping) {
-            $reflectionProperty = $cm->getReflectionProperty($fieldName);
+            $reflectionProperty = $reflectionService->getAccessibleProperty(self::getDeclaringClassName($mapping, $cm->name), $fieldName);
 
             if ($reflectionProperty->getAttributes(Attribute\Locale::class)) {
                 $this->translationLocaleProperty = $reflectionProperty;
