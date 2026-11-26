@@ -230,14 +230,10 @@ final class TranslatableClassMetadata
         }
     }
 
-    /**
-     * Doctrine ORM 2 represents field/association mappings as plain arrays, while ORM 3 uses
-     * FieldMapping/AssociationMapping objects (which still support array access for BC, but that
-     * is deprecated for FieldMapping). The "declared" entry holds the class that originally
-     * declared the field, e.g. a mapped superclass, which can differ from the entity class.
-     */
     private static function getDeclaringClassName(array|object $mapping, string $fallbackClassName): string
     {
+        // The "declared" entry holds the class that originally declared the field,
+        // e.g. a mapped superclass, which can differ from the entity class.
         $declaringClass = \is_array($mapping) ? ($mapping['declared'] ?? null) : $mapping->declared;
 
         return $declaringClass ?? $fallbackClassName;
